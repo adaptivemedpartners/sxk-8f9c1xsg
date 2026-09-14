@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PARALLEL SOFT · AMP</title>
+<style>
+  :root {
+    --bg: #070b12;
+    --panel: #111827;
+    --text: #e5eef8;
+    --muted: #94a3b8;
+    --accent: #22d3ee;
+    --warn: #fbbf24;
+    --line: rgba(148,163,184,.25);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 0%, rgba(34,211,238,.12), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 90% 10%, rgba(251,191,36,.08), transparent 50%),
+      linear-gradient(180deg, #070b12, #0b1220 55%, #070b12);
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 48px 20px 64px; }
+  .banner {
+    display: inline-block; padding: 10px 16px; border-radius: 999px;
+    background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.45);
+    color: var(--warn); font-weight: 800; letter-spacing: .06em; font-size: 13px;
+  }
+  h1 { font-size: clamp(2rem, 5vw, 3rem); margin: 18px 0 8px; letter-spacing: -0.03em; }
+  .lede { color: var(--muted); font-size: 1.05rem; line-height: 1.5; max-width: 62ch; }
+  .doors { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 32px; }
+  a.door {
+    display: block; text-decoration: none; color: inherit;
+    background: linear-gradient(180deg, rgba(17,24,39,.95), rgba(15,23,42,.92));
+    border: 1px solid var(--line); border-radius: 18px; padding: 22px 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.35);
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  a.door:hover { border-color: rgba(34,211,238,.55); transform: translateY(-2px); }
+  a.door strong { display: block; font-size: 1.25rem; margin-bottom: 6px; color: var(--accent); }
+  a.door span { color: var(--muted); font-size: .95rem; line-height: 1.4; }
+  .note {
+    margin-top: 28px; padding: 16px 18px; border-radius: 14px;
+    background: rgba(148,163,184,.06); border: 1px solid var(--line);
+    color: var(--muted); font-size: .95rem; line-height: 1.5;
+  }
+  code { color: #cffafe; }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="banner">PARALLEL SOFT</div>
+    <h1>Soft Mess + Soft BD Hub</h1>
+    <p class="lede">
+      Parallel accounting / exec sandbox. Separate soft storage prefixes.
+      Not live mango-island Hub. Sign in as yourself (Mike / David / Carri / Randy).
+    </p>
+    <div class="doors">
+      <a class="door" href="mess.html">
+        <strong>Soft Mess</strong>
+        <span>Parallel Team Hub / Mess · prefix <code>amp_soft_mess_</code></span>
+      </a>
+      <a class="door" href="bd.html">
+        <strong>Soft BD Hub</strong>
+        <span>Parallel BD Hub · prefix <code>amp_soft_bdhub_</code></span>
+      </a>
+    </div>
+    <div class="note">
+      <strong style="color:var(--text)">Recruiters stay on live Hub</strong>
+      (<code>hub.adaptivemedicalpartners.com</code>). This obscure Pages URL is for AMP exec Soft only.
+      Do not overwrite live <code>AMP-Team-Hub.html</code> / <code>AMP-BD-Hub.html</code>.
+    </div>
+  </main>
+</body>
+</html>
