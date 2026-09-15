@@ -12573,6 +12573,49 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   #view-spine table.spine-table tr.selected td {
     background: #E6F7F6;
   }
+
+  /* soft-gm-paid-fix-20260915e — Spine selected contrast: light cyan bg → dark text (A cards + B rows). Soft only. */
+  #view-spine .spine-client-card.selected,
+  #view-spine .spine-client-card.selected .spine-client-name,
+  #view-spine .spine-client-card.selected .spine-client-count,
+  #view-spine .spine-client-card.selected .sp-search-num,
+  #view-spine .spine-client-card.selected .sp-search-agree,
+  #view-spine .spine-client-card.selected .sp-search-inet,
+  #view-spine .spine-client-card.selected .sp-search-refs,
+  #view-spine .spine-client-card.selected .sp-search-meta {
+    color: #0f172a !important;
+  }
+  #view-spine .spine-client-card.selected .spine-client-count,
+  #view-spine .spine-client-card.selected .sp-search-refs,
+  #view-spine .spine-client-card.selected .sp-search-meta {
+    color: #334155 !important;
+  }
+  #view-spine .spine-client-search.selected,
+  #view-spine .spine-client-search.selected .sp-search-num,
+  #view-spine .spine-client-search.selected .sp-search-agree,
+  #view-spine .spine-client-search.selected .sp-search-inet,
+  #view-spine .spine-client-search.selected .sp-search-refs,
+  #view-spine .spine-client-search.selected .sp-search-meta {
+    color: #0f172a !important;
+  }
+  #view-spine .spine-client-search.selected .sp-search-refs,
+  #view-spine .spine-client-search.selected .sp-search-meta {
+    color: #334155 !important;
+  }
+  #view-spine table.spine-table tr.selected td,
+  #view-spine table.spine-table tr.selected td strong,
+  #view-spine table.spine-table tr.selected td div {
+    color: #0f172a !important;
+  }
+  #view-spine table.spine-table tr.selected td div {
+    color: #334155 !important;
+  }
+  html[data-look="dark"] #view-spine .spine-client-card.selected,
+  html[data-look="dark"] #view-spine .spine-client-search.selected,
+  html[data-look="dark"] #view-spine table.spine-table tr.selected td {
+    background: #E6F7F6 !important;
+  }
+
   #view-spine .badge.booked { background: #F3E8FF; color: #6B21A8; }
   #view-spine .spine-status-chip {
     display: inline-block;
@@ -51351,6 +51394,20 @@ function mktSendAmplified(searchKey) {
               <label class="list-find-label" for="spine-inv-find">Find</label>
               <input type="text" id="spine-inv-find" class="list-find-input" placeholder="QB invoice # · client · search #" autocomplete="off" />
               <button type="button" class="mini-btn" id="spine-inv-find-clear">Clear</button>
+              <label class="list-find-label" for="spine-inv-status-filter" style="margin-left:10px">Status</label>
+              <select id="spine-inv-status-filter" class="list-find-input" style="width:auto;min-width:9rem;padding:4px 8px" title="Filter invoices by Paid/Unpaid status">
+                <option value="all">All statuses</option>
+                <option value="unpaid">Unpaid (Invoiced)</option>
+                <option value="paid">Paid</option>
+                <option value="booked">Booked</option>
+              </select>
+              <label class="list-find-label" for="spine-inv-sort" style="margin-left:8px">Sort</label>
+              <select id="spine-inv-sort" class="list-find-input" style="width:auto;min-width:8rem;padding:4px 8px" title="Sort invoice list">
+                <option value="date-desc">Date ↓</option>
+                <option value="date-asc">Date ↑</option>
+                <option value="status">Status (Unpaid first)</option>
+                <option value="amount-desc">Amount ↓</option>
+              </select>
             </div>
             <div class="spine-inv-table-wrap">
               <table class="spine-table" id="spine-invoices-table">
@@ -55296,6 +55353,9 @@ function ensureCarriGmSeed(s) {
     var paidByClientAmt = {};
     var paidByClientMonthAmt = {};
     var paidByQb = {};
+    var unpaidByClientAmt = {};
+    var unpaidByClientMonthAmt = {};
+    var unpaidByQb = {};
     function rememberPaid(client, month, amt, qb) {
       var c = softPaidNormClient(client);
       if (!c) return;
@@ -55304,14 +55364,24 @@ function ensureCarriGmSeed(s) {
       if (month) paidByClientMonthAmt[c + '|' + String(month).slice(0, 7) + '|' + a] = true;
       if (qb) paidByQb[String(qb)] = true;
     }
+    function rememberUnpaid(client, month, amt, qb) {
+      var c = softPaidNormClient(client);
+      if (!c) return;
+      var a = softPaidAmtKey(amt);
+      unpaidByClientAmt[c + '|' + a] = true;
+      if (month) unpaidByClientMonthAmt[c + '|' + String(month).slice(0, 7) + '|' + a] = true;
+      if (qb) unpaidByQb[String(qb)] = true;
+    }
     (s.rows || []).forEach(function (r) {
       if (!r) return;
       if (!(r.carriGmSeed || r.carriBdGmSeed || r.spineBridge || r.carriQbSeed)) return;
-      /* Soft paid SoT only — not Production Status */
-      if (!(r.paid === true || r.gmCashState === 'paid')) return;
       if (r.gmCashState === 'booked') return;
       var amt = (typeof arSoftAmt === 'function') ? arSoftAmt(r) : (Number(r.accountingBilled != null ? r.accountingBilled : r.fee) || 0);
-      rememberPaid(r.client, r.month, amt, r.qbInvoice || r.qbNumber);
+      if (r.paid === true || r.gmCashState === 'paid') {
+        rememberPaid(r.client, r.month, amt, r.qbInvoice || r.qbNumber);
+      } else if (r.gmCashState === 'unpaid' || r.status === 'Invoiced') {
+        rememberUnpaid(r.client, r.month, amt, r.qbInvoice || r.qbNumber);
+      }
     });
     try {
       if (typeof SPINE_INVOICES !== 'undefined' && Array.isArray(SPINE_INVOICES)) {
@@ -55320,16 +55390,21 @@ function ensureCarriGmSeed(s) {
           var st = inv.status;
           var ov = (s.spineOverrides && s.spineOverrides[inv.id]) || {};
           if (ov.status) st = ov.status;
-          if (st !== 'Paid') return;
-          rememberPaid(inv.client || inv.qbCustomerName, (inv.date || '').slice(0, 7), inv.amount, ov.qbNumber || inv.qbNumber || inv.id);
+          var qb = ov.qbNumber || inv.qbNumber || inv.id;
+          var client = inv.client || inv.qbCustomerName;
+          var mo = (inv.date || '').slice(0, 7);
+          var amt = inv.amount;
+          if (st === 'Paid') rememberPaid(client, mo, amt, qb);
+          else if (st === 'Invoiced') rememberUnpaid(client, mo, amt, qb);
         });
       }
     } catch (eSp) {}
-    var flipped = 0;
+    var flipped = 0, flippedUnpaid = 0;
     (s.rows || []).forEach(function (r) {
       if (!r) return;
-      if (r.carriGmSeed || r.carriBdGmSeed) return; /* GM boards own these */
-      if (r.paid === true || r.gmCashState === 'paid') return;
+      /* soft-gm-paid-fix-20260915e: Production Status mirrors spine/Carri paid SoT across months.
+         GM seed rows also get Status mirror (even if hidden from board) so any surface reading Status is correct.
+         Soft lock: never invent Paid from Production Status alone — spine/Carri flags win. */
       var amt = 0;
       if (r.bookType === 'Placement') amt = Number(r.fee != null ? r.fee : r.accountingBilled) || 0;
       else if (r.bookType === 'Marketing') amt = Number(r.accountingBilled != null ? r.accountingBilled : r.bookValueThisMonth) || 0;
@@ -55337,19 +55412,41 @@ function ensureCarriGmSeed(s) {
       var c = softPaidNormClient(r.client);
       var mo = String(r.month || '').slice(0, 7);
       var a = softPaidAmtKey(amt);
-      var hit = false;
-      if (c && paidByClientMonthAmt[c + '|' + mo + '|' + a]) hit = true;
-      else if (c && paidByClientAmt[c + '|' + a]) hit = true;
-      else if (r.qbInvoice && paidByQb[String(r.qbInvoice)]) hit = true;
-      else if (r.qbNumber && paidByQb[String(r.qbNumber)]) hit = true;
-      if (!hit) return;
-      r.paid = true;
-      r.status = 'Paid';
-      r.paidSource = 'Soft paid SoT (spine/Carri) · soft-live-tidy-20260915b';
-      r.gmCashState = 'paid';
-      flipped++;
+      var hitPaid = false, hitUnpaid = false;
+      if (r.paid === true || r.gmCashState === 'paid') hitPaid = true;
+      else if (r.gmCashState === 'booked') { /* leave booked */ }
+      else {
+        if (c && paidByClientMonthAmt[c + '|' + mo + '|' + a]) hitPaid = true;
+        else if (c && paidByClientAmt[c + '|' + a]) hitPaid = true;
+        else if (r.qbInvoice && paidByQb[String(r.qbInvoice)]) hitPaid = true;
+        else if (r.qbNumber && paidByQb[String(r.qbNumber)]) hitPaid = true;
+        if (!hitPaid) {
+          if (c && unpaidByClientMonthAmt[c + '|' + mo + '|' + a]) hitUnpaid = true;
+          else if (c && unpaidByClientAmt[c + '|' + a]) hitUnpaid = true;
+          else if (r.qbInvoice && unpaidByQb[String(r.qbInvoice)]) hitUnpaid = true;
+          else if (r.qbNumber && unpaidByQb[String(r.qbNumber)]) hitUnpaid = true;
+        }
+      }
+      if (hitPaid) {
+        if (!(r.paid === true && r.status === 'Paid' && r.gmCashState === 'paid')) {
+          r.paid = true;
+          r.status = 'Paid';
+          r.paidSource = 'Soft paid SoT (spine/Carri) · soft-gm-paid-fix-20260915e';
+          r.gmCashState = 'paid';
+          flipped++;
+        } else {
+          r.status = 'Paid';
+        }
+      } else if (hitUnpaid && r.gmCashState !== 'booked') {
+        if (r.status !== 'Invoiced' || r.paid) {
+          r.paid = false;
+          r.status = 'Invoiced';
+          r.gmCashState = r.gmCashState === 'unpaid' ? 'unpaid' : 'unpaid';
+          flippedUnpaid++;
+        }
+      }
     });
-    s.softProdPaidSync = { stamp: 'soft-gm-paid-fix-20260915e', flipped: flipped, at: '2026-09-15' };
+    s.softProdPaidSync = { stamp: 'soft-gm-paid-fix-20260915e', flipped: flipped, flippedUnpaid: flippedUnpaid, at: '2026-09-15' };
     return s;
   }
 
@@ -55447,7 +55544,7 @@ function softIsoDate(v) {
     if (!s.gmMoneyUi.year) s.gmMoneyUi.year = String(s.gmMoneyUi.asof || '2024').slice(0, 4);
     if (!s.gmMoneyUi.person) s.gmMoneyUi.person = 'Mike';
     if (!s.spineOverrides || typeof s.spineOverrides !== 'object') s.spineOverrides = {};
-    if (!s.spineUi) s.spineUi = { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true };
+    if (!s.spineUi) s.spineUi = { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true, statusFilter: 'all', invSort: 'date-desc' };
     if (!s.recurringOverrides || typeof s.recurringOverrides !== 'object') s.recurringOverrides = {};
     if (!s.recurringUi || typeof s.recurringUi !== 'object') s.recurringUi = { mode: 'exec', person: 'Zach' };
     if (!s.recurringUi.mode) s.recurringUi.mode = 'exec';
@@ -66434,7 +66531,7 @@ function softIsoDate(v) {
     /* soft-invoice-spine-strip-example-20260912 removed pure-demo row */
 
 
-    var seeded = { rows: rows, fanLog: [], commissionLines: [], execMode: 'combined', gmMoneySeed: buildGmMoneySeed(), gmMoneyUi: { side: 'both', person: 'Mike', asof: '2024-12-15', year: '2024', tab: 'unpaid' }, spineOverrides: {}, spineUi: { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true }, recurringOverrides: {}, recurringActivity: [], recurringRequests: [], recurringUi: { mode: 'exec', person: 'Zach', simulateMonthClose: false, monthCloseConfirmedFor: '', asOfDate: '2026-09-09' }, awardsUi: { period: 'month', monthKey: '2026-09', year: '2026' }, execArUi: { year: '2026', quarter: 3 }, execArCash: {}, execArExpenses: {}, execCommUi: { event: 'recruiting', payDate: '2026-09-15' }, excelProdSeedMeta: { source: '2024+2025+2026 Production Board.xlsx', seededAtCt: '2026-09-11 10:15 PM CT', rowCount: 369, years: [2024,2025,2026] } };
+    var seeded = { rows: rows, fanLog: [], commissionLines: [], execMode: 'combined', gmMoneySeed: buildGmMoneySeed(), gmMoneyUi: { side: 'both', person: 'Mike', asof: '2024-12-15', year: '2024', tab: 'unpaid' }, spineOverrides: {}, spineUi: { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true, statusFilter: 'all', invSort: 'date-desc' }, recurringOverrides: {}, recurringActivity: [], recurringRequests: [], recurringUi: { mode: 'exec', person: 'Zach', simulateMonthClose: false, monthCloseConfirmedFor: '', asOfDate: '2026-09-09' }, awardsUi: { period: 'month', monthKey: '2026-09', year: '2026' }, execArUi: { year: '2026', quarter: 3 }, execArCash: {}, execArExpenses: {}, execCommUi: { event: 'recruiting', payDate: '2026-09-15' }, excelProdSeedMeta: { source: '2024+2025+2026 Production Board.xlsx', seededAtCt: '2026-09-11 10:15 PM CT', rowCount: 369, years: [2024,2025,2026] } };
     ensureExecArExampleStubs(seeded);
     tagMoHighlandsMonthlies(seeded);
     ensureCarriTrackerBackfill(seeded);
@@ -68175,7 +68272,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
 
   function ensureSpineState() {
     if (!state.spineOverrides || typeof state.spineOverrides !== 'object') state.spineOverrides = {};
-    if (!state.spineUi) state.spineUi = { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true };
+    if (!state.spineUi) state.spineUi = { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true, statusFilter: 'all', invSort: 'date-desc' };
   }
 
   // Carri invoices need SPINE_INVOICES (defined above); deals already merged on loadState.
@@ -68461,7 +68558,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
           var hit = g.searches.some(function (s) { return s.id === ui.selectedSearchId; });
           if (hit) cardSel = ' selected';
         }
-        var exBadge = spineIsExampleClient(g.client, g.searches) ? ' <span class="badge example">EXAMPLE</span>' : '';
+        var exBadge = ''; /* soft-gm-paid-fix-20260915e: Soft live — no EXAMPLE badges on Section A client cards */
         var headerHotBtns = '';
         if (cardSel) {
           var signalSearch = null;
@@ -68536,6 +68633,42 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         inv.qbNumber, inv.id, inv.sampleId, inv.client, inv.searchRefs, inv.agreement
       ].concat(inv.searchIds || []));
     });
+    /* soft-gm-paid-fix-20260915e — status filter + sort (Unpaid = Invoiced open) */
+    if (ui.statusFilter == null) ui.statusFilter = 'all';
+    if (ui.invSort == null) ui.invSort = 'date-desc';
+    var stFilter = String(ui.statusFilter || 'all');
+    if (stFilter === 'unpaid') {
+      invs = invs.filter(function (inv) {
+        var st = String(inv.status || '');
+        return st === 'Invoiced' || (st !== 'Paid' && st !== 'Booked' && Number(inv.openBalance || 0) > 0.009);
+      });
+    } else if (stFilter === 'paid') {
+      invs = invs.filter(function (inv) { return String(inv.status || '') === 'Paid'; });
+    } else if (stFilter === 'booked') {
+      invs = invs.filter(function (inv) { return String(inv.status || '') === 'Booked'; });
+    }
+    var sortMode = String(ui.invSort || 'date-desc');
+    var statusRank = function (st) {
+      st = String(st || '');
+      if (st === 'Invoiced') return 0;
+      if (st === 'Booked') return 1;
+      if (st === 'Paid') return 2;
+      return 3;
+    };
+    invs = invs.slice().sort(function (a, b) {
+      if (sortMode === 'status') {
+        var d = statusRank(a.status) - statusRank(b.status);
+        if (d) return d;
+        return String(b.date || '').localeCompare(String(a.date || ''));
+      }
+      if (sortMode === 'amount-desc') return (Number(b.amount) || 0) - (Number(a.amount) || 0);
+      if (sortMode === 'date-asc') return String(a.date || '').localeCompare(String(b.date || ''));
+      return String(b.date || '').localeCompare(String(a.date || ''));
+    });
+    var stSel = document.getElementById('spine-inv-status-filter');
+    var sortSel = document.getElementById('spine-inv-sort');
+    if (stSel && document.activeElement !== stSel) stSel.value = stFilter;
+    if (sortSel && document.activeElement !== sortSel) sortSel.value = sortMode;
     var sub = document.getElementById('spine-inv-sub');
     if (sub) {
       if (ui.showAllInvoices || (!ui.selectedSearchId && !ui.selectedClient)) {
@@ -68785,6 +68918,27 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       iClear.addEventListener('click', function () {
         spineInvFindQ = '';
         if (iFind) iFind.value = '';
+        renderSpine();
+      });
+    }
+    /* soft-gm-paid-fix-20260915e — Invoice spine Status filter / sort */
+    var stFilterEl = document.getElementById('spine-inv-status-filter');
+    var sortEl = document.getElementById('spine-inv-sort');
+    if (stFilterEl && !stFilterEl._softEBound) {
+      stFilterEl._softEBound = true;
+      stFilterEl.addEventListener('change', function () {
+        ensureSpineState();
+        state.spineUi.statusFilter = stFilterEl.value || 'all';
+        saveState();
+        renderSpine();
+      });
+    }
+    if (sortEl && !sortEl._softEBound) {
+      sortEl._softEBound = true;
+      sortEl.addEventListener('change', function () {
+        ensureSpineState();
+        state.spineUi.invSort = sortEl.value || 'date-desc';
+        saveState();
         renderSpine();
       });
     }
@@ -69689,6 +69843,15 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     try { renderSpine(); } catch (e) {}
   }
 
+  function softProdDisplayStatus(row) {
+    /* soft-gm-paid-fix-20260915e — Production Status column reads spine/Carri cash SoT */
+    if (!row) return 'Booked';
+    if (row.gmCashState === 'booked') return 'Booked';
+    if (row.paid === true || row.gmCashState === 'paid' || row.status === 'Paid') return 'Paid';
+    if (row.gmCashState === 'unpaid' || row.status === 'Invoiced') return 'Invoiced';
+    if (row.status === 'Draft' || !row.status) return 'Booked';
+    return row.status;
+  }
   function statusBadge(s) {
     var label = (s === 'Draft' || !s) ? 'Booked' : s;
     var cls = String(label).toLowerCase();
@@ -69771,8 +69934,9 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       function decorate(tr) {
         tr.setAttribute('data-row-id', row.id);
         if (row.example) tr.classList.add('example');
-        if (row.status === 'Paid') tr.classList.add('paid');
-        else if (row.status === 'Invoiced') tr.classList.add('invoiced');
+        var stSoT = softProdDisplayStatus(row);
+        if (stSoT === 'Paid') tr.classList.add('paid');
+        else if (stSoT === 'Invoiced') tr.classList.add('invoiced');
         if (flashRowId && row.id === flashRowId) tr.classList.add('flash-new');
       }
       if (row.bookType === 'Placement') {
@@ -69793,7 +69957,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
           '<td>' + glowText(row.client || '') + '</td>' +
           '<td>' + glowHtml(candHtml) + '</td>' +
           moneyCell(row.fee) +
-          '<td>' + glowHtml(statusBadge(row.status)) + '</td><td class="prod-actions">' + actions + '</td>';
+          '<td>' + glowHtml(statusBadge(softProdDisplayStatus(row))) + '</td><td class="prod-actions">' + actions + '</td>';
         plBody.appendChild(tr);
       } else if (row.bookType === 'Marketing') {
         var trM = document.createElement('tr');
@@ -69812,7 +69976,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
           '<td>' + glowText(row.client || '') + '</td>' +
           '<td>' + glowText(row.campaign || '—') + '</td>' +
           moneyCell(mktAmt) +
-          '<td>' + glowHtml(statusBadge(row.status)) + '</td><td class="prod-actions">' + actions + '</td>';
+          '<td>' + glowHtml(statusBadge(softProdDisplayStatus(row))) + '</td><td class="prod-actions">' + actions + '</td>';
         mktBody.appendChild(trM);
       } else {
         /* Deal / BD only */
@@ -69839,7 +70003,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
           '<td>' + glowText(row.specialties || '') + '</td>' +
           moneyCell(row.initiation) + moneyCell(row.firstMonthRetainer) +
           moneyCell(row.internets) + moneyCell(row.accountingBilled) +
-          '<td>' + glowHtml(statusBadge(row.status)) + '</td><td class="prod-actions">' + actions + '</td>';
+          '<td>' + glowHtml(statusBadge(softProdDisplayStatus(row))) + '</td><td class="prod-actions">' + actions + '</td>';
         bdBody.appendChild(tr2);
       }
     });
@@ -70060,7 +70224,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="dd-k">Invoiced</div><div class="dd-v">' + invLine + '</div>' +
       '<div class="dd-k">Amount</div><div class="dd-v">' + money(row.fee) + '</div>' +
       ownersDetailHtml(row) +
-      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(row.status) + '</div>';
+      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>';
     backdrop.hidden = false;
     backdrop.classList.add('show');
   }
@@ -70089,7 +70253,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="dd-k">Date</div><div class="dd-v">' + escHtml(row.date || '—') + ' · ' + escHtml(row.month || '') + '</div>' +
       '<div class="dd-k">Amount</div><div class="dd-v">' + money(amt) + '</div>' +
       ownersDetailHtml(row) +
-      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(row.status) + '</div>';
+      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>';
     backdrop.hidden = false;
     backdrop.classList.add('show');
   }
@@ -70306,7 +70470,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     title.textContent = titleText;
     body.innerHTML = fieldsHtml +
       '<div class="dd-k">Why / note</div><div class="dd-v"><textarea id="md-note" rows="2" placeholder="Optional — what was wrong / what changed">' + escHtml(row.lastModifyNote || '') + '</textarea></div>' +
-      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(row.status) + ' <span class="md-hint">unchanged by modify</span></div>' +
+      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + ' <span class="md-hint">unchanged by modify</span></div>' +
       '<div class="md-actions">' +
         '<button type="button" class="mini-btn" id="md-cancel">Cancel</button> ' +
         '<button type="button" class="mini-btn teal" id="md-save" data-row-id="' + escHtml(row.id) + '">Save &amp; re-fan (BH + GM)</button>' +
@@ -70525,7 +70689,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         ' · Accounting billed ' + money(row.accountingBilled) +
         (row.example ? ' <span class="badge example">EXAMPLE</span>' : '') + '</div>' +
 ownersDetailHtml(row) +
-      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(row.status) +
+      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) +
         (prodBdIsMonthly(row) ? ' <span class="badge monthly">Monthly</span>' : (row.isRecurringLine ? ' <span class="badge draft">Recurring</span>' : '')) + '</div>' +
       (row.invoiceNarrative
         ? '<div class="dd-k">Invoice path</div><div class="dd-v">' + escHtml(row.invoiceNarrative) + '</div>'
