@@ -3,7 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
-/* soft-gm-paid-fix-20260915e — Rec/BD GM Paid rematch Carri matrix Paid (QB#+client/amt/month). Empty-n invert banned; future-beyond-invoice → Booked; never Production Status as cash. Soft only. Never Hub. */
+/* soft-spine-sot-wire-20260915f — ONE spine cash SoT for GM + Production; was soft-gm-paid-fix-20260915e Rec/BD GM Paid rematch Carri matrix Paid (QB#+client/amt/month). Empty-n invert banned; future-beyond-invoice → Booked; never Production Status as cash. Soft only. Never Hub. */
 /* soft-live-tidy-20260915b — Soft live tidy: EXAMPLE wipe · Production Paid from spine/Carri · Mess Production jump · version chip. Soft only. Never Hub. */
 /* soft-fix-recgm-live-look-20260912 — Soft Rec GM dense stack + live Mess look (Mike stamped go 2026-09-12). Soft only. */
 /* soft-fix-gm-tiers-pots-glow-20260912 — Soft Rec/BD GM bottom pots + Tiers neon bloom twin live Mess (Mike Soft-has-numbers / live-has-look). Soft only. */
@@ -12696,6 +12696,28 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   }
   .list-find .mini-btn { flex: 0 0 auto; }
   #view-spine .list-find { background: var(--panel-2); border-color: var(--border); }
+  /* soft-spine-sot-wire-20260915f — obvious Unpaid/Paid/Booked filter (not buried in Find) */
+  #view-spine .spine-cash-filter-bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
+    margin: 0 0 10px; padding: 10px 12px;
+    border: 2px solid #99f6e4; border-radius: 12px;
+    background: color-mix(in srgb, #134e4a 18%, var(--panel-2));
+  }
+  #view-spine .spine-cash-filter-label {
+    font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    color: #99f6e4; margin-right: 4px;
+  }
+  #view-spine .spine-cash-pill.is-active {
+    outline: 2px solid #99f6e4; outline-offset: 1px;
+    box-shadow: 0 0 0 1px #134e4a inset;
+    font-weight: 800;
+  }
+  #view-spine .spine-cash-filter-count {
+    font-size: 12px; font-weight: 700; color: var(--text); margin-left: 4px;
+    padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, #99f6e4 22%, transparent);
+  }
+  #view-spine .spine-cash-select { flex: 0 0 auto; min-width: 9rem !important; max-width: 12rem; }
+
   #view-recurring .list-find { background: #FFFBEB; border-color: #FDE68A; }
 
   /* ===== Exec AR (Mike lock 2026-09-09 ~9:10 PM CT) — 4th pill under Exec Total GM ===== */
@@ -14787,7 +14809,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-gm-paid-fix-20260915e</span></div>
+<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-spine-sot-wire-20260915f</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -51141,7 +51163,7 @@ function mktSendAmplified(searchKey) {
     </section>
 <section class="view" id="view-production">
       <div class="card prod-card">
-        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-gm-paid-fix-20260915e</span></h2>
+        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-spine-sot-wire-20260915f</span></h2>
         <p class="lede">Soft live Production · stages <strong>Booked → Invoiced → Paid</strong>. Status follows Invoice spine / Carri paid SoT (green = Paid). <strong>Mark paid</strong> on Invoice spine only — not Production Actions. Modify GM Whole/Split stays SoT editor.</p>
         <!-- soft-prod-demo-cue-removed-20260915 Mike: bar gone; Soft real tidy -->
         <div class="toolbar">
@@ -51389,25 +51411,34 @@ function mktSendAmplified(searchKey) {
           </div>
           <div class="spine-panel spine-sticky">
             <h3>B · Invoices</h3>
-            <p class="sub" id="spine-inv-sub">For selected client / search (or all) · status Booked / Invoiced / Paid · View face · Enter QB # · Mark paid</p>
-            <div class="list-find" id="spine-inv-find-bar">
-              <label class="list-find-label" for="spine-inv-find">Find</label>
-              <input type="text" id="spine-inv-find" class="list-find-input" placeholder="QB invoice # · client · search #" autocomplete="off" />
-              <button type="button" class="mini-btn" id="spine-inv-find-clear">Clear</button>
-              <label class="list-find-label" for="spine-inv-status-filter" style="margin-left:10px">Status</label>
-              <select id="spine-inv-status-filter" class="list-find-input" style="width:auto;min-width:9rem;padding:4px 8px" title="Filter invoices by Paid/Unpaid status">
+            <p class="sub" id="spine-inv-sub">For selected client / search (or all) · cash SoT Booked / Unpaid / Paid · View face · Enter QB # · Mark paid</p>
+            <!-- soft-spine-sot-wire-20260915f — Status filter SURFACED (own bar, not buried in Find) -->
+            <div class="spine-cash-filter-bar" id="spine-cash-filter-bar" role="group" aria-label="Invoice cash status filter">
+              <span class="spine-cash-filter-label">Cash status</span>
+              <button type="button" class="mini-btn spine-cash-pill" data-spine-status-filter="all" id="spine-cash-pill-all">All</button>
+              <button type="button" class="mini-btn teal spine-cash-pill" data-spine-status-filter="unpaid" id="spine-cash-pill-unpaid" title="Open invoiced — not yet paid">Unpaid</button>
+              <button type="button" class="mini-btn spine-cash-pill" data-spine-status-filter="paid" id="spine-cash-pill-paid">Paid</button>
+              <button type="button" class="mini-btn spine-cash-pill" data-spine-status-filter="booked" id="spine-cash-pill-booked">Booked</button>
+              <span id="spine-cash-filter-count" class="spine-cash-filter-count" aria-live="polite"></span>
+              <label class="list-find-label" for="spine-inv-status-filter" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">Status select</label>
+              <select id="spine-inv-status-filter" class="list-find-input spine-cash-select" style="width:auto;min-width:9rem;padding:4px 8px" title="Filter invoices by Paid/Unpaid status">
                 <option value="all">All statuses</option>
                 <option value="unpaid">Unpaid (Invoiced)</option>
                 <option value="paid">Paid</option>
                 <option value="booked">Booked</option>
               </select>
               <label class="list-find-label" for="spine-inv-sort" style="margin-left:8px">Sort</label>
-              <select id="spine-inv-sort" class="list-find-input" style="width:auto;min-width:8rem;padding:4px 8px" title="Sort invoice list">
+              <select id="spine-inv-sort" class="list-find-input" style="width:auto;min-width:8.5rem;padding:4px 8px" title="Sort invoice list">
                 <option value="date-desc">Date ↓</option>
                 <option value="date-asc">Date ↑</option>
                 <option value="status">Status (Unpaid first)</option>
                 <option value="amount-desc">Amount ↓</option>
               </select>
+            </div>
+            <div class="list-find" id="spine-inv-find-bar">
+              <label class="list-find-label" for="spine-inv-find">Find</label>
+              <input type="text" id="spine-inv-find" class="list-find-input" placeholder="QB invoice # · client · search #" autocomplete="off" />
+              <button type="button" class="mini-btn" id="spine-inv-find-clear">Clear</button>
             </div>
             <div class="spine-inv-table-wrap">
               <table class="spine-table" id="spine-invoices-table">
@@ -55170,10 +55201,7 @@ function ensureCarriGmSeed(s) {
       row.carriQbMatch = { num: hit.n, amount: hit.a, how: hit.how, side: hit.side, source: CARRI_QB_PAID_SOURCE };
       if (deferToBooked) {
         /* No QB face, false Paid from earlier inv, or post-asof future → Booked cyan */
-        row.paid = false;
-        row.status = 'Booked';
-        row.paidSource = '';
-        row.gmCashState = 'booked';
+        softApplyCashSoTToRow(row, 'booked', CARRI_QB_PAID_SOURCE + ' · booked');
         if (row.paidDate) row.paidDate = '';
         delete row.arOpenMatch;
         if (futureBeyondInv) {
@@ -55185,17 +55213,10 @@ function ensureCarriGmSeed(s) {
           row.qbInvoice = '';
         }
       } else if (wantPaid) {
-        row.paid = true;
-        row.status = 'Paid'; /* Production Status mirrors spine/Carri paid SoT */
-        row.paidSource = CARRI_QB_PAID_SOURCE;
-        row.gmCashState = 'paid';
-        delete row.arOpenMatch;
+        softApplyCashSoTToRow(row, 'paid', CARRI_QB_PAID_SOURCE);
         if (!row.paidDate) row.paidDate = '';
       } else {
-        row.paid = false;
-        row.status = 'Invoiced';
-        row.paidSource = '';
-        row.gmCashState = 'unpaid';
+        softApplyCashSoTToRow(row, 'unpaid', CARRI_QB_PAID_SOURCE);
         row.arOpenMatch = { num: hit.n, customer: '', openBalance: hit.a, how: 'carri-qb-unpaid', search: '' };
         if (row.paidDate) row.paidDate = '';
       }
@@ -55324,7 +55345,7 @@ function ensureCarriGmSeed(s) {
 
     s.carriQbInvoiceSeed = {
       source: CARRI_QB_PAID_SOURCE,
-      stamp: 'soft-gm-paid-fix-20260915e',
+      stamp: 'soft-spine-sot-wire-20260915f',
       lsKey: 'amp_soft_mess_book_to_gm_v59',
       matchedGm: matchedGm,
       flippedPaid: flippedPaid,
@@ -55339,116 +55360,193 @@ function ensureCarriGmSeed(s) {
   }
 
 
-  /* soft-gm-paid-fix-20260915e — Production Status mirrors Invoice spine / Carri paid Soft SoT.
-     Soft lock: Production = fan-out SoT; spine/Carri = Paid/Unpaid SoT. GM boards read row.paid / gmCashState — never Production Status alone.
-     Never-shrink. No markPaid() fanout. Soft only. */
+  /* soft-spine-sot-wire-20260915f — ONE cash SoT from Invoice spine (Carri Mark paid / QB paid Soft SoT).
+     Soft lock: Production = fan-out SoT; spine = Paid/Unpaid/Booked cash SoT.
+     GM paint AND Production Status BOTH call softResolveCashFromSpine — no dual paint.
+     Never invent Paid from Production Status alone. Soft only. Never Hub. */
   function softPaidNormClient(s) {
     return String(s || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
   }
   function softPaidAmtKey(n) {
     return String(Math.round((Number(n) || 0) * 100));
   }
-  function ensureSoftProdPaidFromSpineSoT(s) {
-    if (!s || !Array.isArray(s.rows)) return s;
-    var paidByClientAmt = {};
-    var paidByClientMonthAmt = {};
-    var paidByQb = {};
-    var unpaidByClientAmt = {};
-    var unpaidByClientMonthAmt = {};
-    var unpaidByQb = {};
-    function rememberPaid(client, month, amt, qb) {
-      var c = softPaidNormClient(client);
-      if (!c) return;
-      var a = softPaidAmtKey(amt);
-      paidByClientAmt[c + '|' + a] = true;
-      if (month) paidByClientMonthAmt[c + '|' + String(month).slice(0, 7) + '|' + a] = true;
-      if (qb) paidByQb[String(qb)] = true;
-    }
-    function rememberUnpaid(client, month, amt, qb) {
-      var c = softPaidNormClient(client);
-      if (!c) return;
-      var a = softPaidAmtKey(amt);
-      unpaidByClientAmt[c + '|' + a] = true;
-      if (month) unpaidByClientMonthAmt[c + '|' + String(month).slice(0, 7) + '|' + a] = true;
-      if (qb) unpaidByQb[String(qb)] = true;
-    }
-    (s.rows || []).forEach(function (r) {
-      if (!r) return;
-      if (!(r.carriGmSeed || r.carriBdGmSeed || r.spineBridge || r.carriQbSeed)) return;
-      if (r.gmCashState === 'booked') return;
-      var amt = (typeof arSoftAmt === 'function') ? arSoftAmt(r) : (Number(r.accountingBilled != null ? r.accountingBilled : r.fee) || 0);
-      if (r.paid === true || r.gmCashState === 'paid') {
-        rememberPaid(r.client, r.month, amt, r.qbInvoice || r.qbNumber);
-      } else if (r.gmCashState === 'unpaid' || r.status === 'Invoiced') {
-        rememberUnpaid(r.client, r.month, amt, r.qbInvoice || r.qbNumber);
+  /** Build qb# → Paid|Invoiced|Booked from spine + overrides (+ Carri spine seed if present). */
+  function softBuildSpineCashIndex(s) {
+    var byQb = {};
+    function put(qb, st, invId) {
+      qb = String(qb || '').trim();
+      if (!qb) return;
+      var cur = byQb[qb];
+      /* Paid wins over Invoiced over Booked when colliding */
+      var rank = { Paid: 3, Invoiced: 2, Booked: 1 };
+      if (!cur || (rank[st] || 0) >= (rank[cur.status] || 0)) {
+        byQb[qb] = { status: st, invId: invId || cur && cur.invId || '' };
       }
-    });
+    }
     try {
       if (typeof SPINE_INVOICES !== 'undefined' && Array.isArray(SPINE_INVOICES)) {
         SPINE_INVOICES.forEach(function (inv) {
           if (!inv) return;
           var st = inv.status;
-          var ov = (s.spineOverrides && s.spineOverrides[inv.id]) || {};
+          var ov = (s && s.spineOverrides && s.spineOverrides[inv.id]) || {};
           if (ov.status) st = ov.status;
           var qb = ov.qbNumber || inv.qbNumber || inv.id;
-          var client = inv.client || inv.qbCustomerName;
-          var mo = (inv.date || '').slice(0, 7);
-          var amt = inv.amount;
-          if (st === 'Paid') rememberPaid(client, mo, amt, qb);
-          else if (st === 'Invoiced') rememberUnpaid(client, mo, amt, qb);
+          put(qb, st, inv.id);
+          if (inv.id && String(inv.id) !== String(qb)) put(inv.id, st, inv.id);
         });
       }
     } catch (eSp) {}
-    var flipped = 0, flippedUnpaid = 0;
+    try {
+      if (typeof CARRI_QB_SPINE !== 'undefined' && Array.isArray(CARRI_QB_SPINE)) {
+        CARRI_QB_SPINE.forEach(function (sp) {
+          if (!sp || !sp.n) return;
+          var st = sp.p ? 'Paid' : 'Invoiced';
+          /* spineOverrides / SPINE win if already present at higher/equal — put respects Paid win */
+          if (!byQb[String(sp.n)]) put(sp.n, st, 'carri_qb_' + sp.n);
+        });
+      }
+    } catch (eC) {}
+    return byQb;
+  }
+  /** Stamp paid + gmCashState + status together — single write path. */
+  function softApplyCashSoTToRow(row, cash, source) {
+    if (!row) return;
+    cash = String(cash || '').toLowerCase();
+    var src = source || (CHIP + ' spine cash SoT');
+    if (cash === 'paid') {
+      row.paid = true;
+      row.gmCashState = 'paid';
+      row.status = 'Paid';
+      row.paidSource = src;
+      delete row.arOpenMatch;
+    } else if (cash === 'unpaid') {
+      row.paid = false;
+      row.gmCashState = 'unpaid';
+      row.status = 'Invoiced';
+      row.paidSource = '';
+    } else if (cash === 'booked') {
+      row.paid = false;
+      row.gmCashState = 'booked';
+      row.status = 'Booked';
+      row.paidSource = '';
+    }
+  }
+  /**
+   * softResolveCashFromSpine — THE single cash read for GM paint + Production Status.
+   * Returns 'paid' | 'unpaid' | 'booked'.
+   * Priority: deferred Booked lock → spine/QB index → row stamps from Carri apply (same SoT write).
+   * Never Production Status alone.
+   */
+  function softResolveCashFromSpine(row, spineIndex) {
+    if (!row) return 'booked';
+    /* Future-beyond-invoice / unbilled lock — never green as Paid */
+    if (row.gmCashState === 'booked') return 'booked';
+    if (row.carriQbMatch && row.carriQbMatch.deferred) return 'booked';
+    var idx = spineIndex || softBuildSpineCashIndex(state);
+    var qb = String(row.qbInvoice || row.qbNumber || '').trim();
+    if (qb && idx[qb]) {
+      var st = idx[qb].status;
+      if (st === 'Paid') return 'paid';
+      if (st === 'Invoiced') return 'unpaid';
+      if (st === 'Booked') return 'booked';
+    }
+    /* Same SoT already stamped on the row by Carri/spine apply (GM seed or prior sync) */
+    if (row.gmCashState === 'paid' || row.paid === true) return 'paid';
+    if (row.gmCashState === 'unpaid') return 'unpaid';
+    if (row.arOpenMatch) return 'unpaid';
+    if (row.carriQbMatch && row.carriQbMatch.num && !row.carriQbMatch.deferred) {
+      return row.paid ? 'paid' : 'unpaid';
+    }
+    if (qb) return 'unpaid'; /* has QB face, not in paid index → open */
+    if (row.status === 'Paid' && row.paid === true) return 'paid';
+    if (row.status === 'Invoiced') return 'unpaid';
+    return 'booked';
+  }
+  /** After spine Mark paid / override — stamp EVERY row sharing that QB (GM seed + Production). */
+  function softApplySpinePaidToLinkedRows(s, qbOrInvId, cash) {
+    if (!s || !Array.isArray(s.rows)) return 0;
+    var key = String(qbOrInvId || '').trim();
+    if (!key) return 0;
+    var n = 0;
+    var src = CHIP + ' · spine Mark/override';
     (s.rows || []).forEach(function (r) {
       if (!r) return;
-      /* soft-gm-paid-fix-20260915e: Production Status mirrors spine/Carri paid SoT across months.
-         GM seed rows also get Status mirror (even if hidden from board) so any surface reading Status is correct.
-         Soft lock: never invent Paid from Production Status alone — spine/Carri flags win. */
-      var amt = 0;
-      if (r.bookType === 'Placement') amt = Number(r.fee != null ? r.fee : r.accountingBilled) || 0;
-      else if (r.bookType === 'Marketing') amt = Number(r.accountingBilled != null ? r.accountingBilled : r.bookValueThisMonth) || 0;
-      else amt = Number(r.accountingBilled != null ? r.accountingBilled : 0) || ((Number(r.initiation)||0)+(Number(r.firstMonthRetainer)||0)+(Number(r.internets)||0));
-      var c = softPaidNormClient(r.client);
-      var mo = String(r.month || '').slice(0, 7);
-      var a = softPaidAmtKey(amt);
-      var hitPaid = false, hitUnpaid = false;
-      if (r.paid === true || r.gmCashState === 'paid') hitPaid = true;
-      else if (r.gmCashState === 'booked') { /* leave booked */ }
-      else {
-        if (c && paidByClientMonthAmt[c + '|' + mo + '|' + a]) hitPaid = true;
-        else if (c && paidByClientAmt[c + '|' + a]) hitPaid = true;
-        else if (r.qbInvoice && paidByQb[String(r.qbInvoice)]) hitPaid = true;
-        else if (r.qbNumber && paidByQb[String(r.qbNumber)]) hitPaid = true;
-        if (!hitPaid) {
-          if (c && unpaidByClientMonthAmt[c + '|' + mo + '|' + a]) hitUnpaid = true;
-          else if (c && unpaidByClientAmt[c + '|' + a]) hitUnpaid = true;
-          else if (r.qbInvoice && unpaidByQb[String(r.qbInvoice)]) hitUnpaid = true;
-          else if (r.qbNumber && unpaidByQb[String(r.qbNumber)]) hitUnpaid = true;
-        }
+      var rq = String(r.qbInvoice || r.qbNumber || '').trim();
+      var rid = String(r.id || '');
+      var rsid = String(r.sampleId || '');
+      if (rq === key || rid === key || rsid === key || String(r.linkRowId || '') === key) {
+        /* Do not un-book deferred future months */
+        if (r.gmCashState === 'booked' && r.carriQbMatch && r.carriQbMatch.deferred) return;
+        softApplyCashSoTToRow(r, cash, src);
+        n++;
       }
-      if (hitPaid) {
+    });
+    return n;
+  }
+  function ensureSoftProdPaidFromSpineSoT(s) {
+    if (!s || !Array.isArray(s.rows)) return s;
+    var idx = softBuildSpineCashIndex(s);
+    /* Also index paid/unpaid from already-stamped GM seed rows (Carri apply) so Production excel rows can share QB */
+    var paidByClientAmt = {}, paidByClientMonthAmt = {}, unpaidByClientAmt = {}, unpaidByClientMonthAmt = {};
+    (s.rows || []).forEach(function (r) {
+      if (!r) return;
+      if (!(r.carriGmSeed || r.carriBdGmSeed || r.spineBridge || r.carriQbSeed)) return;
+      if (r.gmCashState === 'booked') return;
+      var amt = (typeof arSoftAmt === 'function') ? arSoftAmt(r) : (Number(r.accountingBilled != null ? r.accountingBilled : r.fee) || 0);
+      var c = softPaidNormClient(r.client);
+      var a = softPaidAmtKey(amt);
+      var mo = String(r.month || '').slice(0, 7);
+      var cash = softResolveCashFromSpine(r, idx);
+      if (cash === 'paid') {
+        if (c) { paidByClientAmt[c + '|' + a] = true; if (mo) paidByClientMonthAmt[c + '|' + mo + '|' + a] = true; }
+      } else if (cash === 'unpaid') {
+        if (c) { unpaidByClientAmt[c + '|' + a] = true; if (mo) unpaidByClientMonthAmt[c + '|' + mo + '|' + a] = true; }
+      }
+    });
+    var flipped = 0, flippedUnpaid = 0, flippedBooked = 0;
+    (s.rows || []).forEach(function (r) {
+      if (!r) return;
+      /* Deferred future stays booked — single path respects Carri apply lock */
+      if (r.gmCashState === 'booked' && r.carriQbMatch && r.carriQbMatch.deferred) return;
+      var cash = softResolveCashFromSpine(r, idx);
+      /* Production excel rows without QB: inherit from GM seed client/amt/month index (same invoice dollars) */
+      if (cash === 'booked' && !r.qbInvoice && !r.qbNumber && !(r.carriGmSeed || r.carriBdGmSeed)) {
+        var amt2 = 0;
+        if (r.bookType === 'Placement') amt2 = Number(r.fee != null ? r.fee : r.accountingBilled) || 0;
+        else if (r.bookType === 'Marketing') amt2 = Number(r.accountingBilled != null ? r.accountingBilled : r.bookValueThisMonth) || 0;
+        else amt2 = Number(r.accountingBilled != null ? r.accountingBilled : 0) || ((Number(r.initiation)||0)+(Number(r.firstMonthRetainer)||0)+(Number(r.internets)||0));
+        var c2 = softPaidNormClient(r.client);
+        var mo2 = String(r.month || '').slice(0, 7);
+        var a2 = softPaidAmtKey(amt2);
+        if (c2 && paidByClientMonthAmt[c2 + '|' + mo2 + '|' + a2]) cash = 'paid';
+        else if (c2 && paidByClientAmt[c2 + '|' + a2]) cash = 'paid';
+        else if (c2 && unpaidByClientMonthAmt[c2 + '|' + mo2 + '|' + a2]) cash = 'unpaid';
+        else if (c2 && unpaidByClientAmt[c2 + '|' + a2]) cash = 'unpaid';
+      }
+      var before = (r.paid === true ? 'paid' : (r.gmCashState === 'unpaid' || r.status === 'Invoiced' ? 'unpaid' : (r.gmCashState === 'booked' ? 'booked' : String(r.status || '').toLowerCase())));
+      if (cash === 'paid') {
         if (!(r.paid === true && r.status === 'Paid' && r.gmCashState === 'paid')) {
-          r.paid = true;
-          r.status = 'Paid';
-          r.paidSource = 'Soft paid SoT (spine/Carri) · soft-gm-paid-fix-20260915e';
-          r.gmCashState = 'paid';
+          softApplyCashSoTToRow(r, 'paid', CHIP + ' · spine/Carri cash SoT');
           flipped++;
         } else {
           r.status = 'Paid';
         }
-      } else if (hitUnpaid && r.gmCashState !== 'booked') {
-        if (r.status !== 'Invoiced' || r.paid) {
-          r.paid = false;
-          r.status = 'Invoiced';
-          r.gmCashState = r.gmCashState === 'unpaid' ? 'unpaid' : 'unpaid';
+      } else if (cash === 'unpaid') {
+        if (r.status !== 'Invoiced' || r.paid || r.gmCashState !== 'unpaid') {
+          softApplyCashSoTToRow(r, 'unpaid', CHIP + ' · spine/Carri cash SoT');
           flippedUnpaid++;
+        }
+      } else if (cash === 'booked' && (r.carriGmSeed || r.carriBdGmSeed || r.spineBridge)) {
+        if (r.status === 'Paid' || r.paid) {
+          softApplyCashSoTToRow(r, 'booked', CHIP + ' · spine/Carri cash SoT');
+          flippedBooked++;
         }
       }
     });
-    s.softProdPaidSync = { stamp: 'soft-gm-paid-fix-20260915e', flipped: flipped, flippedUnpaid: flippedUnpaid, at: '2026-09-15' };
+    s.softProdPaidSync = { stamp: CHIP, flipped: flipped, flippedUnpaid: flippedUnpaid, flippedBooked: flippedBooked, at: '2026-09-15' };
     return s;
   }
+
 
   /* legacy stub: QB Payment match disabled — Open Invoices invert is SoT */
   function ensureQbPaidMatch(s) { return s; }
@@ -68277,6 +68375,11 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
 
   // Carri invoices need SPINE_INVOICES (defined above); deals already merged on loadState.
   ensureCarriTrackerBackfill(state);
+  /* soft-spine-sot-wire-20260915f — re-apply cash SoT now that SPINE_INVOICES exists (early loadState ran before spine array). */
+  try {
+    ensureCarriQbInvoiceSeed(state);
+    ensureSoftProdPaidFromSpineSoT(state);
+  } catch (eSpineCashBoot) {}
 
 
   function getSpineInvoice(id) {
@@ -68669,6 +68772,19 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     var sortSel = document.getElementById('spine-inv-sort');
     if (stSel && document.activeElement !== stSel) stSel.value = stFilter;
     if (sortSel && document.activeElement !== sortSel) sortSel.value = sortMode;
+    /* soft-spine-sot-wire-20260915f — keep Unpaid/Paid pills in sync + show count */
+    ['all', 'unpaid', 'paid', 'booked'].forEach(function (k) {
+      var pill = document.getElementById('spine-cash-pill-' + k);
+      if (pill) {
+        if (stFilter === k) pill.classList.add('is-active');
+        else pill.classList.remove('is-active');
+      }
+    });
+    var cntEl = document.getElementById('spine-cash-filter-count');
+    if (cntEl) {
+      var label = stFilter === 'unpaid' ? 'Unpaid' : (stFilter === 'paid' ? 'Paid' : (stFilter === 'booked' ? 'Booked' : 'All'));
+      cntEl.textContent = invs.length + ' · ' + label;
+    }
     var sub = document.getElementById('spine-inv-sub');
     if (sub) {
       if (ui.showAllInvoices || (!ui.selectedSearchId && !ui.selectedClient)) {
@@ -68763,18 +68879,24 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     state.spineUi.selectedInvoiceId = invId;
 
     var row = ensureBridgeRowForSpine(inv);
-    if (status === 'Paid' && row && !row.paid) {
+    /* soft-spine-sot-wire-20260915f — ONE path: spine override is SoT; stamp ALL linked rows (GM + Production) from it */
+    var cashKey = status === 'Paid' ? 'paid' : (status === 'Invoiced' ? 'unpaid' : 'booked');
+    var qbKey = qbVal || inv.qbNumber || inv.id;
+    var linked = softApplySpinePaidToLinkedRows(state, qbKey, cashKey);
+    if (inv.id && String(inv.id) !== String(qbKey)) {
+      linked += softApplySpinePaidToLinkedRows(state, inv.id, cashKey);
+    }
+    if (row && status === 'Paid' && !row.paid) {
+      /* fan-out / commission stubs once for bridge row */
       markPaid(row);
-    } else if (status === 'Paid' && row && row.paid) {
-      paintSpineGmBuckets(inv);
-      toast('<strong>Spine Paid</strong><br>Production row already Paid · GM buckets shown · stub only — no live QB.');
     } else if (status === 'Paid') {
       paintSpineGmBuckets(inv);
-      toast('<strong>Spine Paid</strong><br>GM bucket preview only · stub — no live QB.');
+      toast('<strong>Spine Paid</strong><br>Cash SoT → GM + Production (' + linked + ' linked rows) · stub only — no live QB.');
     } else {
       paintSpineGmBuckets(inv);
-      toast('<strong>Partial pay</strong><br>Amount paid ' + money2(amountPaid) + ' · open balance ' + money2(openBalance) + '<br>Status stays Invoiced until open balance is 0 · GM follows cash later.');
+      toast('<strong>Partial pay</strong><br>Amount paid ' + money2(amountPaid) + ' · open balance ' + money2(openBalance) + '<br>Status stays Invoiced · spine cash SoT stamped on linked rows.');
     }
+    try { ensureSoftProdPaidFromSpineSoT(state); } catch (eSync) {}
     saveState();
     renderSpine();
     try { renderProduction(); renderBdGm(); renderRecGm(); renderExecGm(); renderCommission(); renderFanout(); renderGmMoney(); } catch (e) {}
@@ -68921,25 +69043,38 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         renderSpine();
       });
     }
-    /* soft-gm-paid-fix-20260915e — Invoice spine Status filter / sort */
+    /* soft-spine-sot-wire-20260915f — Invoice spine Status filter / sort + Unpaid pills */
     var stFilterEl = document.getElementById('spine-inv-status-filter');
     var sortEl = document.getElementById('spine-inv-sort');
-    if (stFilterEl && !stFilterEl._softEBound) {
-      stFilterEl._softEBound = true;
+    function softSpineSetStatusFilter(val) {
+      ensureSpineState();
+      state.spineUi.statusFilter = val || 'all';
+      saveState();
+      renderSpine();
+    }
+    if (stFilterEl && !stFilterEl._softFBound) {
+      stFilterEl._softFBound = true;
       stFilterEl.addEventListener('change', function () {
-        ensureSpineState();
-        state.spineUi.statusFilter = stFilterEl.value || 'all';
-        saveState();
-        renderSpine();
+        softSpineSetStatusFilter(stFilterEl.value || 'all');
       });
     }
-    if (sortEl && !sortEl._softEBound) {
-      sortEl._softEBound = true;
+    if (sortEl && !sortEl._softFBound) {
+      sortEl._softFBound = true;
       sortEl.addEventListener('change', function () {
         ensureSpineState();
         state.spineUi.invSort = sortEl.value || 'date-desc';
         saveState();
         renderSpine();
+      });
+    }
+    var cashBar = document.getElementById('spine-cash-filter-bar');
+    if (cashBar && !cashBar._softFBound) {
+      cashBar._softFBound = true;
+      cashBar.addEventListener('click', function (e) {
+        var btn = e.target && e.target.closest ? e.target.closest('[data-spine-status-filter]') : null;
+        if (!btn) return;
+        e.preventDefault();
+        softSpineSetStatusFilter(btn.getAttribute('data-spine-status-filter') || 'all');
       });
     }
   })();
@@ -69844,11 +69979,12 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
   }
 
   function softProdDisplayStatus(row) {
-    /* soft-gm-paid-fix-20260915e — Production Status column reads spine/Carri cash SoT */
+    /* soft-spine-sot-wire-20260915f — Production Status reads SAME softResolveCashFromSpine as GM paint */
     if (!row) return 'Booked';
-    if (row.gmCashState === 'booked') return 'Booked';
-    if (row.paid === true || row.gmCashState === 'paid' || row.status === 'Paid') return 'Paid';
-    if (row.gmCashState === 'unpaid' || row.status === 'Invoiced') return 'Invoiced';
+    var cash = softResolveCashFromSpine(row);
+    if (cash === 'paid') return 'Paid';
+    if (cash === 'unpaid') return 'Invoiced';
+    if (cash === 'booked') return 'Booked';
     if (row.status === 'Draft' || !row.status) return 'Booked';
     return row.status;
   }
@@ -71162,22 +71298,12 @@ ownersDetailHtml(row) +
     }).join('');
   }
   function softGmIsPaidSoT(row) {
-    /* soft-gm-paid-fix-20260915e — Soft lock: Paid from spine/Carri Soft paid SoT only.
-       Never Production Status alone (status==='Paid' without row.paid). */
-    if (!row) return false;
-    if (row.gmCashState === 'booked') return false;
-    if (row.gmCashState === 'paid') return true;
-    return row.paid === true;
+    /* soft-spine-sot-wire-20260915f — Soft lock: Paid from softResolveCashFromSpine only (same as Production Status). */
+    return softResolveCashFromSpine(row) === 'paid';
   }
   function softGmIsUnpaidSoT(row) {
-    /* Invoiced unpaid = Carri/spine billed but not paid. Not mere Production Status Invoiced. */
-    if (!row || softGmIsPaidSoT(row)) return false;
-    if (row.gmCashState === 'booked') return false;
-    if (row.gmCashState === 'unpaid') return true;
-    if (row.arOpenMatch) return true;
-    if (row.carriQbMatch && row.carriQbMatch.num && !row.carriQbMatch.deferred) return true;
-    if (row.qbInvoice && String(row.qbInvoice)) return true;
-    return false;
+    /* soft-spine-sot-wire-20260915f — Unpaid from same spine cash SoT as Production Status. */
+    return softResolveCashFromSpine(row) === 'unpaid';
   }
   function bdGmIsBoardMoney(row) {
     if (!row) return false;
