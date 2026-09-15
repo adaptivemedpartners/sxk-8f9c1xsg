@@ -3,6 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
+/* soft-tabs-restore-20260915g — restore Soft tabs after F CHIP ReferenceError; preserve soft-spine-sot-wire ONE cash SoT. Soft only. Never Hub. */
 /* soft-spine-sot-wire-20260915f — ONE spine cash SoT for GM + Production; was soft-gm-paid-fix-20260915e Rec/BD GM Paid rematch Carri matrix Paid (QB#+client/amt/month). Empty-n invert banned; future-beyond-invoice → Booked; never Production Status as cash. Soft only. Never Hub. */
 /* soft-live-tidy-20260915b — Soft live tidy: EXAMPLE wipe · Production Paid from spine/Carri · Mess Production jump · version chip. Soft only. Never Hub. */
 /* soft-fix-recgm-live-look-20260912 — Soft Rec GM dense stack + live Mess look (Mike stamped go 2026-09-12). Soft only. */
@@ -14809,7 +14810,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-spine-sot-wire-20260915f</span></div>
+<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-tabs-restore-20260915g</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -51163,7 +51164,7 @@ function mktSendAmplified(searchKey) {
     </section>
 <section class="view" id="view-production">
       <div class="card prod-card">
-        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-spine-sot-wire-20260915f</span></h2>
+        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-tabs-restore-20260915g</span></h2>
         <p class="lede">Soft live Production · stages <strong>Booked → Invoiced → Paid</strong>. Status follows Invoice spine / Carri paid SoT (green = Paid). <strong>Mark paid</strong> on Invoice spine only — not Production Actions. Modify GM Whole/Split stays SoT editor.</p>
         <!-- soft-prod-demo-cue-removed-20260915 Mike: bar gone; Soft real tidy -->
         <div class="toolbar">
@@ -54133,6 +54134,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v60'; /* soft-live-tidy-20260915b */
+  var CHIP = 'soft-tabs-restore-20260915g'; /* soft-tabs-restore-20260915g — was missing in F; ReferenceError aborted soft-flow-port-js before tab wiring */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
