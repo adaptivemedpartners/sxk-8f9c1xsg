@@ -3,7 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
-/* soft-tabs-fix-20260915c — Restore GM / Awards / Invoice Check / Exec GM: stray </div> after Recurring note-wipe closed #soft-flow-port. Keep Mess Production jump. Soft only. Never Hub. */
+/* soft-gm-paid-fix-20260915d — Rec/BD GM Paid/Unpaid from spine/Carri Soft paid SoT only (never Production Status). Future-beyond-invoice → Booked. Keep tabs + Production jump. Soft only. Never Hub. */
 /* soft-live-tidy-20260915b — Soft live tidy: EXAMPLE wipe · Production Paid from spine/Carri · Mess Production jump · version chip. Soft only. Never Hub. */
 /* soft-fix-recgm-live-look-20260912 — Soft Rec GM dense stack + live Mess look (Mike stamped go 2026-09-12). Soft only. */
 /* soft-fix-gm-tiers-pots-glow-20260912 — Soft Rec/BD GM bottom pots + Tiers neon bloom twin live Mess (Mike Soft-has-numbers / live-has-look). Soft only. */
@@ -14744,7 +14744,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-tabs-fix-20260915c</span></div>
+<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-gm-paid-fix-20260915d</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -51098,7 +51098,7 @@ function mktSendAmplified(searchKey) {
     </section>
 <section class="view" id="view-production">
       <div class="card prod-card">
-        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-tabs-fix-20260915c</span></h2>
+        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-gm-paid-fix-20260915d</span></h2>
         <p class="lede">Soft live Production · stages <strong>Booked → Invoiced → Paid</strong>. Status follows Invoice spine / Carri paid SoT (green = Paid). <strong>Mark paid</strong> on Invoice spine only — not Production Actions. Modify GM Whole/Split stays SoT editor.</p>
         <!-- soft-prod-demo-cue-removed-20260915 Mike: bar gone; Soft real tidy -->
         <div class="toolbar">
@@ -51387,7 +51387,7 @@ function mktSendAmplified(searchKey) {
         <!-- soft-acct-note-to-chat-20260915 removed: recurring-carri-backfill -->
         <!-- soft-acct-note-to-chat-20260915 removed: rec-month-close-banner -->
         <!-- soft-acct-note-to-chat-20260915 removed: rec-month-close-demo -->
-        <!-- soft-tabs-fix-20260915c: removed stray </div> that closed #soft-flow-port after Recurring notes wipe -->
+        <!-- soft-gm-paid-fix-20260915d: removed stray </div> that closed #soft-flow-port after Recurring notes wipe -->
         <div class="rec-invoice-run" id="rec-invoice-run" aria-label="Month invoice run report for Carri and David">
           <h3>Month invoice run · Carri / David</h3>
           <p class="rir-note">Confirm Recurring first, then create these QB invoices on Spine. Mock report only — no live QB create. Live streams only · monthlies if not stopped · internets if ON. Use Copy / CSV / Printable — no plain-text dump under the preview.</p>
@@ -55084,7 +55084,13 @@ function ensureCarriGmSeed(s) {
     var matchedGm = 0, flippedPaid = 0, flippedUnpaid = 0;
     var spineUpdated = 0, spineAdded = 0;
 
-    /* --- GM rows: apply map (precomputed) then light runtime fallback --- */
+    /* --- GM rows: apply map — Soft paid SoT = Carri/spine only.
+       soft-gm-paid-fix-20260915d: never Paid without a QB #; never paint a FUTURE month
+       from an earlier invoice (e.g. Oct/Nov Cullman → Aug 17104 Paid). Unbilled future = Booked. --- */
+    var carriQbDateByNum = {};
+    (CARRI_QB_SPINE || []).forEach(function (sp) {
+      if (sp && sp.n) carriQbDateByNum[String(sp.n)] = String(sp.d || '').slice(0, 7);
+    });
     (s.rows || []).forEach(function (row) {
       if (!row) return;
       var isRec = !!row.carriGmSeed;
@@ -55094,11 +55100,35 @@ function ensureCarriGmSeed(s) {
       if (!hit) return;
       var wantPaid = !!hit.p;
       var before = !!row.paid;
-      row.qbInvoice = String(hit.n || '');
+      var qbNum = String(hit.n || '');
+      var rowMo = String(row.month || '').slice(0, 7);
+      var invMo = qbNum ? (carriQbDateByNum[qbNum] || '') : '';
+      /* Soft as-of for "future unbilled": do not paint Paid from an earlier invoice month;
+         do not yellow post-asof months matched to an older invoice. Keep in-period Carri unpaid. */
+      var softNowMo = '2026-09';
+      var futureBeyondInv = !!(rowMo && invMo && rowMo > invMo);
+      var deferToBooked = !qbNum || (futureBeyondInv && (wantPaid || (rowMo > softNowMo)));
+      row.qbInvoice = qbNum;
       row.carriQbMatch = { num: hit.n, amount: hit.a, how: hit.how, side: hit.side, source: CARRI_QB_PAID_SOURCE };
-      if (wantPaid) {
+      if (deferToBooked) {
+        /* No QB face, false Paid from earlier inv, or post-asof future → Booked cyan */
+        row.paid = false;
+        row.status = 'Booked';
+        row.paidSource = '';
+        row.gmCashState = 'booked';
+        if (row.paidDate) row.paidDate = '';
+        delete row.arOpenMatch;
+        if (futureBeyondInv) {
+          row.carriQbMatch.deferred = true;
+          row.carriQbMatch.reason = wantPaid ? 'future-month-beyond-paid-invoice' : 'future-month-beyond-invoice';
+          row.carriQbMatch.invoiceMonth = invMo;
+        } else {
+          row.carriQbMatch.how = (hit.how || '') + '+unbilled-booked';
+          row.qbInvoice = '';
+        }
+      } else if (wantPaid) {
         row.paid = true;
-        row.status = 'Paid';
+        row.status = 'Paid'; /* Production Status mirrors spine/Carri paid SoT */
         row.paidSource = CARRI_QB_PAID_SOURCE;
         row.gmCashState = 'paid';
         delete row.arOpenMatch;
@@ -55112,8 +55142,8 @@ function ensureCarriGmSeed(s) {
         if (row.paidDate) row.paidDate = '';
       }
       matchedGm++;
-      if (wantPaid && !before) flippedPaid++;
-      if (!wantPaid && before) flippedUnpaid++;
+      if (row.paid && !before) flippedPaid++;
+      if (!row.paid && before) flippedUnpaid++;
     });
 
     /* --- Spine: merge by qbNumber / id — never wipe existing --- */
@@ -55236,7 +55266,7 @@ function ensureCarriGmSeed(s) {
 
     s.carriQbInvoiceSeed = {
       source: CARRI_QB_PAID_SOURCE,
-      stamp: 'carri-qb-invoice-seed-20260915',
+      stamp: 'soft-gm-paid-fix-20260915d',
       lsKey: 'amp_soft_mess_book_to_gm_v59',
       matchedGm: matchedGm,
       flippedPaid: flippedPaid,
@@ -55251,8 +55281,8 @@ function ensureCarriGmSeed(s) {
   }
 
 
-  /* soft-live-tidy-20260915b — Production Status Paid (green) from Invoice spine / Carri paid Soft SoT.
-     GM boards already green from ensureCarriQbInvoiceSeed; wire Production the same Soft paid truth.
+  /* soft-gm-paid-fix-20260915d — Production Status mirrors Invoice spine / Carri paid Soft SoT.
+     Soft lock: Production = fan-out SoT; spine/Carri = Paid/Unpaid SoT. GM boards read row.paid / gmCashState — never Production Status alone.
      Never-shrink. No markPaid() fanout. Soft only. */
   function softPaidNormClient(s) {
     return String(s || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -55276,7 +55306,9 @@ function ensureCarriGmSeed(s) {
     (s.rows || []).forEach(function (r) {
       if (!r) return;
       if (!(r.carriGmSeed || r.carriBdGmSeed || r.spineBridge || r.carriQbSeed)) return;
-      if (!(r.paid || r.status === 'Paid')) return;
+      /* Soft paid SoT only — not Production Status */
+      if (!(r.paid === true || r.gmCashState === 'paid')) return;
+      if (r.gmCashState === 'booked') return;
       var amt = (typeof arSoftAmt === 'function') ? arSoftAmt(r) : (Number(r.accountingBilled != null ? r.accountingBilled : r.fee) || 0);
       rememberPaid(r.client, r.month, amt, r.qbInvoice || r.qbNumber);
     });
@@ -55296,7 +55328,7 @@ function ensureCarriGmSeed(s) {
     (s.rows || []).forEach(function (r) {
       if (!r) return;
       if (r.carriGmSeed || r.carriBdGmSeed) return; /* GM boards own these */
-      if (r.paid || r.status === 'Paid') return;
+      if (r.paid === true || r.gmCashState === 'paid') return;
       var amt = 0;
       if (r.bookType === 'Placement') amt = Number(r.fee != null ? r.fee : r.accountingBilled) || 0;
       else if (r.bookType === 'Marketing') amt = Number(r.accountingBilled != null ? r.accountingBilled : r.bookValueThisMonth) || 0;
@@ -55316,7 +55348,7 @@ function ensureCarriGmSeed(s) {
       r.gmCashState = 'paid';
       flipped++;
     });
-    s.softProdPaidSync = { stamp: 'soft-live-tidy-20260915b', flipped: flipped, at: '2026-09-15' };
+    s.softProdPaidSync = { stamp: 'soft-gm-paid-fix-20260915d', flipped: flipped, at: '2026-09-15' };
     return s;
   }
 
@@ -70007,7 +70039,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     var subEl = backdrop.querySelector('.dd-sub');
     if (subEl) subEl.textContent = 'Soft live · deals / GM / fan-out SoT · Invoice spine = Paid/Unpaid SoT';
     title.textContent = 'Placement · ' + (row.physician || row.client || 'Detail');
-    var invLine = (row.paid || row.status === 'Paid')
+    var invLine = (softGmIsPaidSoT(row))
       ? ('Paid' + (row.date ? ' · booked/invoiced ' + escHtml(row.date) : ''))
       : (row.status === 'Invoiced'
         ? ('Invoiced unpaid · ' + escHtml(row.date || row.month || '—'))
@@ -70831,9 +70863,9 @@ ownersDetailHtml(row) +
     });
   }
   function bdGmBillingStage(row) {
-    /* Mike 2026-09-11: Mark paid only on Invoice spine — paths show Booked · Invoiced · Paid */
-    if (row.paid || row.status === 'Paid') return 'Paid';
-    if (row.status === 'Invoiced') return 'Invoiced';
+    /* soft-gm-paid-fix-20260915d: Paid/Unpaid from spine/Carri Soft paid SoT — not Production Status */
+    if (softGmIsPaidSoT(row)) return 'Paid';
+    if (softGmIsUnpaidSoT(row)) return 'Invoiced';
     return 'Booked';
   }
   function bdGmPathItemHtml(row, lastId) {
@@ -70964,21 +70996,39 @@ ownersDetailHtml(row) +
         '<div class="feed-amt">' + money(it.amt) + '</div></div>';
     }).join('');
   }
+  function softGmIsPaidSoT(row) {
+    /* soft-gm-paid-fix-20260915d — Soft lock: Paid from spine/Carri Soft paid SoT only.
+       Never Production Status alone (status==='Paid' without row.paid). */
+    if (!row) return false;
+    if (row.gmCashState === 'booked') return false;
+    if (row.gmCashState === 'paid') return true;
+    return row.paid === true;
+  }
+  function softGmIsUnpaidSoT(row) {
+    /* Invoiced unpaid = Carri/spine billed but not paid. Not mere Production Status Invoiced. */
+    if (!row || softGmIsPaidSoT(row)) return false;
+    if (row.gmCashState === 'booked') return false;
+    if (row.gmCashState === 'unpaid') return true;
+    if (row.arOpenMatch) return true;
+    if (row.carriQbMatch && row.carriQbMatch.num && !row.carriQbMatch.deferred) return true;
+    if (row.qbInvoice && String(row.qbInvoice)) return true;
+    return false;
+  }
   function bdGmIsBoardMoney(row) {
     if (!row) return false;
-    if (row.paid || row.status === 'Paid') return true;
+    if (softGmIsPaidSoT(row) || softGmIsUnpaidSoT(row)) return true;
+    if (isBookedStatus(row.status) || row.gmCashState === 'booked' || row.status === 'Booked') return true;
     if (row.status === 'Invoiced') return true;
-    if (isBookedStatus(row.status)) return true;
     return false;
   }
   function bdGmIsPaid(row) {
-    return !!(row && (row.paid || row.status === 'Paid'));
+    return softGmIsPaidSoT(row);
   }
   function bdGmIsBooked(row) {
     if (!row) return false;
-    if (row.paid || row.status === 'Paid') return true;
+    if (softGmIsPaidSoT(row) || softGmIsUnpaidSoT(row)) return true;
+    if (isBookedStatus(row.status) || row.gmCashState === 'booked' || row.status === 'Booked') return true;
     if (row.status === 'Invoiced') return true;
-    if (isBookedStatus(row.status)) return true;
     return false;
   }
   function bdGmRowEligible(row) {
@@ -71064,7 +71114,7 @@ ownersDetailHtml(row) +
     if (!(c > 0) || mi < 0) return;
     pots.booked[mi] += c;
     if (bdGmIsPaid(row)) pots.paid[mi] += c;
-    else if (row && row.status === 'Invoiced') pots.unpaid[mi] += c;
+    else if (softGmIsUnpaidSoT(row)) pots.unpaid[mi] += c;
   }
   function syncBdGmChrome(filter) {
     var yearEl = document.getElementById('bdgm-year');
@@ -71220,8 +71270,9 @@ ownersDetailHtml(row) +
       candidate: cand,
       amount: c,
       kind: kind || row.bookType || 'Line',
-      paid: !!(row.paid || row.status === 'Paid'),
+      paid: softGmIsPaidSoT(row),
       status: row.status || '',
+      gmCashState: row.gmCashState || '',
       booked: true
     });
   }
@@ -71506,7 +71557,7 @@ ownersDetailHtml(row) +
     } catch (e) { console.warn('[carry-in spine]', e); }
     (state.rows || []).forEach(function (row) {
       if (!row) return;
-      if (row.paid || row.status === 'Paid') return;
+      if (softGmIsPaidSoT(row)) return;
       var my = String(row.month || row.date || '').slice(0, 4);
       if (my !== prior) return;
       var sampleKey = 'inv:' + (row.sampleId || '') + ':' + (filter || 'all');
@@ -71605,7 +71656,7 @@ ownersDetailHtml(row) +
       });
     } catch (e2) { console.warn('[carry-in paid]', e2); }
     (state.rows || []).forEach(function (row) {
-      if (!row || !(row.paid || row.status === 'Paid')) return;
+      if (!row || !softGmIsPaidSoT(row)) return;
       var my = String(row.month || row.date || '').slice(0, 4);
       if (my !== prior) return;
       var py = String(row.paidDate || '').slice(0, 4);
@@ -72052,13 +72103,13 @@ ownersDetailHtml(row) +
       if (!(primary > 0)) return;
 
       if (row.bookType === 'Marketing') {
-        if (onBoard) pushStack(mktStacks, mi, { amt: primary, paid: paid, status: row.status, rowId: stackId, kind: kind, label: recGmDealLineLabel(row), month: row.month });
+        if (onBoard) pushStack(mktStacks, mi, { amt: primary, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: kind, label: recGmDealLineLabel(row), month: row.month });
         bdGmAddToPots(pots, mi, primary, row);
       } else if (row.isRecurringLine) {
-        if (onBoard) pushStack(recStacks, mi, { amt: primary, paid: paid, status: row.status, rowId: stackId, kind: kind, label: recGmDealLineLabel(row), month: row.month });
+        if (onBoard) pushStack(recStacks, mi, { amt: primary, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: kind, label: recGmDealLineLabel(row), month: row.month });
         bdGmAddToPots(pots, mi, primary, row);
       } else {
-        if (onBoard) pushStack(newStacks, mi, { amt: primary, paid: paid, status: row.status, rowId: stackId, kind: kind, label: recGmDealLineLabel(row), month: row.month });
+        if (onBoard) pushStack(newStacks, mi, { amt: primary, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: kind, label: recGmDealLineLabel(row), month: row.month });
         bdGmAddToPots(pots, mi, primary, row);
       }
     });
@@ -72201,9 +72252,12 @@ ownersDetailHtml(row) +
     }
     var amt = Number(entry.amt) || 0;
     if (!amt) return '<td class="num empty-mo">&nbsp;</td>';
+    /* soft-gm-paid-fix-20260915d: paint from entry.paid / gmCashState Soft paid SoT — not Production Status */
     var paid = !!entry.paid;
-    var st = String(entry.status || entry.gmCashState || '');
-    var unpaid = !paid && (st === 'Invoiced' || entry.unpaid === true);
+    var stCash = String(entry.gmCashState || '');
+    var st = String(entry.status || '');
+    var unpaid = !paid && (entry.unpaid === true || stCash === 'unpaid' || (!stCash && st === 'Invoiced'));
+    if (!paid && stCash === 'booked') unpaid = false;
     var booked = !paid && !unpaid;
     var cls = 'num gm-amt-click ' + (paid ? 'gm-amt-paid' : (unpaid ? 'gm-amt-unpaid' : 'gm-amt-booked'));
     var tip = paid ? 'Paid' : (unpaid ? 'Invoiced unpaid' : 'Booked (not invoiced)');
@@ -72478,29 +72532,29 @@ ownersDetailHtml(row) +
   function recGmIsBoardMoney(row) {
     /* Yellow = invoiced unpaid; Green = paid; Cyan = Booked not invoiced. */
     if (!row) return false;
-    if (row.paid || row.status === 'Paid') return true;
-    if (row.status === 'Invoiced') return true;
-    if (isBookedStatus(row.status)) return true;
+    if (softGmIsPaidSoT(row) || softGmIsUnpaidSoT(row)) return true;
+    if (isBookedStatus(row.status) || row.gmCashState === 'booked' || row.status === 'Booked') return true;
+    if (row.status === 'Invoiced') return true; /* legacy non-seed */
     return false;
   }
   function recGmIsPaid(row) {
-    return !!(row && (row.paid || row.status === 'Paid'));
+    return softGmIsPaidSoT(row);
   }
   function recGmIsBooked(row) {
     /* Booked pot = Draft + Invoiced + Paid (everything booked that can hit this board). */
     if (!row) return false;
-    if (row.paid || row.status === 'Paid') return true;
+    if (softGmIsPaidSoT(row) || softGmIsUnpaidSoT(row)) return true;
+    if (isBookedStatus(row.status) || row.gmCashState === 'booked' || row.status === 'Booked') return true;
     if (row.status === 'Invoiced') return true;
-    if (isBookedStatus(row.status)) return true;
     return false;
   }
   function recGmAddToPots(pots, mi, credit, row) {
-    /* THREE layers: Booked(all) + Unpaid(yellow/invoiced) + Paid(green). */
+    /* THREE layers: Booked(all) + Unpaid(yellow/invoiced) + Paid(green). Soft paid SoT — not Production Status. */
     var c = Number(credit) || 0;
     if (!(c > 0) || mi < 0) return;
     pots.booked[mi] += c;
     if (recGmIsPaid(row)) pots.paid[mi] += c;
-    else if (row && row.status === 'Invoiced') pots.unpaid[mi] += c;
+    else if (softGmIsUnpaidSoT(row)) pots.unpaid[mi] += c;
   }
   function renderRecGm() {
     var filter = document.getElementById('recgm-person').value;
@@ -72532,7 +72586,7 @@ ownersDetailHtml(row) +
       if (filter === 'all') {
         if (!REC_PEOPLE.some(function (p) { return recGmPersonCreditOnRow(row, p, fee) > 0; })) return;
         if (onBoard) {
-          placeStacks[mi].push({ amt: fee, paid: paid, status: row.status, rowId: stackId, kind: 'Placement', label: recGmDealLineLabel(row), month: row.month });
+          placeStacks[mi].push({ amt: fee, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: 'Placement', label: recGmDealLineLabel(row), month: row.month });
           if (!recGmIsEcbPlacementLine(row)) {
             placeCountEvents.push({ mi: mi, pk: recGmPlacementUniqueKey(row), id: stackId });
           }
@@ -72542,7 +72596,7 @@ ownersDetailHtml(row) +
         var credit = recGmPersonCreditOnRow(row, filter, fee);
         if (!(credit > 0)) return;
         if (onBoard) {
-          placeStacks[mi].push({ amt: credit, paid: paid, status: row.status, rowId: stackId, kind: 'Placement', label: recGmDealLineLabel(row), month: row.month });
+          placeStacks[mi].push({ amt: credit, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: 'Placement', label: recGmDealLineLabel(row), month: row.month });
           if (!recGmIsEcbPlacementLine(row)) {
             placeCountEvents.push({ mi: mi, pk: recGmPlacementUniqueKey(row), id: stackId });
           }
@@ -72568,12 +72622,12 @@ ownersDetailHtml(row) +
         var recCredit = 0;
         REC_PEOPLE.forEach(function (p) { recCredit += recGmPersonCreditOnRow(row, p, amt); });
         if (!(recCredit > 0)) return;
-        if (onBoard) mktStacks[mi].push({ amt: recCredit, paid: paid, status: row.status, rowId: stackId, kind: 'Marketing', label: recGmDealLineLabel(row), month: row.month });
+        if (onBoard) mktStacks[mi].push({ amt: recCredit, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: 'Marketing', label: recGmDealLineLabel(row), month: row.month });
         recGmAddToPots(pots, mi, recCredit, row);
       } else {
         var c = recGmPersonCreditOnRow(row, filter, amt);
         if (!(c > 0)) return;
-        if (onBoard) mktStacks[mi].push({ amt: c, paid: paid, status: row.status, rowId: stackId, kind: 'Marketing', label: recGmDealLineLabel(row), month: row.month });
+        if (onBoard) mktStacks[mi].push({ amt: c, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: 'Marketing', label: recGmDealLineLabel(row), month: row.month });
         recGmAddToPots(pots, mi, c, row);
       }
     });
@@ -72602,7 +72656,7 @@ ownersDetailHtml(row) +
         }
         if (!(credit > 0)) return;
         if (onBoard) {
-          if (!repeatEntries[mi]) repeatEntries[mi] = { amt: 0, paid: paid, status: row.status, rowId: row.id, kind: row.bookType === 'Placement' ? 'Placement' : 'Deal', month: row.month };
+          if (!repeatEntries[mi]) repeatEntries[mi] = { amt: 0, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: row.id, kind: row.bookType === 'Placement' ? 'Placement' : 'Deal', month: row.month };
           repeatEntries[mi].amt += credit;
           if (!paid) repeatEntries[mi].paid = false;
         }
@@ -72636,7 +72690,7 @@ ownersDetailHtml(row) +
         }
         if (!(credit > 0)) return;
         if (onBoard) {
-          rollStacks[mi].push({ amt: credit, paid: paid, status: row.status, rowId: stackId, kind: 'Deal', label: recGmDealLineLabel(row), month: row.month });
+          rollStacks[mi].push({ amt: credit, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: 'Deal', label: recGmDealLineLabel(row), month: row.month });
         }
         recGmAddToPots(pots, mi, credit, row);
       });
@@ -72743,7 +72797,7 @@ ownersDetailHtml(row) +
       return;
     }
     body.innerHTML = '<div class="recgm-deal-paths">' + groups.map(function (row) {
-      var paid = row.paid || row.status === 'Paid';
+      var paid = softGmIsPaidSoT(row);
       var amt = Number(row.fee) || 0;
       var stage = bdGmBillingStage(row);
       var paidHtml = paid
@@ -74047,7 +74101,7 @@ ownersDetailHtml(row) +
       var dateIso = softIsoDate(row.date || paidIso || '');
       var searchPo = (row.dealRef || row.searchRefs || row.searchPo || '').toString();
       if (kind === 'unpaid') {
-        if (row.paid || row.status === 'Paid') return;
+        if (softGmIsPaidSoT(row)) return;
         if (row.status !== 'Invoiced' && row.status !== 'Draft') return;
         out.push({
           id: 'prod_u_' + row.id, person: person, side: side, bookType: bt,
@@ -74056,7 +74110,7 @@ ownersDetailHtml(row) +
           date: dateIso, open: amt, amount: amt, example: !!row.example, fromProduction: true
         });
       } else if (kind === 'paid') {
-        if (!row.paid && row.status !== 'Paid') return;
+        if (!softGmIsPaidSoT(row)) return;
         out.push({
           id: 'prod_p_' + row.id, person: person, side: side, bookType: bt,
           client: row.client || '', inv: row.qbInvoice || row.inv || '—', searchPo: searchPo,
