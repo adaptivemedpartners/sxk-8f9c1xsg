@@ -3,7 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
-/* soft-dark-contrast-20260915h — dark Soft contrast: Invoice Check pink/gap rows + status/flag pills + BH stale banner; Soft E selected-row pattern. Soft F/G untouched. Soft only. Never Hub. */
+/* soft-dark-contrast-20260915i — dark Soft DARK-NATIVE: InvCheck gap/cleaned dark rows + spine selected dark+light text + NMC search light text; Soft F/G untouched. Soft only. Never Hub. */
 /* soft-tabs-restore-20260915g — restore Soft tabs after F CHIP ReferenceError; preserve soft-spine-sot-wire ONE cash SoT. Soft only. Never Hub. */
 /* soft-spine-sot-wire-20260915f — ONE spine cash SoT for GM + Production; was soft-gm-paid-fix-20260915e Rec/BD GM Paid rematch Carri matrix Paid (QB#+client/amt/month). Empty-n invert banned; future-beyond-invoice → Booked; never Production Status as cash. Soft only. Never Hub. */
 /* soft-live-tidy-20260915b — Soft live tidy: EXAMPLE wipe · Production Paid from spine/Carri · Mess Production jump · version chip. Soft only. Never Hub. */
@@ -14214,12 +14214,14 @@ html[data-look="dark"] #view-execgm .card {
 }
 </style>
 
-<style id="soft-dark-contrast-20260915h">
-/* soft-dark-contrast-20260915h — Mike dark Soft: no light-on-light washout.
-   Pattern = Soft E spine selected: keep light highlight / pill bg → force dark text.
-   Soft F cash SoT + Soft G CHIP/tabs untouched. Soft only. Never Hub. */
+<style id="soft-dark-contrast-20260915i">
+/* soft-dark-contrast-20260915i — Mike dark Soft DARK-MODE-NATIVE contrast.
+   Soft H kept light peach/mint/cream strips + forced #0f172a; screenshots still
+   showed white-on-cream (spine) and light-on-peach (InvCheck) / dark-on-navy (NMC).
+   Soft I: dark surfaces + light text. Soft F cash SoT + Soft G CHIP/tabs untouched.
+   Soft only. Never Hub. */
 
-/* ---- Invoice Check: gap / cleaned highlight rows (pink/peach/green paper) ---- */
+/* ---- Invoice Check: gap / cleaned → dark tint surfaces (NO peach/mint wash) ---- */
 html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row td,
 html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row td strong,
 html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.cleaned-row td,
@@ -14228,87 +14230,121 @@ html[data-look="dark"] #view-invcheck table.invcheck-table tr.gap-row td,
 html[data-look="dark"] #view-invcheck table.invcheck-table tr.gap-row td strong,
 html[data-look="dark"] #view-invcheck table.invcheck-table tr.cleaned-row td,
 html[data-look="dark"] #view-invcheck table.invcheck-table tr.cleaned-row td strong {
-  color: #0f172a !important;
+  color: #E8EEF6 !important;
 }
 html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row td .ic-muted,
 html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.cleaned-row td .ic-muted,
 html[data-look="dark"] #view-invcheck table.invcheck-table tr.gap-row td .ic-muted,
 html[data-look="dark"] #view-invcheck table.invcheck-table tr.cleaned-row td .ic-muted {
-  color: #334155 !important;
+  color: #94A3B8 !important;
 }
-/* Keep light status highlight tints readable (don't swap to dark-tint + light text) */
-html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row td:nth-child(odd) { background: #FEE2E2 !important; }
-html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row td:nth-child(even) { background: #FEF2F2 !important; }
-html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.cleaned-row td:nth-child(odd) { background: #DCFCE7 !important; }
-html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.cleaned-row td:nth-child(even) { background: #F0FDF4 !important; }
-html[data-look="dark"] #view-invcheck table.invcheck-table tr.gap-row td { background: #FFFBEB !important; color: #0f172a !important; }
-html[data-look="dark"] #view-invcheck table.invcheck-table tr.cleaned-row td { background: #F0FDF4 !important; color: #0f172a !important; }
+/* Dark-native gap (Incomplete) — muted rose/slate, not peach paper */
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row td:nth-child(odd) {
+  background: color-mix(in srgb, #F87171 14%, #0f172a) !important;
+}
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row td:nth-child(even) {
+  background: color-mix(in srgb, #F87171 10%, #111827) !important;
+}
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.cleaned-row td:nth-child(odd) {
+  background: color-mix(in srgb, #34D399 14%, #0f172a) !important;
+}
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.cleaned-row td:nth-child(even) {
+  background: color-mix(in srgb, #34D399 10%, #111827) !important;
+}
+html[data-look="dark"] #view-invcheck table.invcheck-table tr.gap-row td {
+  background: color-mix(in srgb, #FBBF24 12%, #0f172a) !important;
+  color: #E8EEF6 !important;
+}
+html[data-look="dark"] #view-invcheck table.invcheck-table tr.cleaned-row td {
+  background: color-mix(in srgb, #34D399 12%, #0f172a) !important;
+  color: #E8EEF6 !important;
+}
+/* Owner / Specialty / body cells + inputs readable on dark gap/cleaned */
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row td,
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.cleaned-row td,
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row .ic-clean,
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.cleaned-row .ic-clean,
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row .ic-clean label,
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.cleaned-row .ic-clean label {
+  color: #E8EEF6 !important;
+}
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.gap-row .ic-note,
+html[data-look="dark"] #view-invcheck .invcheck-client-lines tr.cleaned-row .ic-note {
+  background: #0b1220 !important;
+  color: #E8EEF6 !important;
+  border-color: #334155 !important;
+}
+/* Column headers stay muted-light on dark card */
+html[data-look="dark"] #view-invcheck .invcheck-client-lines thead th {
+  color: #94A3B8 !important;
+  background: var(--panel-2, #1a2436) !important;
+}
 
-/* Production / Recurring hotlinks are light paper + color:inherit → washout in dark */
-html[data-look="dark"] #view-invcheck .ic-prod-hotlink,
-html[data-look="dark"] #view-invcheck .ic-prod-hotlink .ic-muted,
-html[data-look="dark"] #view-invcheck .ic-prod-hotlink .ic-prod-go {
-  color: #0f172a !important;
+/* Production / Recurring hotlinks — dark panels + accent text (no light paper) */
+html[data-look="dark"] #view-invcheck .ic-prod-hotlink {
+  background: color-mix(in srgb, #7C3AED 16%, #0f172a) !important;
+  border-color: #6D28D9 !important;
+  color: #E9D5FF !important;
 }
-html[data-look="dark"] #view-invcheck .ic-prod-hotlink .ic-muted { color: #475569 !important; }
-html[data-look="dark"] #view-invcheck .ic-prod-hotlink .ic-prod-go { color: #5B21B6 !important; }
-html[data-look="dark"] #view-invcheck .ic-rec-hotlink,
-html[data-look="dark"] #view-invcheck .ic-rec-hotlink .ic-muted,
+html[data-look="dark"] #view-invcheck .ic-prod-hotlink .ic-muted { color: #C4B5FD !important; }
+html[data-look="dark"] #view-invcheck .ic-prod-hotlink .ic-prod-go { color: #DDD6FE !important; }
+html[data-look="dark"] #view-invcheck .ic-rec-hotlink {
+  background: color-mix(in srgb, #14B8A6 14%, #0f172a) !important;
+  border-color: #0D9488 !important;
+  color: #CCFBF1 !important;
+}
+html[data-look="dark"] #view-invcheck .ic-rec-hotlink .ic-muted { color: #99F6E4 !important; }
 html[data-look="dark"] #view-invcheck .ic-rec-hotlink .ic-rec-go,
-html[data-look="dark"] #view-invcheck .ic-rec-hotlink strong {
-  color: #0f172a !important;
-}
-html[data-look="dark"] #view-invcheck .ic-rec-hotlink .ic-muted { color: #475569 !important; }
-html[data-look="dark"] #view-invcheck .ic-rec-hotlink .ic-rec-go { color: #0F766E !important; }
+html[data-look="dark"] #view-invcheck .ic-rec-hotlink strong { color: #5EEAD4 !important; }
 
-/* Status pills: Booked / Invoiced / Paid — lock dark text on light chip (Accounting + Spine + Recurring) */
+/* Status pills: dark tint + light text (readable on dark Soft) */
 html[data-look="dark"] #view-invcheck .spine-status-chip.booked,
 html[data-look="dark"] #view-spine .spine-status-chip.booked,
 html[data-look="dark"] #view-recurring .spine-status-chip.booked {
-  background: #F3E8FF !important; color: #6B21A8 !important;
+  background: #4C1D95 !important; color: #E9D5FF !important;
 }
 html[data-look="dark"] #view-invcheck .spine-status-chip.invoiced,
 html[data-look="dark"] #view-spine .spine-status-chip.invoiced,
 html[data-look="dark"] #view-recurring .spine-status-chip.invoiced {
-  background: #DBEAFE !important; color: #1E40AF !important;
+  background: #1E3A8A !important; color: #BFDBFE !important;
 }
 html[data-look="dark"] #view-invcheck .spine-status-chip.paid,
 html[data-look="dark"] #view-spine .spine-status-chip.paid,
 html[data-look="dark"] #view-recurring .spine-status-chip.paid {
-  background: #D1FAE5 !important; color: #065F46 !important;
+  background: #064E3B !important; color: #A7F3D0 !important;
 }
 html[data-look="dark"] #view-invcheck .spine-status-chip:not(.booked):not(.invoiced):not(.paid) {
-  background: #E2E8F0 !important; color: #0f172a !important;
+  background: #1e293b !important; color: #E2E8F0 !important;
 }
 
-/* Flag pills: Incomplete (gap) / Check (warn) / Matched to QB (ok) */
+/* Flag pills: Incomplete / Check / Matched — dark chips, light labels */
 html[data-look="dark"] #view-invcheck .ic-flag.ok {
-  background: #D1FAE5 !important; color: #065F46 !important;
+  background: #064E3B !important; color: #A7F3D0 !important;
 }
 html[data-look="dark"] #view-invcheck .ic-flag.gap {
-  background: #FEF3C7 !important; color: #92400E !important;
+  background: #78350F !important; color: #FDE68A !important;
 }
 html[data-look="dark"] #view-invcheck .ic-flag.warn {
-  background: #FEF3C7 !important; color: #111827 !important; /* Check: black on yellow */
+  background: #78350F !important; color: #FEF3C7 !important;
 }
 
-/* Summary invcheck-pills: base used dark #334155 on dark panel-2 */
+/* Summary invcheck-pills */
 html[data-look="dark"] #view-invcheck .invcheck-pill {
   background: var(--panel-2, #1a2436) !important;
   color: var(--text, #e8eef6) !important;
   border-color: var(--border, #2a3648) !important;
 }
 html[data-look="dark"] #view-invcheck .invcheck-pill.gap {
-  background: #FEF3C7 !important; border-color: #FCD34D !important; color: #92400E !important;
+  background: #78350F !important; border-color: #D97706 !important; color: #FDE68A !important;
 }
 html[data-look="dark"] #view-invcheck .invcheck-pill.ok {
-  background: #D1FAE5 !important; border-color: #6EE7B7 !important; color: #065F46 !important;
+  background: #064E3B !important; border-color: #059669 !important; color: #A7F3D0 !important;
 }
 html[data-look="dark"] #view-invcheck .invcheck-pill.warn {
-  background: #FEE2E2 !important; border-color: #FECACA !important; color: #991B1B !important;
+  background: #7F1D1D !important; border-color: #DC2626 !important; color: #FECACA !important;
 }
 
-/* BH stale banner: orange-on-navy (match Internets warn), not white-on-bright-orange */
+/* BH stale banner: orange-on-navy */
 html[data-look="dark"] #view-invcheck .bh-chip {
   background: var(--panel-2, #1a2436) !important;
   color: var(--text, #e8eef6) !important;
@@ -14320,22 +14356,25 @@ html[data-look="dark"] #view-invcheck .bh-chip.stale {
   border-color: #D97706 !important;
   box-shadow: inset 3px 0 0 #F59E0B !important;
 }
-html[data-look="dark"] #view-invcheck .bh-chip.note {
-  color: #FDBA74 !important;
-}
+html[data-look="dark"] #view-invcheck .bh-chip.note { color: #FDBA74 !important; }
 
-/* Internets warn stays orange-on-dark (Mike OK) — reinforce */
 html[data-look="dark"] #view-invcheck .ic-inet.warn { color: #F59E0B !important; font-weight: 700; }
 html[data-look="dark"] #view-invcheck .ic-inet.ok { color: #4ADE80 !important; }
 
-/* Client head navy label readable on dark panel */
 html[data-look="dark"] #view-invcheck .invcheck-client-head .client-name,
 html[data-look="dark"] #view-invcheck .invcheck-client-head .client-stats {
   color: var(--text, #e8eef6) !important;
 }
 
-/* ---- Spine selected (Soft E already): keep locked ---- */
-html[data-look="dark"] #view-spine .spine-client-card.selected,
+/* ---- Spine Section A selected: DARK highlight + LIGHT text (never white-on-cream) ----
+   Soft E/H forced cream/#E6F7F6 + #0f172a; Soft E also painted ALL descendants #0f172a
+   which made NMC inner search rows (dark navy) unreadable. Soft I flips dark Soft. */
+html[data-look="dark"] #view-spine .spine-client-card.selected {
+  background: color-mix(in srgb, #14B8A6 22%, #0f172a) !important;
+  border-color: #2DD4BF !important;
+  box-shadow: 0 0 0 1px #14B8A6 inset, 0 0 18px color-mix(in srgb, #14B8A6 28%, transparent) !important;
+  color: #F1F5F9 !important;
+}
 html[data-look="dark"] #view-spine .spine-client-card.selected .spine-client-name,
 html[data-look="dark"] #view-spine .spine-client-card.selected .spine-client-count,
 html[data-look="dark"] #view-spine .spine-client-card.selected .sp-search-num,
@@ -14343,24 +14382,94 @@ html[data-look="dark"] #view-spine .spine-client-card.selected .sp-search-agree,
 html[data-look="dark"] #view-spine .spine-client-card.selected .sp-search-inet,
 html[data-look="dark"] #view-spine .spine-client-card.selected .sp-search-refs,
 html[data-look="dark"] #view-spine .spine-client-card.selected .sp-search-meta,
-html[data-look="dark"] #view-spine .spine-client-search.selected,
+html[data-look="dark"] #view-spine .spine-client-card.selected .spine-client-head,
+html[data-look="dark"] #view-spine .spine-client-card.selected li,
+html[data-look="dark"] #view-spine .spine-client-card.selected span {
+  color: #F1F5F9 !important;
+}
+html[data-look="dark"] #view-spine .spine-client-card.selected .spine-client-count,
+html[data-look="dark"] #view-spine .spine-client-card.selected .sp-search-refs,
+html[data-look="dark"] #view-spine .spine-client-card.selected .sp-search-meta {
+  color: #94A3B8 !important;
+}
+
+/* Selected search row + table rows — dark teal, light text */
+html[data-look="dark"] #view-spine .spine-client-search.selected {
+  background: color-mix(in srgb, #14B8A6 28%, #0b1220) !important;
+  border-color: #2DD4BF !important;
+  color: #F1F5F9 !important;
+}
 html[data-look="dark"] #view-spine .spine-client-search.selected .sp-search-num,
 html[data-look="dark"] #view-spine .spine-client-search.selected .sp-search-agree,
 html[data-look="dark"] #view-spine .spine-client-search.selected .sp-search-inet,
 html[data-look="dark"] #view-spine .spine-client-search.selected .sp-search-refs,
 html[data-look="dark"] #view-spine .spine-client-search.selected .sp-search-meta,
+html[data-look="dark"] #view-spine .spine-client-search.selected span {
+  color: #F1F5F9 !important;
+}
+html[data-look="dark"] #view-spine .spine-client-search.selected .sp-search-refs,
+html[data-look="dark"] #view-spine .spine-client-search.selected .sp-search-meta {
+  color: #94A3B8 !important;
+}
 html[data-look="dark"] #view-spine table.spine-table tr.selected td,
 html[data-look="dark"] #view-spine table.spine-table tr.selected td strong,
 html[data-look="dark"] #view-spine table.spine-table tr.selected td div {
-  color: #0f172a !important;
+  background: color-mix(in srgb, #14B8A6 20%, #0f172a) !important;
+  color: #F1F5F9 !important;
 }
-html[data-look="dark"] #view-spine .spine-client-card.selected,
-html[data-look="dark"] #view-spine .spine-client-search.selected,
-html[data-look="dark"] #view-spine table.spine-table tr.selected td {
-  background: #E6F7F6 !important;
+html[data-look="dark"] #view-spine table.spine-table tr.selected td div {
+  color: #94A3B8 !important;
 }
 
-/* ---- Production status badges: ensure readable on dark panel ---- */
+/* ---- NMC / search cards: light body text on dark inner rows (selected OR not) ---- */
+html[data-look="dark"] #view-spine .spine-client-search {
+  background: var(--card, #0b1220) !important;
+  border-color: var(--border, #2a3648) !important;
+  color: #E8EEF6 !important;
+}
+html[data-look="dark"] #view-spine .spine-client-search .sp-search-num,
+html[data-look="dark"] #view-spine .spine-client-search .sp-search-agree,
+html[data-look="dark"] #view-spine .spine-client-search .sp-search-inet,
+html[data-look="dark"] #view-spine .spine-client-search .sp-search-refs,
+html[data-look="dark"] #view-spine .spine-client-search .sp-search-meta,
+html[data-look="dark"] #view-spine .spine-client-card .sp-search-num,
+html[data-look="dark"] #view-spine .spine-client-card .sp-search-agree,
+html[data-look="dark"] #view-spine .spine-client-card .sp-search-inet {
+  color: #E8EEF6 !important;
+}
+html[data-look="dark"] #view-spine .spine-client-search .sp-search-refs,
+html[data-look="dark"] #view-spine .spine-client-search .sp-search-meta,
+html[data-look="dark"] #view-spine .spine-client-card .sp-search-refs,
+html[data-look="dark"] #view-spine .spine-client-card .sp-search-meta,
+html[data-look="dark"] #view-spine .spine-client-card .spine-client-count {
+  color: #94A3B8 !important;
+}
+html[data-look="dark"] #view-spine .spine-client-card .spine-client-name {
+  color: var(--text, #e8eef6) !important;
+}
+/* Detail panel body text */
+html[data-look="dark"] #view-spine .spine-detail,
+html[data-look="dark"] #view-spine .spine-detail .kv,
+html[data-look="dark"] #view-spine .spine-detail .kv span:last-child {
+  color: var(--text, #e8eef6) !important;
+}
+html[data-look="dark"] #view-spine .spine-detail .kv span:first-child {
+  color: var(--muted, #94A3B8) !important;
+}
+
+/* Spine hotlinks on dark (inside selected cards too) */
+html[data-look="dark"] #view-spine .spine-prod-hotlink {
+  background: color-mix(in srgb, #7C3AED 18%, #0f172a) !important;
+  border-color: #6D28D9 !important;
+  color: #E9D5FF !important;
+}
+html[data-look="dark"] #view-spine .spine-rec-hotlink {
+  background: color-mix(in srgb, #14B8A6 16%, #0f172a) !important;
+  border-color: #0D9488 !important;
+  color: #99F6E4 !important;
+}
+
+/* ---- Production status badges ---- */
 html[data-look="dark"] #view-production .badge.booked,
 html[data-look="dark"] #view-production .badge.draft {
   background: #4C1D95 !important; color: #E9D5FF !important; border-color: #7C3AED !important;
@@ -14372,7 +14481,6 @@ html[data-look="dark"] #view-production .badge.paid {
   background: #064E3B !important; color: #A7F3D0 !important; border-color: #10B981 !important;
 }
 
-/* ---- GM / Accounting filter pills that used light paper defaults ---- */
 html[data-look="dark"] #view-spine .spine-cash-pill,
 html[data-look="dark"] #view-spine button.spine-cash-pill {
   color: var(--text, #e8eef6) !important;
@@ -14986,7 +15094,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-dark-contrast-20260915h</span></div>
+<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-dark-contrast-20260915i</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -51340,7 +51448,7 @@ function mktSendAmplified(searchKey) {
     </section>
 <section class="view" id="view-production">
       <div class="card prod-card">
-        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-dark-contrast-20260915h</span></h2>
+        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-dark-contrast-20260915i</span></h2>
         <p class="lede">Soft live Production · stages <strong>Booked → Invoiced → Paid</strong>. Status follows Invoice spine / Carri paid SoT (green = Paid). <strong>Mark paid</strong> on Invoice spine only — not Production Actions. Modify GM Whole/Split stays SoT editor.</p>
         <!-- soft-prod-demo-cue-removed-20260915 Mike: bar gone; Soft real tidy -->
         <div class="toolbar">
@@ -54310,7 +54418,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v60'; /* soft-live-tidy-20260915b */
-  var CHIP = 'soft-dark-contrast-20260915h'; /* soft-dark-contrast-20260915h — keep CHIP declared (Soft G); dark contrast pass only */
+  var CHIP = 'soft-dark-contrast-20260915i'; /* soft-dark-contrast-20260915i — keep CHIP declared (Soft G); dark-native contrast; Soft F untouched */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
