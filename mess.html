@@ -3,6 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
+/* soft-tabs-fix-20260915c — Restore GM / Awards / Invoice Check / Exec GM: stray </div> after Recurring note-wipe closed #soft-flow-port. Keep Mess Production jump. Soft only. Never Hub. */
 /* soft-live-tidy-20260915b — Soft live tidy: EXAMPLE wipe · Production Paid from spine/Carri · Mess Production jump · version chip. Soft only. Never Hub. */
 /* soft-fix-recgm-live-look-20260912 — Soft Rec GM dense stack + live Mess look (Mike stamped go 2026-09-12). Soft only. */
 /* soft-fix-gm-tiers-pots-glow-20260912 — Soft Rec/BD GM bottom pots + Tiers neon bloom twin live Mess (Mike Soft-has-numbers / live-has-look). Soft only. */
@@ -14743,7 +14744,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-live-tidy-20260915b</span></div>
+<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-tabs-fix-20260915c</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -51097,7 +51098,7 @@ function mktSendAmplified(searchKey) {
     </section>
 <section class="view" id="view-production">
       <div class="card prod-card">
-        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-live-tidy-20260915b</span></h2>
+        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-tabs-fix-20260915c</span></h2>
         <p class="lede">Soft live Production · stages <strong>Booked → Invoiced → Paid</strong>. Status follows Invoice spine / Carri paid SoT (green = Paid). <strong>Mark paid</strong> on Invoice spine only — not Production Actions. Modify GM Whole/Split stays SoT editor.</p>
         <!-- soft-prod-demo-cue-removed-20260915 Mike: bar gone; Soft real tidy -->
         <div class="toolbar">
@@ -51385,8 +51386,8 @@ function mktSendAmplified(searchKey) {
         <!-- soft-acct-note-to-chat-20260915 removed: recurring-ops-note -->
         <!-- soft-acct-note-to-chat-20260915 removed: recurring-carri-backfill -->
         <!-- soft-acct-note-to-chat-20260915 removed: rec-month-close-banner -->
-        </div>
         <!-- soft-acct-note-to-chat-20260915 removed: rec-month-close-demo -->
+        <!-- soft-tabs-fix-20260915c: removed stray </div> that closed #soft-flow-port after Recurring notes wipe -->
         <div class="rec-invoice-run" id="rec-invoice-run" aria-label="Month invoice run report for Carri and David">
           <h3>Month invoice run · Carri / David</h3>
           <p class="rir-note">Confirm Recurring first, then create these QB invoices on Spine. Mock report only — no live QB create. Live streams only · monthlies if not stopped · internets if ON. Use Copy / CSV / Printable — no plain-text dump under the preview.</p>
@@ -66437,7 +66438,7 @@ function softIsoDate(v) {
       b.classList.toggle('active', b.getAttribute('data-view') === id);
     });
     Object.keys(views).forEach(function (k) {
-      views[k].classList.toggle('active', k === id);
+      if (views[k]) views[k].classList.toggle('active', k === id);
     });
     if (id === 'production') renderProduction();
     if (id === 'fanout') { renderFanout(); paintSamplePanel(); }
@@ -77100,7 +77101,7 @@ ownersDetailHtml(row) +
           if (window.STATE) {
             window.STATE.pill = "gm";
             window.STATE.gmSub = (j === "gmoney") ? "gmoney" : "tracker";
-            if (typeof render === "function") render();
+            if (typeof window.render === "function") window.render();
           }
         } catch (errG) {}
         return;
@@ -77112,7 +77113,7 @@ ownersDetailHtml(row) +
           if (window.STATE) {
             window.STATE.pill = "exec";
             window.STATE.execSheet = (j === "awards") ? "Awards" : "Exec total GM";
-            if (typeof render === "function") render();
+            if (typeof window.render === "function") window.render();
           }
         } catch (errE) {}
         return;
