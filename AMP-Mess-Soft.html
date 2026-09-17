@@ -3,6 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
+/* soft-qb-detail-20260917j — Production View Details + Modify show QB invoice # (row.qbInvoice || row.qbNumber); empty = No QB yet · Booked / stamp pending. Soft I/F/G untouched. Soft only. Never Hub. */
 /* soft-dark-contrast-20260915i — dark Soft DARK-NATIVE: InvCheck gap/cleaned dark rows + spine selected dark+light text + NMC search light text; Soft F/G untouched. Soft only. Never Hub. */
 /* soft-tabs-restore-20260915g — restore Soft tabs after F CHIP ReferenceError; preserve soft-spine-sot-wire ONE cash SoT. Soft only. Never Hub. */
 /* soft-spine-sot-wire-20260915f — ONE spine cash SoT for GM + Production; was soft-gm-paid-fix-20260915e Rec/BD GM Paid rematch Carri matrix Paid (QB#+client/amt/month). Empty-n invert banned; future-beyond-invoice → Booked; never Production Status as cash. Soft only. Never Hub. */
@@ -15094,7 +15095,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-dark-contrast-20260915i</span></div>
+<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-qb-detail-20260917j</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -51448,7 +51449,7 @@ function mktSendAmplified(searchKey) {
     </section>
 <section class="view" id="view-production">
       <div class="card prod-card">
-        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-dark-contrast-20260915i</span></h2>
+        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-qb-detail-20260917j</span></h2>
         <p class="lede">Soft live Production · stages <strong>Booked → Invoiced → Paid</strong>. Status follows Invoice spine / Carri paid SoT (green = Paid). <strong>Mark paid</strong> on Invoice spine only — not Production Actions. Modify GM Whole/Split stays SoT editor.</p>
         <!-- soft-prod-demo-cue-removed-20260915 Mike: bar gone; Soft real tidy -->
         <div class="toolbar">
@@ -54418,7 +54419,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v60'; /* soft-live-tidy-20260915b */
-  var CHIP = 'soft-dark-contrast-20260915i'; /* soft-dark-contrast-20260915i — keep CHIP declared (Soft G); dark-native contrast; Soft F untouched */
+  var CHIP = 'soft-qb-detail-20260917j'; /* soft-qb-detail-20260917j — QB # on Production View Details; keep CHIP declared (Soft G); Soft I/F untouched */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -70615,6 +70616,19 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     return '<div class="dd-k">GM / split</div><div class="dd-v">' + bits.join('') + '</div>';
   }
 
+  /* Spine-linked QB face only — never invent. Empty = honest Booked / stamp pending. */
+  function softQbInvoiceFace(row) {
+    return String((row && (row.qbInvoice || row.qbNumber)) || '').trim();
+  }
+  function softQbInvoiceDetailHtml(row) {
+    var qb = softQbInvoiceFace(row);
+    var val = qb
+      ? ('<strong style="font-variant-numeric:tabular-nums">' + escHtml(qb) + '</strong>' +
+         ' <span style="font-size:11px;color:#64748b;font-weight:500">Invoice spine row</span>')
+      : '<span style="color:#b45309">No QB yet · Booked / stamp pending</span>';
+    return '<div class="dd-k">QB invoice</div><div class="dd-v">' + val + '</div>';
+  }
+
   function openPlacementDetail(row) {
     var backdrop = document.getElementById('deal-detail-backdrop');
     var body = document.getElementById('deal-detail-body');
@@ -70645,6 +70659,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="dd-k">Date</div><div class="dd-v">' + escHtml(row.date || '—') + ' · ' + escHtml(row.month || '') + '</div>' +
       '<div class="dd-k">Invoiced</div><div class="dd-v">' + invLine + '</div>' +
       '<div class="dd-k">Amount</div><div class="dd-v">' + money(row.fee) + '</div>' +
+      softQbInvoiceDetailHtml(row) +
       ownersDetailHtml(row) +
       '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>';
     backdrop.hidden = false;
@@ -70674,6 +70689,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="dd-k">Specialty</div><div class="dd-v">' + escHtml(row.specialties || '—') + '</div>' +
       '<div class="dd-k">Date</div><div class="dd-v">' + escHtml(row.date || '—') + ' · ' + escHtml(row.month || '') + '</div>' +
       '<div class="dd-k">Amount</div><div class="dd-v">' + money(amt) + '</div>' +
+      softQbInvoiceDetailHtml(row) +
       ownersDetailHtml(row) +
       '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>';
     backdrop.hidden = false;
@@ -70892,6 +70908,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     title.textContent = titleText;
     body.innerHTML = fieldsHtml +
       '<div class="dd-k">Why / note</div><div class="dd-v"><textarea id="md-note" rows="2" placeholder="Optional — what was wrong / what changed">' + escHtml(row.lastModifyNote || '') + '</textarea></div>' +
+      softQbInvoiceDetailHtml(row) +
       '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + ' <span class="md-hint">unchanged by modify</span></div>' +
       '<div class="md-actions">' +
         '<button type="button" class="mini-btn" id="md-cancel">Cancel</button> ' +
@@ -71110,6 +71127,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         ' · Internets ' + money(row.internets) +
         ' · Accounting billed ' + money(row.accountingBilled) +
         (row.example ? ' <span class="badge example">EXAMPLE</span>' : '') + '</div>' +
+      softQbInvoiceDetailHtml(row) +
 ownersDetailHtml(row) +
       '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) +
         (prodBdIsMonthly(row) ? ' <span class="badge monthly">Monthly</span>' : (row.isRecurringLine ? ' <span class="badge draft">Recurring</span>' : '')) + '</div>' +
