@@ -67274,17 +67274,18 @@ function softIsoDate(v) {
       selectBookTab(btn.getAttribute('data-tab'));
     });
   });
-  /* Production "Book a deal" → Book forms matching tab (no blank Production rows) */
+  /* Production "Book a deal" → same accepted Book modal as top-right Book (soft · closes after). */
   document.getElementById('view-production').addEventListener('click', function (e) {
     var btn = e.target.closest('.prod-book-deal[data-book-tab]');
     if (!btn) return;
+    e.preventDefault();
     var tab = btn.getAttribute('data-book-tab') || 'bd';
+    if (typeof window.__softMessOpenBook === 'function') {
+      window.__softMessOpenBook(tab);
+      return;
+    }
     goToView('book');
     selectBookTab(tab);
-    try {
-      var panel = bookPanels[tab];
-      if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
-    } catch (err) {}
   });
 
   function wireGm(formId, modeName, map) {
@@ -77451,11 +77452,6 @@ ownersDetailHtml(row) +
     }).join("");
     host.classList.add("soft-acct-active");
     host.innerHTML =
-      '<div class="card" style="margin-bottom:10px">' +
-      '<div class="card-head"><h2>Accounting</h2>' +
-      '<span class="meta">Soft · Spine · Invoice Check · Recurring · Fan-out · Flow overview</span></div>' +
-      '<p style="margin:8px 0 0;font-size:13px;opacity:.85">Native Mess panels (ported from Flow Mock views). No nested Team Hub / full Flow Mock topnav. Carri AR path lives here.</p>' +
-      "</div>" +
       '<div class="soft-acct-subpills" role="tablist" aria-label="Accounting panels">' + pills + "</div>" +
       '<div id="soft-acct-slot"></div>';
     mountPort(document.getElementById("soft-acct-slot"));
@@ -77875,7 +77871,18 @@ ownersDetailHtml(row) +
     try { if (window.__softMessCloseBook) window.__softMessCloseBook(); } catch (eP) {}
   };
 
-  window.__softMessOpenBook = function () {
+  window.__softMessSelectBookLookTab = function (tab) {
+    tab = String(tab || "").toLowerCase();
+    if (tab === "pl" || tab === "placement") tab = "bp";
+    if (tab === "mkt" || tab === "marketing") tab = "bm";
+    if (tab === "deal" || tab === "bddeal") tab = "bd";
+    if (tab !== "bd" && tab !== "bm" && tab !== "bp") return;
+    var root = document.getElementById("soft-book-look-root");
+    if (!root) return;
+    var btn = root.querySelector('#sbl-tabs button[data-tab="' + tab + '"]');
+    if (btn) btn.click();
+  };
+  window.__softMessOpenBook = function (tab) {
     var modal = document.getElementById("soft-book-modal");
     var slot = document.getElementById("soft-book-slot");
     if (!modal || !slot) return;
@@ -77887,6 +77894,9 @@ ownersDetailHtml(row) +
     } else {
       mountPort(slot);
       flowGo("book");
+    }
+    if (tab) {
+      try { window.__softMessSelectBookLookTab(tab); } catch (eTab) {}
     }
   };
   window.__softMessCloseBook = function () {
@@ -77924,10 +77934,13 @@ ownersDetailHtml(row) +
       window.__softMessCloseBook();
       return;
     }
-    var bookBtn = e.target && e.target.closest ? e.target.closest("[data-soft-book-open]") : null;
+    var bookBtn = e.target && e.target.closest
+      ? e.target.closest("[data-soft-book-open], .prod-book-deal[data-book-tab], [data-soft-book-tab]")
+      : null;
     if (bookBtn) {
       e.preventDefault();
-      window.__softMessOpenBook();
+      var openTab = bookBtn.getAttribute("data-book-tab") || bookBtn.getAttribute("data-soft-book-tab") || "";
+      window.__softMessOpenBook(openTab);
       return;
     }
     /* soft-prod-jump-mess-pill-20260915: Production hotlinks leave Accounting */
