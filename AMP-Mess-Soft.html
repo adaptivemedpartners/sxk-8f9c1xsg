@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-/* soft-writeoff-request-20260920 — Soft Production Deal write-off: request from Production board/detail → Carri QB queue → discovery-month Soft negative line (GM). Soft only. Never Hub. America/Chicago 2026-09-20 CT */
+/* soft-writeoff-request-20260920 — Soft Production Deal write-off → Accounting Write-offs (Carri · QuickBooks) → discovery-month Soft negative GM line. Soft only. Never Hub. America/Chicago 2026-09-20 CT */
 /* soft-scrub-flow-mock-20260919 — Soft live scrub: hide PARALLEL banner · remove Flow Mock production boards meta + top Book · clean Flow Mock header chrome; booking stays via .prod-book-deal. Soft only. Never Hub. America/Chicago 2026-09-19 CT */
 /* soft-prod-iv-harden-20260919 — Soft Production board + Invoice spine: strip source-attribution UI · light/dark contrast · save/delete integrity (tombstones + save verify + prodHidden persist). Soft only. Never Hub. America/Chicago 2026-09-19 12:06 PM CT */
 /* soft-exec-production-20260918 — LIVE Soft: Exec → Total GM → Exec Production sub-tab (BD/Mkt booked|recurring + Placements · Jan–Dec 2026 · Carri Production SoT) · panel #exec-panel-production · LS v62 · 2026-09-18 4:18 PM CT */
@@ -13396,18 +13396,20 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   .wo-req-modal .rr-ro { font-weight: 550; color: #0f172a; margin-top: 4px; font-size: 13px; }
   .wo-req-modal .rr-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
   .wo-req-modal .rr-req { font-size: 11px; color: #b45309; font-weight: 650; }
-  .prod-writeoff-queue {
+  .prod-writeoff-queue, .acct-writeoff-queue {
     margin: 14px 0 8px; padding: 12px 14px; border: 1px solid #F59E0B; border-radius: 12px;
     background: #FFFBEB;
   }
   .prod-writeoff-queue h3 { margin: 0 0 4px; font-size: 14px; color: #92400E; }
   .prod-writeoff-queue .erq-sub { margin: 0 0 10px; font-size: 12px; color: #78716c; }
   .erq-status.done { background: #D1FAE5; color: #065F46; }
-  html[data-look="dark"] .prod-writeoff-queue {
+  html[data-look="dark"] .prod-writeoff-queue,
+  html[data-look="dark"] .acct-writeoff-queue {
     background: color-mix(in srgb, var(--warn, #B45309) 12%, var(--card));
     border-color: color-mix(in srgb, var(--warn, #B45309) 45%, var(--border));
   }
-  html[data-look="dark"] .prod-writeoff-queue h3 { color: var(--warn, #FBBF24); }
+  html[data-look="dark"] .prod-writeoff-queue h3,
+  html[data-look="dark"] .acct-writeoff-queue h3 { color: var(--warn, #FBBF24); }
   html[data-look="dark"] .wo-req-modal .rr-sub { color: var(--muted); }
   html[data-look="dark"] .wo-req-modal .rr-field { color: var(--muted); }
   html[data-look="dark"] .wo-req-modal .rr-ro { color: var(--text); }
@@ -51911,13 +51913,6 @@ function mktSendAmplified(searchKey) {
             </table>
           </div>
         </div>
-        <!-- soft-writeoff-request-20260920 — Carri queue on Production board -->
-        <div class="prod-writeoff-queue exec-rec-queue" id="prod-writeoff-queue" aria-label="Write-off requests for Carri QuickBooks">
-          <h3>Write-off requests (Carri · QuickBooks)</h3>
-          <p class="erq-sub">Pending Deal write-off requests from Production. Carri marks <strong>Done in QuickBooks</strong> (Soft inserts discovery-month negative line for GM) or Deny. Soft does not call QuickBooks APIs. Spell <strong>Carri</strong>.</p>
-          <div id="prod-writeoff-queue-body"><div class="erq-empty">No pending write-off requests — open a Placement or Marketing row → Deal write-off.</div></div>
-          <div id="prod-writeoff-activity" style="margin-top:10px" aria-label="Write-off activity"></div>
-        </div>
         <p class="legend">Production = Soft deals / GM / fan-out · Blue = Invoiced · Green = Paid (Invoice spine) · Name glow = recruiter color</p>
       </div>
     </section>
@@ -52225,6 +52220,18 @@ function mktSendAmplified(searchKey) {
         <div class="invcheck-summary" id="invcheck-summary" aria-live="polite"></div>
         <div class="invcheck-orphan" id="invcheck-orphan" hidden></div>
         <div class="invcheck-groups" id="invcheck-groups" aria-label="Accepting searches grouped by client"></div>
+      </div>
+    </section>
+<section class="view" id="view-writeoff">
+      <div class="card">
+        <h2>Write-off requests (Carri · QuickBooks)</h2>
+        <p class="lede">Accounting · Carri. Deal write-off requests from <strong>Production</strong> land here. Carri marks <strong>Done in QuickBooks</strong> (Soft inserts a discovery-month <em>negative line item</em> on Production so gross margin stays correct) or Deny. Soft does <em>not</em> call QuickBooks APIs. Spell <strong>Carri</strong>.</p>
+        <div class="prod-writeoff-queue exec-rec-queue acct-writeoff-queue" id="prod-writeoff-queue" aria-label="Write-off requests for Carri QuickBooks">
+          <h3>Pending for Carri</h3>
+          <p class="erq-sub">Initiate from Production board · Placement or Marketing row → <strong>Deal write-off</strong>. Write-off hits the month discovered, not the original book month.</p>
+          <div id="prod-writeoff-queue-body"><div class="erq-empty">No pending write-off requests — open a Placement or Marketing row on Production → Deal write-off.</div></div>
+          <div id="prod-writeoff-activity" style="margin-top:10px" aria-label="Write-off activity"></div>
+        </div>
       </div>
     </section>
 <section class="view" id="view-bdgm">
@@ -67112,7 +67119,7 @@ function softIsoDate(v) {
   }
 
   var views = {};
-  ['overview','book','production','fanout','spine','recurring','invcheck','bdgm','recgm','gmoney','awards','execgm','commission'].forEach(function (k) {
+  ['overview','book','production','fanout','spine','recurring','invcheck','writeoff','bdgm','recgm','gmoney','awards','execgm','commission'].forEach(function (k) {
     views[k] = document.getElementById('view-' + k);
   });
   function goToView(id) {
@@ -67151,6 +67158,7 @@ function softIsoDate(v) {
     if (id === 'spine') renderSpine();
     if (id === 'recurring') renderRecurring();
     if (id === 'invcheck') { wireInvCheckOnce(); renderInvCheck(); }
+    if (id === 'writeoff') { try { renderWriteOffQueue(); } catch (eWo) {} } /* soft-writeoff-request-20260920 */
     if (id === 'awards') renderAwards();
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
   }
@@ -76731,9 +76739,17 @@ ownersDetailHtml(row) +
     closeWriteOffRequestModal();
     try { closeDealDetail(); } catch (e) {}
     toast('<strong>Write-off requested</strong><br>' + escHtml(bookType) + ' · ' + escHtml(attributedPerson) +
-      '<br>' + escHtml(money(amountPos)) + ' → Carri · discovery ' + escHtml(discoveryMonth));
+      '<br>' + escHtml(money(amountPos)) + ' → Accounting · Write-offs (Carri) · discovery ' + escHtml(discoveryMonth));
     renderWriteOffQueue();
     try { renderProduction(); } catch (e2) {}
+    try {
+      if (window.STATE) {
+        window.STATE.pill = 'accounting';
+        window.STATE.acctSub = 'writeoff';
+        if (typeof window.render === 'function') window.render();
+        else if (typeof window.setMode === 'function') window.setMode('accounting');
+      }
+    } catch (eNav) {}
   }
   function insertWriteOffNegativeLine(req) {
     var src = (state.rows || []).filter(function (r) { return r.id === req.sourceRowId; })[0] || null;
@@ -78006,6 +78022,7 @@ ownersDetailHtml(row) +
   var ACCT_SUBS = [
     ["spine", "Spine"],
     ["invcheck", "Invoice Check"],
+    ["writeoff", "Write-offs"], /* soft-writeoff-request-20260920 — Carri QB queue */
     ["recurring", "Recurring"],
     ["fanout", "Fan-out"],
     ["overview", "Flow overview"]
@@ -78083,8 +78100,8 @@ ownersDetailHtml(row) +
     host.innerHTML =
       '<div class="card" style="margin-bottom:10px">' +
       '<div class="card-head"><h2>Accounting</h2>' +
-      '<span class="meta">Soft · Spine · Invoice Check · Recurring · Fan-out</span></div>' +
-      '<p style="margin:8px 0 0;font-size:13px;opacity:.85">Accounting panels · Carri AR path lives here.</p>' +
+      '<span class="meta">Soft · Spine · Invoice Check · Write-offs · Recurring · Fan-out</span></div>' +
+      '<p style="margin:8px 0 0;font-size:13px;opacity:.85">Accounting panels · Carri AR path + Deal write-off queue (QuickBooks) live here.</p>' +
       "</div>" +
       '<div class="soft-acct-subpills" role="tablist" aria-label="Accounting panels">' + pills + "</div>" +
       '<div id="soft-acct-slot"></div>';
@@ -78616,7 +78633,7 @@ ownersDetailHtml(row) +
         } catch (errE) {}
         return;
       }
-      if (j === "spine" || j === "recurring" || j === "invcheck" || j === "fanout" || j === "overview") {
+      if (j === "spine" || j === "recurring" || j === "invcheck" || j === "writeoff" || j === "fanout" || j === "overview") {
         e.preventDefault();
         e.stopPropagation();
         try { if (window.STATE) window.STATE.acctSub = j; } catch (err2) {}
