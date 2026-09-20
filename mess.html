@@ -11960,7 +11960,7 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   #view-bdgm .gm-tiers-panel .meta,
   #view-recgm .gm-tiers-panel .lede,
   #view-bdgm .gm-tiers-panel .lede,
-  /* soft-overnight-cleanup-20260920 · soft-prod-delete-in-modify-20260920: darker body copy on blue GM status/legend banner — non-strong labels readable light+dark */
+  /* soft-overnight-cleanup-20260920 · soft-prod-delete-in-modify-20260920 · soft-gm-tab-cleanup-20260920: darker body copy on blue GM status/legend banner — non-strong labels readable light+dark */
   #view-recgm .hint.mess-hint,
   #view-bdgm .hint.mess-hint {
     color: #1e293b !important; /* dark slate body on blue-tint banner (light) */
@@ -52338,19 +52338,6 @@ function mktSendAmplified(searchKey) {
         </div>
         <div class="bdgm-lastpaid" id="bdgm-lastpaid"></div>
         <div class="hint mess-hint">BD GM Mess HUD (New Deals · Recurring/Rolling · Marketing · Repeat · Total + pots). <strong>Yellow</strong> = invoiced unpaid · <strong>Green</strong> = paid. <strong>Booked GM</strong> = all booked (Draft+Invoiced+Paid) · <strong>Unpaid GM</strong> = yellow · <strong>Paid GM</strong> = green. Click amount → deal detail. Internet / excludeFromBdGm excluded from pots. Summary cards = Paid GM $ in cycle / YTD (not commission tier %).</div>
-        <div class="gm-rec-actions" id="bdgm-rec-actions" aria-label="Recurring kill/stop request actions">
-          <strong>Recurring requests (mock) · not instant</strong>
-          <button type="button" class="mini-btn teal" id="bdgm-open-recurring" title="Open Recurring scoped to current BD person">Open Recurring · your clients</button>
-          <div class="row">
-            <label>Search stream
-              <select id="bdgm-rec-stream" aria-label="BD GM recurring search stream"></select>
-            </label>
-            <button type="button" class="mini-btn" data-rec-act="kill-internet" data-rec-surface="bdgm">Request: Kill internet</button>
-            <button type="button" class="mini-btn" data-rec-act="stop-monthlies" data-rec-surface="bdgm">Request: Stop monthlies</button>
-            <button type="button" class="mini-btn" data-jump="recurring">Exec Recurring →</button>
-          </div>
-          <div style="font-size:11.5px;color:#64748b">Opens request panel (required why-note). Lands on <strong>Exec Recurring</strong> for David / Carri / Mike / Randy. Approve → BH internets-off stub + stream kill.</div>
-        </div>
         <div class="gm-summary-cards" id="bdgm-summary-cards" aria-label="BD GM summary cards"></div>
         <p class="gm-layers-hint" id="bdgm-layers-hint">Carry-in is last year’s unpaid; it enters Paid tiers only when Mark paid this year. · Carri AR / Mark paid on Invoice spine.</p>
         <div class="gm-stack">
@@ -52401,6 +52388,21 @@ function mktSendAmplified(searchKey) {
           </div>
           <div class="gm-tiers-sec-h"><span>Tiers</span><span class="meta" id="bdgm-tiers-sec-meta">Live · Mess bands</span></div>
           <div class="gm-card gm-tiers-card" id="bdgm-tiers" aria-label="BD GM tiers"></div>
+          <!-- soft-gm-tab-cleanup-20260920: recurring requests moved to bottom of BD GM -->
+<div class="gm-rec-actions" id="bdgm-rec-actions" aria-label="Recurring kill/stop request actions">
+          <strong>Recurring requests (mock) · not instant</strong>
+          <button type="button" class="mini-btn teal" id="bdgm-open-recurring" title="Open Recurring scoped to current BD person">Open Recurring · your clients</button>
+          <div class="row">
+            <label>Search stream
+              <select id="bdgm-rec-stream" aria-label="BD GM recurring search stream"></select>
+            </label>
+            <button type="button" class="mini-btn" data-rec-act="kill-internet" data-rec-surface="bdgm">Request: Kill internet</button>
+            <button type="button" class="mini-btn" data-rec-act="stop-monthlies" data-rec-surface="bdgm">Request: Stop monthlies</button>
+            <button type="button" class="mini-btn" data-jump="recurring">Exec Recurring →</button>
+          </div>
+          <div style="font-size:11.5px;color:#64748b">Opens request panel (required why-note). Lands on <strong>Exec Recurring</strong> for David / Carri / Mike / Randy. Approve → BH internets-off stub + stream kill.</div>
+        </div>
+        
         </div>
       </div>
     </section>
@@ -52429,20 +52431,7 @@ function mktSendAmplified(searchKey) {
             <option>Mike</option><option>Stephanie</option><option>Hadley</option><option>Nate</option><option>Amy</option>
           </select>
         </div>
-        <div class="hint mess-hint">FROM TRACKER TEMPLATE / EXAMPLE — Mess section stack (Interviews · Placement · Placements · Rolling GM · Marketing · Repeat + calc). <strong>Yellow</strong> = invoiced unpaid · <strong>Green</strong> = paid. <strong>Booked GM</strong> = all booked (Draft+Invoiced+Paid) · <strong>Unpaid GM</strong> = yellow · <strong>Paid GM</strong> = green. Click amount → detail. Reports filter by date off those three pots. % / commission / tax = EXAMPLE labels only — not live policy. Summary cards = Paid GM $ in cycle / YTD (not commission tier %).</div>
-        <div class="gm-rec-actions" id="recgm-rec-actions" aria-label="Recurring kill/stop request actions">
-          <strong>Recurring requests (mock) · not instant</strong>
-          <button type="button" class="mini-btn teal" id="recgm-open-recurring" title="Open Recurring scoped to current recruiter">Open Recurring · your clients</button>
-          <div class="row">
-            <label>Search stream
-              <select id="recgm-rec-stream" aria-label="Rec GM recurring search stream"></select>
-            </label>
-            <button type="button" class="mini-btn" data-rec-act="kill-internet" data-rec-surface="recgm">Request: Kill internet</button>
-            <button type="button" class="mini-btn" data-rec-act="stop-monthlies" data-rec-surface="recgm">Request: Stop monthlies</button>
-            <button type="button" class="mini-btn" data-jump="recurring">Exec Recurring →</button>
-          </div>
-          <div style="font-size:11.5px;color:#64748b">Opens request panel (required why-note). Lands on <strong>Exec Recurring</strong> for David / Carri / Mike / Randy. Approve → BH internets-off stub + stream kill.</div>
-        </div>
+        <!-- soft-gm-tab-cleanup-20260920: removed TRACKER TEMPLATE / EXAMPLE explainer -->
         <div class="gm-summary-cards" id="recgm-summary-cards" aria-label="Recruiting GM summary cards"></div>
         <p class="gm-layers-hint" id="recgm-layers-hint">Carry-in is last year’s unpaid; it enters Paid tiers only when Mark paid this year. · Carri AR / Mark paid on Invoice spine.</p>
         <div class="gm-stack">
@@ -52473,6 +52462,21 @@ function mktSendAmplified(searchKey) {
           </details>
           <div class="gm-tiers-sec-h"><span>Tiers</span><span class="meta" id="recgm-tiers-sec-meta">Stephanie · 2026 bands</span></div>
           <div class="gm-card gm-tiers-card" id="recgm-tiers" aria-label="Recruiting GM tiers"></div>
+          <!-- soft-gm-tab-cleanup-20260920: recurring requests moved to bottom of Rec GM -->
+<div class="gm-rec-actions" id="recgm-rec-actions" aria-label="Recurring kill/stop request actions">
+          <strong>Recurring requests (mock) · not instant</strong>
+          <button type="button" class="mini-btn teal" id="recgm-open-recurring" title="Open Recurring scoped to current recruiter">Open Recurring · your clients</button>
+          <div class="row">
+            <label>Search stream
+              <select id="recgm-rec-stream" aria-label="Rec GM recurring search stream"></select>
+            </label>
+            <button type="button" class="mini-btn" data-rec-act="kill-internet" data-rec-surface="recgm">Request: Kill internet</button>
+            <button type="button" class="mini-btn" data-rec-act="stop-monthlies" data-rec-surface="recgm">Request: Stop monthlies</button>
+            <button type="button" class="mini-btn" data-jump="recurring">Exec Recurring →</button>
+          </div>
+          <div style="font-size:11.5px;color:#64748b">Opens request panel (required why-note). Lands on <strong>Exec Recurring</strong> for David / Carri / Mike / Randy. Approve → BH internets-off stub + stream kill.</div>
+        </div>
+        
         </div>
       </div>
     </section>
