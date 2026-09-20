@@ -56765,29 +56765,30 @@ function ensureCarriGmSeed(s) {
 
   
   function ensureHendrickSepAaron(state) {
-    /* soft-hendrick-sep-aaron-lock-20260920 — force Sep Hendrick 17089 / ex_spine_17089 rep=Aaron */
-    if (!state || !state.rows) return state;
+    /* soft-hendrick-sep-aaron-lock-20260920 — ALWAYS force Sep Hendrick → Aaron (last step) */
+    if (!state || !Array.isArray(state.rows)) return state;
     var stamp = "soft-hendrick-sep-aaron-lock-20260920";
     var flipped = 0;
     state.rows.forEach(function (row) {
       if (!row) return;
-      var isHit = (row.id === "ex_spine_17089" || String(row.sampleId || "") === "17089")
-        && /hendrick/i.test(String(row.client || ""))
-        && String(row.month || "") === "2026-09";
+      var client = String(row.client || "");
+      var mon = String(row.month || "");
+      var dt = String(row.date || "");
+      var isHit = (row.id === "ex_spine_17089" || String(row.sampleId || "") === "17089" || String(row.linkRowId || "") === "ex_spine_17089")
+        && /hendrick/i.test(client)
+        && (mon === "2026-09" || dt.indexOf("2026-09") === 0);
       if (!isHit) return;
-      var need = (String(row.rep || "") !== "Aaron")
-        || (row.owners && row.owners.primary && String(row.owners.primary) !== "Aaron")
-        || (String(row.gmLabel || "").indexOf("Aaron") < 0 && /Whole/.test(String(row.gmLabel || "")));
-      if (!need && String(row.rep || "") === "Aaron") return;
+      var before = String(row.rep || "") + "|" + String((row.owners && row.owners.primary) || "") + "|" + String(row.gmLabel || "");
       row.rep = "Aaron";
-      row.gmMode = row.gmMode || "Whole";
+      row.gmMode = "Whole";
       row.gmLabel = "Whole · Aaron 100%";
       row.owners = { mode: "Whole", primary: "Aaron" };
-      flipped++;
+      if (before !== (row.rep + "|" + row.owners.primary + "|" + row.gmLabel)) flipped++;
     });
     state.hendrickSepAaronLock = { stamp: stamp, flipped: flipped, at: "2026-09-20" };
     return state;
   }
+  try { window.__softEnsureHendrickSepAaron = ensureHendrickSepAaron; } catch (eE) {}
 
   function ensureSoftProdPaidFromSpineSoT(s) {
     if (!s || !Array.isArray(s.rows)) return s;
@@ -57033,6 +57034,7 @@ function softIsoDate(v) {
       }
       if ((row.bookType === 'Placement' || row.bookType === 'Marketing') && row.marketer == null) row.marketer = '';
     });
+    ensureHendrickSepAaron(s);
     return s;
   }
   function loadState() {
