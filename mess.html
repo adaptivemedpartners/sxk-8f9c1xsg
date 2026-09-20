@@ -12895,6 +12895,19 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   }
   #view-execgm .exec-ar-qseg button.active { background: var(--teal); color: #fff; border-color: var(--teal); }
   #view-execgm table.exec-ar-table { min-width: 640px; font-size: 12.5px; }
+  /* soft-exec-rec-bd-matrix-20260920 — Exec Rec/BD month×rep live read-only */
+  #view-execgm #tbl-exec.exec-live-matrix { user-select: text; }
+  #view-execgm #tbl-exec.exec-live-matrix input,
+  #view-execgm #tbl-exec.exec-live-matrix textarea,
+  #view-execgm #tbl-exec.exec-live-matrix [contenteditable] { display: none !important; }
+  #view-execgm #tbl-exec.exec-live-matrix td.num { pointer-events: none; }
+  #view-execgm .exec-side-prod-hint {
+    margin: 0 0 10px; padding: 8px 10px; border-radius: 8px; font-size: 12px; line-height: 1.4;
+    background: color-mix(in srgb, var(--teal) 10%, var(--panel)); border: 1px solid color-mix(in srgb, var(--teal) 25%, var(--border));
+    color: var(--ink);
+  }
+  #view-execgm .exec-side-prod-hint strong { color: var(--navy); }
+  #view-execgm .exec-side-prod-hint code { font-size: 11px; }
   #view-execgm table.exec-ar-table th.num,
   #view-execgm table.exec-ar-table td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
   #view-execgm table.exec-ar-table tr.ar-total-billed td { font-weight: 750; background: color-mix(in srgb, var(--accent) 12%, var(--panel)); }
@@ -52706,6 +52719,7 @@ function mktSendAmplified(searchKey) {
           <button type="button" data-exec="production">Exec Production</button>
         </div>
         <div id="exec-panel-gm">
+          <div class="exec-side-prod-hint" id="exec-side-prod-hint" hidden></div>
           <div class="table-wrap">
             <table class="board gm-table" id="tbl-exec">
               <thead>
@@ -55023,7 +55037,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-exec-ar-live-20260920'; /* soft-exec-ar-live-20260920; prior soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 · soft-overnight-cleanup-20260920 · soft-writeoff-request-20260920 · soft-prod-iv-harden-20260919 */
+  var CHIP = 'soft-exec-rec-bd-matrix-20260920'; /* soft-exec-rec-bd-matrix-20260920; prior soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 · soft-overnight-cleanup-20260920 · soft-writeoff-request-20260920 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -69832,6 +69846,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
   window.__softCHIP = function () { return CHIP; };
   window.__softRenderExecGm = renderExecGm;
   window.__softCloseDealDetail = closeDealDetail;
+  window.__softExecSideProdBuildMatrix = execSideProdBuildMatrix; /* soft-exec-rec-bd-matrix-20260920 */
+  window.__softRenderExecSideProdMatrix = renderExecSideProdMatrix;
 
   function spineStatusChip(st) {
     var s = (st || 'Booked').toLowerCase();
@@ -74707,21 +74723,158 @@ ownersDetailHtml(row) +
 
 
   function companyActualByMonth(side) {
+    /* Combined rollup — booked Production (not paid-only); year from execProdUi */
+    var year = String((typeof execProdUi === 'function' ? execProdUi().year : null) || '2026');
     var arr = empty12();
-    state.rows.forEach(function (row) {
-      if (!row.paid) return;
-      var mi = monthIndex(row.month);
+    (state.rows || []).forEach(function (row) {
+      if (!row || row.example || row.carriGmSeed || row.carriBdGmSeed) return;
+      var mo = String(row.month || '');
+      if (mo.slice(0, 4) !== year) return;
+      var mi = monthIndex(mo);
+      if (mi < 0) return;
       var amt = 0;
       if (row.bookType === 'Placement') {
         if (side === 'bd') return;
-        amt = Number(row.fee) || 0;
-      } else {
+        amt = Number(row.fee != null ? row.fee : row.accountingBilled) || 0;
+      } else if (row.bookType === 'Deal' || row.bookType === 'Marketing') {
         if (side === 'recruiting') return;
-        amt = Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
+        if (row.bookType === 'Marketing') {
+          amt = Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
+        } else if (row.accountingBilled != null && row.accountingBilled !== '') {
+          amt = Number(row.accountingBilled) || 0;
+        } else {
+          amt = (Number(row.initiation) || 0) + (Number(row.firstMonthRetainer) || 0);
+        }
+      } else {
+        return;
       }
       addTo(arr, mi, amt);
     });
     return arr;
+  }
+
+  /* soft-exec-rec-bd-matrix-20260920 — Exec Recruiting/BD month×rep live Production matrix (read-only) */
+  function execSideProdYear() {
+    try {
+      if (typeof execProdUi === 'function') return String(execProdUi().year || '2026');
+    } catch (eY) {}
+    return '2026';
+  }
+  function execSideProdWho(row, side) {
+    if (!row) return 'Unassigned';
+    if (side === 'recruiting') return String(row.rep || '').trim() || 'Unassigned';
+    if (row.bookType === 'Marketing') return String(row.marketer || row.rep || '').trim() || 'Unassigned';
+    return String(row.rep || '').trim() || 'Unassigned';
+  }
+  function execSideProdAmt(row, side) {
+    if (!row) return 0;
+    if (side === 'recruiting' || row.bookType === 'Placement') {
+      return Number(row.fee != null && row.fee !== '' ? row.fee : row.accountingBilled) || 0;
+    }
+    if (row.bookType === 'Marketing') {
+      if (row.fee != null && row.fee !== '') return Number(row.fee) || 0;
+      return Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
+    }
+    if (row.accountingBilled != null && row.accountingBilled !== '') return Number(row.accountingBilled) || 0;
+    return (Number(row.initiation) || 0) + (Number(row.firstMonthRetainer) || 0);
+  }
+  function execSideProdIsRecurringBucket(row) {
+    if (!row) return false;
+    if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(row)) return true;
+    if (row.bookType === 'Deal' && typeof prodBdIsMonthly === 'function' && prodBdIsMonthly(row)) return true;
+    if (row.bookType === 'Deal' && (row.isRecurringLine || row.recurringMonthlySplit)) return true;
+    return false;
+  }
+  function execSideProdIncludeRow(row, side, bucket) {
+    if (!row || row.example || row.carriGmSeed || row.carriBdGmSeed) return false;
+    var year = execSideProdYear();
+    if (String(row.month || '').slice(0, 4) !== year) return false;
+    if (side === 'recruiting') {
+      if (row.bookType !== 'Placement') return false;
+      return bucket === 'booked';
+    }
+    if (row.bookType !== 'Deal' && row.bookType !== 'Marketing') return false;
+    var rec = execSideProdIsRecurringBucket(row);
+    if (bucket === 'recurring') return rec;
+    return !rec;
+  }
+  function execSideProdBuildMatrix(side, bucket) {
+    var roster = (side === 'bd' ? BD_PEOPLE : REC_PEOPLE).slice();
+    var byPerson = {};
+    roster.forEach(function (p) { byPerson[p] = empty12(); });
+    var extras = {};
+    (state.rows || []).forEach(function (row) {
+      if (!execSideProdIncludeRow(row, side, bucket)) return;
+      var who = execSideProdWho(row, side);
+      var mi = monthIndex(row.month);
+      var amt = execSideProdAmt(row, side);
+      if (mi < 0 || !amt) return;
+      if (!byPerson[who]) {
+        if (!extras[who]) extras[who] = empty12();
+        addTo(extras[who], mi, amt);
+      } else {
+        addTo(byPerson[who], mi, amt);
+      }
+    });
+    Object.keys(extras).sort().forEach(function (p) {
+      roster.push(p);
+      byPerson[p] = extras[p];
+    });
+    var monthTotals = empty12();
+    roster.forEach(function (p) {
+      var arr = byPerson[p] || empty12();
+      for (var i = 0; i < 12; i++) monthTotals[i] += Number(arr[i]) || 0;
+    });
+    return { roster: roster, byPerson: byPerson, monthTotals: monthTotals, grand: sumArr(monthTotals) };
+  }
+  function renderExecSideProdMatrix(side) {
+    var year = execSideProdYear();
+    var hint = document.getElementById('exec-side-prod-hint');
+    var table = document.getElementById('tbl-exec');
+    var tb = table ? table.querySelector('tbody') : null;
+    var th0 = table ? table.querySelector('thead th') : null;
+    if (!tb) return;
+    if (table) {
+      table.classList.add('exec-live-matrix');
+      table.setAttribute('aria-readonly', 'true');
+    }
+    if (th0) th0.textContent = 'Rep';
+    var booked = execSideProdBuildMatrix(side, 'booked');
+    var html = '';
+    var sideLabel = side === 'bd' ? 'BD' : 'Recruiting';
+    html += '<tr class="cat"><td colspan="14">' + sideLabel + ' production · ' + year +
+      ' · live from Production · read-only month × rep</td></tr>';
+    booked.roster.forEach(function (p) {
+      html += rowHtml(p, booked.byPerson[p] || empty12(), 'subcat');
+    });
+    html += rowHtml('Total', booked.monthTotals, 'total');
+    if (side === 'bd') {
+      var recur = execSideProdBuildMatrix(side, 'recurring');
+      html += '<tr class="cat"><td colspan="14">BD recurring / installments · off producer Production board · ' +
+        year + ' · read-only</td></tr>';
+      if (!recur.grand) {
+        html += '<tr class="subcat"><td colspan="14" style="color:var(--muted);font-weight:500">No recurring installment lines this year</td></tr>';
+      } else {
+        recur.roster.forEach(function (p) {
+          var arr = recur.byPerson[p] || empty12();
+          if (!sumArr(arr)) return;
+          html += rowHtml(p, arr, 'subcat');
+        });
+        html += rowHtml('Recurring total', recur.monthTotals, 'total');
+      }
+    }
+    tb.innerHTML = html;
+    /* Strip any accidental inputs / contenteditable — live grid is display-only */
+    tb.querySelectorAll('input, textarea, [contenteditable]').forEach(function (el) { el.remove(); });
+    if (hint) {
+      hint.hidden = false;
+      if (side === 'recruiting') {
+        hint.innerHTML = '<strong>Recruiting · live</strong> Placement fees by recruiter × book month (' + year +
+          '). Totals every month. No EXAMPLE / Carri GM seeds. <code>soft-exec-rec-bd-matrix-20260920</code> · read-only.';
+      } else {
+        hint.innerHTML = '<strong>BD · live</strong> Deal + Marketing first books by rep × month. Recurring installments (Nk/N, 1/2, mkt follow-ons) in the lower block — not new-month Deal books. Read-only. <code>soft-exec-rec-bd-matrix-20260920</code>.';
+      }
+    }
   }
 
   /* ========== Exec AR (4th pill) · soft-exec-ar-live-20260920 — 5 billed + total live; cash/exp manual ========== */
@@ -75667,15 +75820,29 @@ ownersDetailHtml(row) +
     if (panelAr) panelAr.hidden = true;
     if (panelProd) panelProd.hidden = true;
     closeExecArDrawer();
-    var before = empty12();
-    var projected = empty12();
-    var actual = companyActualByMonth(mode === 'combined' ? 'combined' : mode);
-    var label = mode === 'combined' ? 'Combined (Rec+BD)' : (mode === 'bd' ? 'BD only' : 'Recruiting only');
+    var hint = document.getElementById('exec-side-prod-hint');
+    var table = document.getElementById('tbl-exec');
+    var th0 = table ? table.querySelector('thead th') : null;
     var tb = document.querySelector('#tbl-exec tbody');
-    if (tb) {
-      tb.innerHTML =
-        '<tr class="cat"><td colspan="14">' + label + '</td></tr>' +
-        rowHtml('Before start', before) + rowHtml('Projected total', projected) + rowHtml('Actual production', actual, 'total');
+    /* soft-exec-rec-bd-matrix-20260920 — Recruiting / BD = live month×rep; Combined stays rollup */
+    if (mode === 'recruiting' || mode === 'bd') {
+      renderExecSideProdMatrix(mode);
+    } else {
+      if (table) {
+        table.classList.remove('exec-live-matrix');
+        table.removeAttribute('aria-readonly');
+      }
+      if (th0) th0.textContent = 'Metric';
+      if (hint) { hint.hidden = true; hint.innerHTML = ''; }
+      var before = empty12();
+      var projected = empty12();
+      var actual = companyActualByMonth('combined');
+      var label = 'Combined (Rec+BD) · ' + execSideProdYear() + ' booked Production';
+      if (tb) {
+        tb.innerHTML =
+          '<tr class="cat"><td colspan="14">' + label + '</td></tr>' +
+          rowHtml('Before start', before) + rowHtml('Projected total', projected) + rowHtml('Actual production', actual, 'total');
+      }
     }
     /* Recurring visibility table retired — Open Recurring button + AR Recurring row replace it. */
     var rb = document.querySelector('#tbl-recurring tbody');
@@ -75688,6 +75855,21 @@ ownersDetailHtml(row) +
     saveState();
     renderExecGm();
   });
+  /* soft-exec-rec-bd-matrix-20260920 — reject edits on live Rec/BD matrix */
+  (function wireExecLiveMatrixReadonly() {
+    var tbl = document.getElementById('tbl-exec');
+    if (!tbl) return;
+    tbl.addEventListener('beforeinput', function (e) {
+      if (tbl.classList.contains('exec-live-matrix')) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+    tbl.addEventListener('keydown', function (e) {
+      if (!tbl.classList.contains('exec-live-matrix')) return;
+      if (e.key === 'Backspace' || e.key === 'Delete' || e.key.length === 1) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+  })();
   (function wireExecProdUi() {
     var yearSel = document.getElementById('exec-prod-year');
     if (yearSel) yearSel.addEventListener('change', function () {
