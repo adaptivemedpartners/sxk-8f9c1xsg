@@ -13585,6 +13585,16 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   #view-awards .awards-period-seg button.active {
     background: var(--teal); color: #fff; border-color: var(--teal);
   }
+  .awards-cash-seg {
+    display: inline-flex; gap: 4px; flex-wrap: wrap;
+  }
+  .awards-cash-seg button {
+    font: inherit; font-size: 12px; font-weight: 650; padding: 5px 10px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--panel); color: var(--ink); cursor: pointer;
+  }
+  .awards-cash-seg button.active {
+    background: var(--teal); color: #fff; border-color: var(--teal);
+  }
   #view-awards .awards-winners {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 18px;
   }
@@ -52883,11 +52893,18 @@ function mktSendAmplified(searchKey) {
 <section class="view" id="view-awards">
       <div class="card">
         <h2>Exec Awards · <span class="badge" id="awards-live-badge">2026 Live</span></h2>
-        <p class="lede">Carri monthly feel — Recruiter / BD of the Month · Impact Player of the Quarter (Rec + BD) · Recruiter / BD of the Year · standings race boards. Live from <strong>Paid</strong> Production (Soft cash SoT) · EXAMPLE excluded.</p>
-        <div class="awards-hint">
-          <strong>2026 Live · paid gate.</strong> Only rows with Soft cash SoT = Paid count. Thresholds: Rec Month ≥ 1.5 placements · BD Month ≥ 2 deals. Split owners get fractional placement credit (pct/100). Deal count = parent / New Deal rows (monthlies / recurring-off excluded). GM $ via owners. No EXAMPLE / Carri GM seeds.
+        <p class="lede">Carri monthly feel — Recruiter / BD of the Month · Impact Player of the Quarter (Rec + BD) · Recruiter / BD of the Year · standings race boards. Toggle <strong>Booked</strong> / <strong>Paid</strong> GM · EXAMPLE excluded.</p>
+        <div class="awards-hint" id="awards-hint">
+          <strong>2026 Live · Booked / Paid toggle.</strong> Default <em>Booked</em> (Production books). <em>Paid</em> uses Soft cash SoT = Paid only. Thresholds: Rec Month ≥ 1.5 placements · BD Month ≥ 2 deals. Split owners fractional. Deal count skips monthlies / recurring-off. No EXAMPLE / Carri GM seeds.
         </div>
         <div class="awards-controls">
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:650">GM basis</div>
+            <div class="awards-cash-seg" id="awards-cash-seg" role="tablist" aria-label="Awards Booked or Paid">
+              <button type="button" data-awards-cash="booked" class="active">Booked</button>
+              <button type="button" data-awards-cash="paid">Paid</button>
+            </div>
+          </div>
           <div>
             <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:650">Timeframe</div>
             <div class="awards-period-seg" id="awards-period-seg" role="tablist">
@@ -55050,7 +55067,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-awards-paid-live-20260920'; /* soft-awards-paid-live-20260920; prior soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 · soft-overnight-cleanup-20260920 */
+  var CHIP = 'soft-awards-booked-paid-toggle-20260920'; /* soft-awards-booked-paid-toggle-20260920; prior soft-awards-paid-live-20260920 · soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -56906,10 +56923,11 @@ function softIsoDate(v) {
     if (!Array.isArray(s.recurringRequests)) s.recurringRequests = [];
     if (!Array.isArray(s.writeOffRequests)) s.writeOffRequests = []; /* soft-writeoff-request-20260920 */
     if (!Array.isArray(s.writeOffActivity)) s.writeOffActivity = [];
-    if (!s.awardsUi || typeof s.awardsUi !== 'object') s.awardsUi = { period: 'month', monthKey: '2026-09', year: '2026' };
+    if (!s.awardsUi || typeof s.awardsUi !== 'object') s.awardsUi = { period: 'month', monthKey: '2026-09', year: '2026', cashMode: 'booked' };
     if (!s.awardsUi.period) s.awardsUi.period = 'month';
     if (!s.awardsUi.monthKey) s.awardsUi.monthKey = '2026-09';
     if (!s.awardsUi.year) s.awardsUi.year = '2026';
+    if (s.awardsUi.cashMode !== 'paid' && s.awardsUi.cashMode !== 'booked') s.awardsUi.cashMode = 'booked'; /* soft-awards-booked-paid-toggle-20260920 */
     if (!s.execCommUi || typeof s.execCommUi !== 'object') s.execCommUi = { event: 'recruiting', payDate: '2026-09-15' };
     if (!s.execCommUi.event) s.execCommUi.event = 'recruiting';
     if (!s.execCommUi.payDate) s.execCommUi.payDate = s.execCommUi.event === 'bd' ? '2026-09-15' : '2026-09-15';
@@ -68033,7 +68051,7 @@ function softIsoDate(v) {
     /* soft-invoice-spine-strip-example-20260912 removed pure-demo row */
 
 
-    var seeded = { rows: rows, fanLog: [], commissionLines: [], execMode: 'combined', deletedRowIds: {}, deletedInvoiceIds: {}, gmMoneySeed: buildGmMoneySeed(), gmMoneyUi: { side: 'both', person: 'Mike', asof: '2024-12-15', year: '2024', tab: 'unpaid' }, spineOverrides: {}, spineUi: { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true, statusFilter: 'all', invSort: 'date-desc' }, recurringOverrides: {}, recurringActivity: [], recurringRequests: [], writeOffRequests: [], writeOffActivity: [], recurringUi: { mode: 'exec', person: 'Zach', simulateMonthClose: false, monthCloseConfirmedFor: '', asOfDate: '2026-09-09' }, awardsUi: { period: 'month', monthKey: '2026-09', year: '2026' }, execArUi: { year: '2026', quarter: 3 }, execProdUi: { year: '2026', month: 'all' }, execArCash: {}, execArExpenses: {}, execCommUi: { event: 'recruiting', payDate: '2026-09-15' }, excelProdSeedMeta: { source: '2024+2025+2026 Production Board.xlsx', seededAtCt: '2026-09-11 10:15 PM CT', rowCount: 369, years: [2024,2025,2026] } };
+    var seeded = { rows: rows, fanLog: [], commissionLines: [], execMode: 'combined', deletedRowIds: {}, deletedInvoiceIds: {}, gmMoneySeed: buildGmMoneySeed(), gmMoneyUi: { side: 'both', person: 'Mike', asof: '2024-12-15', year: '2024', tab: 'unpaid' }, spineOverrides: {}, spineUi: { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true, statusFilter: 'all', invSort: 'date-desc' }, recurringOverrides: {}, recurringActivity: [], recurringRequests: [], writeOffRequests: [], writeOffActivity: [], recurringUi: { mode: 'exec', person: 'Zach', simulateMonthClose: false, monthCloseConfirmedFor: '', asOfDate: '2026-09-09' }, awardsUi: { period: 'month', monthKey: '2026-09', year: '2026', cashMode: 'booked' }, execArUi: { year: '2026', quarter: 3 }, execProdUi: { year: '2026', month: 'all' }, execArCash: {}, execArExpenses: {}, execCommUi: { event: 'recruiting', payDate: '2026-09-15' }, excelProdSeedMeta: { source: '2024+2025+2026 Production Board.xlsx', seededAtCt: '2026-09-11 10:15 PM CT', rowCount: 369, years: [2024,2025,2026] } };
     ensureExecArExampleStubs(seeded);
     tagMoHighlandsMonthlies(seeded);
     tagSoftEcbSplitAndSecondBills(seeded);
@@ -78311,14 +78329,18 @@ ownersDetailHtml(row) +
   }
 
 
-  /* ===== Exec Awards · soft-awards-paid-live-20260920 — Paid SoT gate · 2026 Live · no EXAMPLE ===== */
+  /* ===== Exec Awards · soft-awards-booked-paid-toggle-20260920 — Booked|Paid toggle · default Booked · 2026 Live · no EXAMPLE ===== */
   function ensureAwardsUi() {
     if (!state.awardsUi || typeof state.awardsUi !== 'object') {
-      state.awardsUi = { period: 'month', monthKey: '2026-09', year: '2026' };
+      state.awardsUi = { period: 'month', monthKey: '2026-09', year: '2026', cashMode: 'booked' };
     }
     if (!state.awardsUi.period) state.awardsUi.period = 'month';
     if (!state.awardsUi.monthKey) state.awardsUi.monthKey = '2026-09';
     if (!state.awardsUi.year) state.awardsUi.year = '2026';
+    /* soft-awards-booked-paid-toggle-20260920 — default Booked (Mike usually looks at booked) */
+    if (state.awardsUi.cashMode !== 'paid' && state.awardsUi.cashMode !== 'booked') {
+      state.awardsUi.cashMode = 'booked';
+    }
     return state.awardsUi;
   }
 
@@ -78445,7 +78467,11 @@ ownersDetailHtml(row) +
     return b;
   }
 
-  /* soft-awards-paid-live-20260920 — Paid Soft cash SoT only; scrub EXAMPLE + Carri GM seeds */
+  /* soft-awards-booked-paid-toggle-20260920 — Booked (default) or Paid Soft cash SoT; scrub EXAMPLE + Carri GM seeds */
+  function awardsCashMode(ui) {
+    var m = ui && ui.cashMode;
+    return m === 'paid' ? 'paid' : 'booked';
+  }
   function awardsRowIsPaid(row) {
     if (!row) return false;
     try {
@@ -78454,25 +78480,28 @@ ownersDetailHtml(row) +
     } catch (ePaid) {}
     return !!(row.paid || row.status === 'Paid' || row.gmCashState === 'paid');
   }
-  function awardsRowEligible(row) {
+  function awardsRowEligible(row, ui) {
     if (!row) return false;
     if (row.example) return false;
     if (row.carriGmSeed || row.carriBdGmSeed) return false;
-    if (!awardsRowIsPaid(row)) return false;
+    if (awardsCashMode(ui) === 'paid') return awardsRowIsPaid(row);
+    /* Booked: all Production board books in window (Booked / Invoiced / Paid) */
     return true;
   }
   function awardsComputeStats(ui) {
+    var mode = awardsCashMode(ui);
     var recPool = {};
     REC_PEOPLE.forEach(function (p) { recPool[p] = true; });
     var bdPool = {};
     BD_PEOPLE.forEach(function (p) { bdPool[p] = true; });
     var rec = awardsEmptyBucket(REC_PEOPLE);
     var bd = awardsEmptyBucket(BD_PEOPLE);
-    var prod = { recLines: 0, recAmt: 0, bdDealLines: 0, bdDealAmt: 0, bdMktLines: 0, bdMktAmt: 0, skippedUnpaid: 0, skippedExample: 0 };
+    var prod = { recLines: 0, recAmt: 0, bdDealLines: 0, bdDealAmt: 0, bdMktLines: 0, bdMktAmt: 0, skippedUnpaid: 0, skippedExample: 0, cashMode: mode };
     (state.rows || []).forEach(function (row) {
       if (!row || !awardsInWindow(row, ui)) return;
       if (row.example || row.carriGmSeed || row.carriBdGmSeed) { prod.skippedExample++; return; }
-      if (!awardsRowIsPaid(row)) { prod.skippedUnpaid++; return; }
+      if (mode === 'paid' && !awardsRowIsPaid(row)) { prod.skippedUnpaid++; return; }
+      if (!awardsRowEligible(row, ui)) return;
       if (row.bookType === 'Placement') {
         prod.recLines++;
         prod.recAmt += awardsRowAmount(row);
@@ -78505,6 +78534,7 @@ ownersDetailHtml(row) +
         prod: prod,
         recAttrGm: recAttr,
         bdAttrGm: bdAttr,
+        cashMode: mode,
         stamp: CHIP
       }
     };
@@ -78563,7 +78593,9 @@ ownersDetailHtml(row) +
 
   function renderAwards() {
     var ui = ensureAwardsUi();
+    var cashMode = awardsCashMode(ui);
     var periodSeg = document.getElementById('awards-period-seg');
+    var cashSeg = document.getElementById('awards-cash-seg');
     var monthEl = document.getElementById('awards-month');
     var yearEl = document.getElementById('awards-year');
     if (monthEl && monthEl.value !== ui.monthKey) monthEl.value = ui.monthKey;
@@ -78571,6 +78603,11 @@ ownersDetailHtml(row) +
     if (periodSeg) {
       periodSeg.querySelectorAll('button').forEach(function (b) {
         b.classList.toggle('active', b.getAttribute('data-awards-period') === ui.period);
+      });
+    }
+    if (cashSeg) {
+      cashSeg.querySelectorAll('button').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-awards-cash') === cashMode);
       });
     }
     if (monthEl) monthEl.disabled = ui.period === 'year';
@@ -78651,9 +78688,18 @@ ownersDetailHtml(row) +
     if (winnersEl) winnersEl.innerHTML = cards.join('');
 
     var liveTag = (String(ui.year || '2026') === '2026') ? '2026 Live' : (String(ui.year) + ' Live');
+    var modeLabel = cashMode === 'paid' ? 'Paid' : 'Booked';
     var badge = document.getElementById('awards-live-badge');
-    if (badge) badge.textContent = liveTag;
-    var standSub = liveTag + ' · paid only · window ' + windowLabel;
+    if (badge) badge.textContent = liveTag + ' · ' + modeLabel;
+    var hintEl = document.getElementById('awards-hint');
+    if (hintEl) {
+      if (cashMode === 'paid') {
+        hintEl.innerHTML = '<strong>' + escHtml(liveTag) + ' · Paid gate.</strong> Soft cash SoT = Paid only. Thresholds: Rec Month ≥ 1.5 placements · BD Month ≥ 2 deals. No EXAMPLE / Carri GM seeds.';
+      } else {
+        hintEl.innerHTML = '<strong>' + escHtml(liveTag) + ' · Booked GM.</strong> Counts Booked / Invoiced / Paid Production books. Thresholds: Rec Month ≥ 1.5 · BD Month ≥ 2 deals. No EXAMPLE / Carri GM seeds. Toggle to Paid for collected-only.';
+      }
+    }
+    var standSub = liveTag + ' · ' + modeLabel + ' · window ' + windowLabel;
     if (standingsEl) {
       standingsEl.innerHTML =
         awardsStandingsTable('Recruiters — race board', standSub + ' · placements + GM', recList, 'placements', 'Placements') +
@@ -78663,33 +78709,50 @@ ownersDetailHtml(row) +
     if (reconEl && stats.reconcile) {
       var rc = stats.reconcile;
       var p = rc.prod || {};
-      var okRec = Math.abs((rc.recAttrGm || 0) - (p.recAmt || 0)) < 0.02;
-      var okBd = Math.abs((rc.bdAttrGm || 0) - ((p.bdDealAmt || 0) + (p.bdMktAmt || 0))) < 0.02;
-      /* Attribution can be < Production when House / out-of-pool owners take a cut — flag only over-attribution */
       var overRec = (rc.recAttrGm || 0) > (p.recAmt || 0) + 0.02;
       var overBd = (rc.bdAttrGm || 0) > ((p.bdDealAmt || 0) + (p.bdMktAmt || 0)) + 0.02;
+      var vsLabel = cashMode === 'paid' ? 'Paid Production' : 'Booked Production';
+      var lineWord = cashMode === 'paid' ? 'paid lines' : 'booked lines';
       reconEl.innerHTML =
-        '<strong>Reconcile vs Paid Production</strong> · ' + escHtml(liveTag) + ' · ' + escHtml(windowLabel) +
-        '<br>Rec paid lines ' + (p.recLines || 0) + ' · Production $' + money(p.recAmt || 0) +
+        '<strong>Reconcile vs ' + escHtml(vsLabel) + '</strong> · ' + escHtml(liveTag) + ' · ' + escHtml(modeLabel) + ' · ' + escHtml(windowLabel) +
+        '<br>Rec ' + lineWord + ' ' + (p.recLines || 0) + ' · Production $' + money(p.recAmt || 0) +
         ' · Awards attributed GM $' + money(Math.round(rc.recAttrGm || 0)) +
         (overRec ? ' <span class="badge draft">over Production</span>' : ' <span class="badge paid">OK</span>') +
-        '<br>BD paid Deal ' + (p.bdDealLines || 0) + ' + Marketing ' + (p.bdMktLines || 0) +
+        '<br>BD Deal ' + (p.bdDealLines || 0) + ' + Marketing ' + (p.bdMktLines || 0) +
         ' · Production $' + money((p.bdDealAmt || 0) + (p.bdMktAmt || 0)) +
         ' · Awards attributed GM $' + money(Math.round(rc.bdAttrGm || 0)) +
         (overBd ? ' <span class="badge draft">over Production</span>' : ' <span class="badge paid">OK</span>') +
-        '<br>Skipped unpaid ' + (p.skippedUnpaid || 0) + ' · skipped EXAMPLE/Carri seeds ' + (p.skippedExample || 0) +
+        '<br>' + (cashMode === 'paid' ? ('Skipped unpaid ' + (p.skippedUnpaid || 0) + ' · ') : '') +
+        'skipped EXAMPLE/Carri seeds ' + (p.skippedExample || 0) +
         ' · <code>' + escHtml(rc.stamp || CHIP) + '</code>';
     }
     if (assumptionsEl) {
-      assumptionsEl.innerHTML =
-        '<strong>Assumptions (' + escHtml(liveTag) + ' · paid gate):</strong> Only Soft cash SoT = Paid counts (same as Production Status / GM Paid). ' +
-        'EXAMPLE and Carri GM month-lines excluded. Placement credit fractional by owner %. ' +
-        'Deal count = Deal && !monthly/recurring-off. BD GM includes Deal + Marketing attributed $ (Marketing never increments deal count). ' +
-        'Internet lines with excludeFromBdGm skipped for GM. Pools: Rec Mike/Stephanie/Hadley/Nate/Amy · BD Zach/Aaron/Brenton/Kelley/Randy.';
+      if (cashMode === 'paid') {
+        assumptionsEl.innerHTML =
+          '<strong>Assumptions (' + escHtml(liveTag) + ' · Paid):</strong> Soft cash SoT = Paid only. EXAMPLE / Carri GM seeds excluded. ' +
+          'Placement credit fractional by owner %. Deal count = Deal && !monthly/recurring-off. BD GM = Deal + Marketing attributed $. ' +
+          'Pools: Rec Mike/Stephanie/Hadley/Nate/Amy · BD Zach/Aaron/Brenton/Kelley/Randy.';
+      } else {
+        assumptionsEl.innerHTML =
+          '<strong>Assumptions (' + escHtml(liveTag) + ' · Booked):</strong> Booked / Invoiced / Paid Production books count (Mike default look). EXAMPLE / Carri GM seeds excluded. ' +
+          'Placement credit fractional by owner %. Deal count = Deal && !monthly/recurring-off. BD GM = Deal + Marketing attributed $. ' +
+          'Pools: Rec Mike/Stephanie/Hadley/Nate/Amy · BD Zach/Aaron/Brenton/Kelley/Randy.';
+      }
     }
   }
 
   (function wireAwardsUi() {
+    var cashSeg = document.getElementById('awards-cash-seg');
+    if (cashSeg) {
+      cashSeg.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-awards-cash]');
+        if (!btn) return;
+        var ui = ensureAwardsUi();
+        ui.cashMode = btn.getAttribute('data-awards-cash') === 'paid' ? 'paid' : 'booked';
+        saveState();
+        renderAwards();
+      });
+    }
     var seg = document.getElementById('awards-period-seg');
     if (seg) {
       seg.addEventListener('click', function (e) {
