@@ -52728,7 +52728,8 @@ function mktSendAmplified(searchKey) {
             Recruiting = Placement · fee / accountingBilled.
             Marketing = Marketing · fee / accountingBilled · campaign Standard/Premium/Platinum / All-In from label.
             Recurring = Deal <code>isRecurringLine</code> monthlies.
-            Bucket by <code>row.month</code>. Cash Collected = manual / QB stub (not Mark paid). Expenses = placeholder from David / QB later.
+            Bucket by <code>row.month</code>. Five billed rows + Total live from Production (no EXAMPLE / Carri GM seeds).
+            Cash Collected + Expenses = manual only (not invented). Net = Cash − Expenses when both entered.
             Click a BD / Recruiting / Marketing / Recurring month cell for underlying deals.
           </div>
           <div class="exec-ar-controls">
@@ -55022,7 +55023,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-invoice-qb-roundtrip-20260920'; /* soft-invoice-qb-roundtrip-20260920; prior soft-spine-b-booked-invoiced-20260920 · soft-overnight-cleanup-20260920 · soft-writeoff-request-20260920 · soft-prod-iv-harden-20260919 · soft-scrub-flow-mock-20260919 */
+  var CHIP = 'soft-exec-ar-live-20260920'; /* soft-exec-ar-live-20260920; prior soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 · soft-overnight-cleanup-20260920 · soft-writeoff-request-20260920 · soft-prod-iv-harden-20260919 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -74723,36 +74724,22 @@ ownersDetailHtml(row) +
     return arr;
   }
 
-  /* ========== Exec AR (4th pill) + cash/expense stubs ========== */
+  /* ========== Exec AR (4th pill) · soft-exec-ar-live-20260920 — 5 billed + total live; cash/exp manual ========== */
   var EXEC_AR_MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function ensureExecArExampleStubs(s) {
+  /* soft-exec-ar-live-20260920 — Cash/Expenses stay manual; never invent EXAMPLE fill. */
+  function ensureExecArManualBags(s) {
     if (!s.execArCash || typeof s.execArCash !== 'object') s.execArCash = {};
     if (!s.execArExpenses || typeof s.execArExpenses !== 'object') s.execArExpenses = {};
-    var year = '2026';
-    if (!s.execArCash[year] || typeof s.execArCash[year] !== 'object') s.execArCash[year] = {};
-    if (!s.execArExpenses[year] || typeof s.execArExpenses[year] !== 'object') s.execArExpenses[year] = {};
-    var cashSeed = {
-      '2026-01': 42000, '2026-02': 38500, '2026-03': 51200,
-      '2026-04': 44800, '2026-05': 62100, '2026-06': 50300,
-      '2026-07': 78400, '2026-08': 91200, '2026-09': 67800,
-      '2026-10': 22000, '2026-11': 18500, '2026-12': 0
-    };
-    var expSeed = {
-      '2026-01': 21000, '2026-02': 19800, '2026-03': 22400,
-      '2026-04': 20500, '2026-05': 24100, '2026-06': 21800,
-      '2026-07': 25600, '2026-08': 27200, '2026-09': 24900,
-      '2026-10': 12000, '2026-11': 11000, '2026-12': 0
-    };
-    Object.keys(cashSeed).forEach(function (mk) {
-      if (s.execArCash[year][mk] == null) s.execArCash[year][mk] = cashSeed[mk];
-      if (s.execArExpenses[year][mk] == null) s.execArExpenses[year][mk] = expSeed[mk];
-    });
+  }
+  function ensureExecArExampleStubs(s) {
+    /* Compat alias — bags only; invented cash/expense seeds removed soft-exec-ar-live-20260920 */
+    ensureExecArManualBags(s);
   }
   function execArUi() {
     if (!state.execArUi || typeof state.execArUi !== 'object') state.execArUi = { year: '2026', quarter: 3 };
     state.execArUi.quarter = Math.min(4, Math.max(1, Number(state.execArUi.quarter) || 3));
     if (!state.execArUi.year) state.execArUi.year = '2026';
-    ensureExecArExampleStubs(state);
+    ensureExecArManualBags(state);
     return state.execArUi;
   }
   function execArQuarterMonths(year, quarter) {
@@ -74799,10 +74786,13 @@ ownersDetailHtml(row) +
   }
   function execArMatchesKind(row, kind) {
     if (!row) return false;
-    if (kind === 'bd') return row.bookType === 'Deal' && !row.isRecurringLine;
+    /* soft-exec-ar-live-20260920 — Production/GM live only; never EXAMPLE / Carri GM month-lines */
+    if (row.example || row.carriGmSeed || row.carriBdGmSeed) return false;
+    var bdMonthly = (typeof prodBdIsMonthly === 'function') ? prodBdIsMonthly(row) : !!(row.isRecurringLine || row.recurringMonthlySplit);
+    if (kind === 'bd') return row.bookType === 'Deal' && !bdMonthly;
     if (kind === 'recruiting') return row.bookType === 'Placement';
     if (kind === 'marketing') return row.bookType === 'Marketing';
-    if (kind === 'recurring') return row.bookType === 'Deal' && !!row.isRecurringLine;
+    if (kind === 'recurring') return row.bookType === 'Deal' && bdMonthly;
     return false;
   }
   function execArCampaignLabel(row) {
@@ -74828,15 +74818,28 @@ ownersDetailHtml(row) +
     }, 0);
   }
   function execArStubGet(bag, year, monthKey) {
-    if (!bag || !bag[year]) return 0;
+    /* soft-exec-ar-live-20260920 — null when unset (manual); do not invent 0 fill for display */
+    if (!bag || !bag[year]) return null;
     var v = bag[year][monthKey];
-    return v == null || v === '' || isNaN(v) ? 0 : Number(v);
+    if (v == null || v === '') return null;
+    var n = Number(v);
+    return isNaN(n) ? null : n;
+  }
+  function execArStubGetNum(bag, year, monthKey) {
+    var v = execArStubGet(bag, year, monthKey);
+    return v == null ? 0 : v;
   }
   function execArStubSet(bagName, year, monthKey, val) {
     if (!state[bagName] || typeof state[bagName] !== 'object') state[bagName] = {};
     if (!state[bagName][year] || typeof state[bagName][year] !== 'object') state[bagName][year] = {};
-    var n = Number(val);
-    state[bagName][year][monthKey] = isNaN(n) ? 0 : n;
+    /* soft-exec-ar-live-20260920 — blank clears manual cell (unset), does not invent 0 */
+    if (val == null || String(val).trim() === '') {
+      delete state[bagName][year][monthKey];
+    } else {
+      var n = Number(val);
+      if (isNaN(n)) delete state[bagName][year][monthKey];
+      else state[bagName][year][monthKey] = n;
+    }
     saveState();
   }
   function closeExecArDrawer() {
@@ -74910,7 +74913,7 @@ ownersDetailHtml(row) +
     var yearSel = document.getElementById('exec-ar-year');
     if (yearSel && yearSel.value !== year) yearSel.value = year;
     var badge = document.getElementById('exec-ar-example-badge');
-    if (badge) badge.textContent = 'Q' + quarter + ' ' + year + (quarter === 3 && year === '2026' ? ' dense seed' : ' stubs OK');
+    if (badge) badge.textContent = 'Live · Q' + quarter + ' ' + year + ' · Production billed';
     var thead = document.getElementById('exec-ar-thead');
     var tbody = document.getElementById('exec-ar-tbody');
     if (!thead || !tbody) return;
@@ -74933,25 +74936,30 @@ ownersDetailHtml(row) +
     }
     function stubCells(bagName, placeholder) {
       var tot = 0;
+      var any = false;
       var cells = months.map(function (m) {
         var amt = execArStubGet(state[bagName], year, m.monthKey);
-        tot += amt;
+        if (amt != null) { tot += amt; any = true; }
+        var valAttr = amt == null ? '' : String(amt);
         return '<td class="num"><input class="exec-ar-stub-input" type="number" step="1" data-ar-stub="' + bagName +
-          '" data-ar-year="' + year + '" data-ar-month="' + m.monthKey + '" value="' + amt +
-          '" title="' + placeholder + '" aria-label="' + placeholder + ' ' + m.label + '"></td>';
+          '" data-ar-year="' + year + '" data-ar-month="' + m.monthKey + '" value="' + valAttr +
+          '" placeholder="—" title="' + placeholder + '" aria-label="' + placeholder + ' ' + m.label + '"></td>';
       }).join('');
-      return cells + '<td class="num" id="exec-ar-' + bagName + '-total">' + money(tot) + '</td>';
+      return cells + '<td class="num" id="exec-ar-' + bagName + '-total">' + (any ? money(tot) : '—') + '</td>';
     }
     function netCells() {
       var tot = 0;
+      var any = false;
       var cells = months.map(function (m) {
         var cash = execArStubGet(state.execArCash, year, m.monthKey);
         var exp = execArStubGet(state.execArExpenses, year, m.monthKey);
+        if (cash == null || exp == null) return '<td class="num">—</td>';
         var net = cash - exp;
         tot += net;
+        any = true;
         return '<td class="num">' + money(net) + '</td>';
       }).join('');
-      return cells + '<td class="num">' + money(tot) + '</td>';
+      return cells + '<td class="num">' + (any ? money(tot) : '—') + '</td>';
     }
     var bdCells = moneyCells('bd', true);
     var recCells = moneyCells('recruiting', true);
@@ -74973,11 +74981,11 @@ ownersDetailHtml(row) +
       '<tr><td>Marketing</td>' + mktCells + '</tr>' +
       '<tr><td>Recurring</td>' + recurCells + '</tr>' +
       '<tr class="ar-total-billed"><td>Total Billed Revenue</td>' + billedCells + '</tr>' +
-      '<tr class="ar-stub"><td>Cash Collected for the Month <span class="badge live-hidden">QB stub</span></td>' +
-        stubCells('execArCash', 'Manual / QB-entered cash') + '</tr>' +
-      '<tr class="ar-stub"><td>Expenses <span class="badge draft">placeholder · David / QB later</span></td>' +
-        stubCells('execArExpenses', 'Placeholder expenses') + '</tr>' +
-      '<tr class="ar-net"><td>Net (Cash − Expenses)</td>' + netCells + '</tr>';
+      '<tr class="ar-stub"><td>Cash Collected for the Month <span class="badge draft">manual</span></td>' +
+        stubCells('execArCash', 'Manual cash collected') + '</tr>' +
+      '<tr class="ar-stub"><td>Expenses <span class="badge draft">manual</span></td>' +
+        stubCells('execArExpenses', 'Manual expenses') + '</tr>' +
+      '<tr class="ar-net"><td>Net (Cash − Expenses)</td>' + netCells() + '</tr>';
     closeExecArDrawer();
   }
 
