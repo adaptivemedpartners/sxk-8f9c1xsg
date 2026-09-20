@@ -10653,7 +10653,7 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
     max-width: 16rem;
     overflow: visible;
   }
-  /* soft-prod-actions-cluster-20260920 · soft-prod-modify-fixed-width-20260920 · soft-prod-modify-fixed-width-20260920 */
+  /* soft-prod-actions-cluster-20260920 · soft-prod-modify-fixed-width-20260920 · soft-prod-jump-month-row-fix-20260920 · soft-prod-modify-fixed-width-20260920 */
   #view-production table.data.prod-table th:last-child,
   #view-production table.data.prod-table td.prod-actions {
     text-align: right !important;
@@ -76281,7 +76281,23 @@ ownersDetailHtml(row) +
       var hit = Object.keys(toks).some(function (t) { return t && rtoks[t]; });
       if (hit) byRef.push(r);
     });
-    if (byRef.length) return byRef[0];
+    if (byRef.length === 1) return byRef[0];
+    if (byRef.length > 1) {
+      /* Prefer exact dealRef / search primary, then opts.month if provided */
+      var wantDeal = String(opts.dealRef || opts.searchPrimary || '').trim().toLowerCase();
+      var wantMonth = String(opts.month || '').trim();
+      var exact = byRef.filter(function (r) {
+        var dr = String(r.dealRef || '').trim().toLowerCase();
+        var sr = String(r.searchRefs || '').trim().toLowerCase();
+        return wantDeal && (dr === wantDeal || sr.indexOf(wantDeal) >= 0);
+      });
+      if (exact.length === 1) return exact[0];
+      if (wantMonth) {
+        var byMo = (exact.length ? exact : byRef).filter(function (r) { return String(r.month || '') === wantMonth; });
+        if (byMo.length) return byMo[0];
+      }
+      return (exact[0] || byRef[0]);
+    }
     var clientN = (typeof invCheckNormClient === 'function') ? invCheckNormClient(opts.client) : String(opts.client || '').toLowerCase().trim();
     if (!clientN) return null;
     var byClient = rows.filter(function (r) {
@@ -76290,6 +76306,10 @@ ownersDetailHtml(row) +
       return cn === clientN;
     });
     if (byClient.length === 1) return byClient[0];
+    if (byClient.length > 1 && opts.month) {
+      var byClientMo = byClient.filter(function (r) { return String(r.month || '') === String(opts.month); });
+      if (byClientMo.length) return byClientMo[0];
+    }
     return null;
   }
   function productionHotlinkBtnHtml(row, searchRef, cls) {
@@ -76317,39 +76337,47 @@ ownersDetailHtml(row) +
     }, 2800);
   }
   function openProductionForRef(opts) {
+    /* soft-prod-jump-month-row-fix-20260920 — re-apply month+row AFTER Mess Production pill mounts */
     opts = opts || {};
     var matched = null;
     try { matched = matchProductionDealForRef(opts); } catch (e) { matched = null; }
-    var monthSel = document.getElementById('prod-month');
-    if (matched) {
-      flashRowId = matched.id;
+    var targetId = matched ? matched.id : null;
+    var targetMonth = matched ? (matched.month || 'all') : 'all';
+    flashRowId = targetId;
+
+    function applyFocusAndFilter() {
+      flashRowId = targetId;
+      var monthSel = document.getElementById('prod-month');
       if (monthSel) {
-        try { monthSel.value = matched.month || 'all'; } catch (eM) {}
+        try { monthSel.value = targetMonth || 'all'; } catch (eM) {}
       }
-    } else {
-      flashRowId = null;
-      if (monthSel) {
-        try { monthSel.value = 'all'; } catch (eM2) {}
+      if (!matched) {
+        var findEl = document.getElementById('prod-find') || document.getElementById('production-find');
+        if (findEl) {
+          var q = opts.searchRef || opts.dealRef || opts.searchPrimary || opts.client || '';
+          findEl.value = q ? String(q).split(/[,;]/)[0].trim() : '';
+          try { findEl.dispatchEvent(new Event('input', { bubbles: true })); } catch (eF) {}
+        }
       }
-      var findEl = document.getElementById('prod-find') || document.getElementById('production-find');
-      if (findEl) {
-        var q = opts.searchRef || opts.dealRef || opts.searchPrimary || '';
-        findEl.value = q ? String(q).split(/[,;]/)[0].trim() : '';
-        try { findEl.dispatchEvent(new Event('input', { bubbles: true })); } catch (eF) {}
+      try {
+        if (typeof window.__softFlowGoToView === 'function') window.__softFlowGoToView('production');
+        else goToView('production');
+      } catch (eFg) {
+        try { goToView('production'); } catch (eG2) {}
       }
+      try { renderProduction(); } catch (eR) {}
+      applyProductionHotlinkFocus();
     }
+
     try {
       if (typeof window.setMode === 'function') window.setMode('production');
       else goToView('production');
     } catch (eProdPill) { goToView('production'); }
-    setTimeout(function () {
-      try {
-        if (typeof window.__softFlowGoToView === 'function') window.__softFlowGoToView('production');
-      } catch (eFg) {}
-      applyProductionHotlinkFocus();
-    }, 0);
-    setTimeout(applyProductionHotlinkFocus, 120);
+    setTimeout(applyFocusAndFilter, 0);
+    setTimeout(applyFocusAndFilter, 120);
+    setTimeout(applyFocusAndFilter, 320);
   }
+  try { window.__softOpenProductionForRef = openProductionForRef; } catch (eExp) {}
   function matchSpineSearchForStream(st) {
     if (!st) return null;
     var refs = (st.searchRefs || '') + ',' + (st.dealRef || '');
@@ -78777,15 +78805,26 @@ ownersDetailHtml(row) +
       window.__softMessOpenBook();
       return;
     }
-    /* soft-prod-jump-mess-pill-20260915: Production hotlinks leave Accounting */
+    /* soft-prod-jump-mess-pill-20260915 · soft-prod-jump-month-row-fix-20260920:
+       Leave Accounting for Mess Production pill AND pass month/row focus (was setMode-only → stuck on default month). */
     var prodHot = e.target && e.target.closest ? e.target.closest("[data-open-production]") : null;
     if (prodHot && document.getElementById("soft-flow-port") && document.getElementById("soft-flow-port").contains(prodHot)) {
       e.preventDefault();
       e.stopPropagation();
       try { e.stopImmediatePropagation(); } catch (eSip2) {}
+      var prodOpts = {
+        client: prodHot.getAttribute("data-prod-client") || "",
+        searchRef: prodHot.getAttribute("data-prod-ref") || "",
+        rowId: prodHot.getAttribute("data-prod-row") || "",
+        dealRef: prodHot.getAttribute("data-prod-deal") || ""
+      };
       try {
-        if (typeof window.setMode === "function") window.setMode("production");
-        else if (window.STATE) { window.STATE.pill = "production"; if (typeof window.render === "function") window.render(); }
+        if (typeof window.__softOpenProductionForRef === "function") {
+          window.__softOpenProductionForRef(prodOpts);
+        } else {
+          if (typeof window.setMode === "function") window.setMode("production");
+          else if (window.STATE) { window.STATE.pill = "production"; if (typeof window.render === "function") window.render(); }
+        }
       } catch (errPH) {}
       return;
     }
