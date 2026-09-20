@@ -3,6 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
+/* soft-comp-gm-splits-xlsx-20260920 — Comp SoT from AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx: BDR Repeat Up Front 60% + Recruiting Repeat Retainer 30%; House 10% = board-face remainder (100-60-30), NOT a spreadsheet line. Soft Soft standing rule + Bibb 17082 Nate. Soft only. Never Hub. */
 /* soft-repeat-gm-60-30-10-20260920 — standing Soft Soft rule: Repeat deals → 60% BD / 30% repeat recruiter / 10% House (skip softGmSplitOverride); Bibb QB 17082 Nate 30% lock. Soft only. Never Hub. */
 /* soft-spine-b-booked-invoiced-20260920 — restore ensureSoftProdQbFromCarriSeeds (Booked→Invoiced QB stamp + Byrd/CHDI Invoiced→Paid); softProdClientsClose inheritance; deferred Booked lock kept. Soft only. Never Hub. */
 /* soft-dark-contrast-20260915i — dark Soft DARK-NATIVE: InvCheck gap/cleaned dark rows + spine selected dark+light text + NMC search light text; Soft F/G untouched. Soft only. Never Hub. */
@@ -15606,7 +15607,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-exec-ar-house-hover-20260920</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-comp-gm-splits-xlsx-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -55161,7 +55162,61 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-exec-ar-house-hover-20260920'; /* soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-comp-gm-splits-xlsx-20260920'; /* soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  
+  /* soft-comp-gm-splits-xlsx-20260920 — ONLY SoT: docs/AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx
+     Numbers below are copied from Recruiting + BDR tabs ("% of Billed Rev Allocated to GM").
+     Soft Soft repeat owner display uses BDR Repeat Business Up Front Fees 60% + Recruiting Repeat Retainer 30%.
+     House 10% on board face = remainder (100-60-30), not a spreadsheet line item. */
+  var SOFT_COMP_GM_SPLITS = {
+    sourceXlsx: 'AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx',
+    chip: 'soft-comp-gm-splits-xlsx-20260920',
+    recruiting: {
+      /* % of Billed Rev Allocated to GM */
+      placement: 1.00,
+      offContractContingentPlacement: 0.75,
+      hqInterview: 1.00,
+      initialDirectMarketingSoldPerSearch: 0.60,
+      secondaryMarketingCampaigns: 0.70,
+      repeatRetainer: 0.30,
+      performance: { placement: 1.00, firstInterview: 0.50, repeatBusinessUpFrontFees: 0.30 },
+      executive: { placementFeeTo30k: 1.00, placementFeeAfter30k: 0.50, interviewFee: 0.50 }
+    },
+    bdr: {
+      newBusinessUpFrontFees: 1.00,
+      hqInitialUpfrontFees: 1.00,
+      repeatBusinessUpFrontFees: 0.60,
+      initialDirectMarketingSoldPerSearch: 0.20,
+      offContractContingentPlacements: 0.25,
+      allied: { newBusinessUpFrontFees: 1.00, repeatBusinessUpFrontFees: 0.60 },
+      performance: { initialDirectMarketingSoldPerSearch: 0.20, firstInterview: 0.50, repeatBusinessUpFrontFees: 0.60 }
+    },
+    /* Soft Soft standing repeat placement owner face (create/modify/load) */
+    softRepeatOwnerFace: {
+      bdPct: 60,              /* BDR Repeat Business Up Front Fees */
+      repeatRecruiterPct: 30, /* Recruiting Repeat Retainer */
+      houseRemainderPct: 10,  /* face remainder 100-60-30 — NOT an xlsx line item */
+      houseRemainderNote: 'Board-face remainder (100-60-30); spreadsheet has no House 10% line'
+    },
+    /* Paid-of-collected GM tiers L1–L5 (Rec + BDR) */
+    paidOfCollectedTiers: {
+      levels: ['L1 $0-100k', 'L2 $100k-175k', 'L3 $175k-250k', 'L4 $250k-300k', 'L5 $300k+'],
+      recruiting: {
+        associateRecruiter: [0.08, 0.12, 0.16, 0.20, 0.24],
+        recruitingSpecialist: [0.10, 0.14, 0.18, 0.22, 0.26],
+        seniorRecruitingSpecialistManager: [0.12, 0.16, 0.20, 0.24, 0.28],
+        principalManagingDirector: [0.14, 0.18, 0.22, 0.26, 0.30]
+      },
+      bdr: {
+        businessDevelopmentCoordinator: [0.08, 0.12, 0.16, 0.20, 0.24],
+        businessDevelopmentRepresentative: [0.10, 0.14, 0.18, 0.22, 0.26],
+        seniorBusinessDevelopmentRepresentative: [0.12, 0.16, 0.20, 0.24, 0.28],
+        principalManagingDirector: [0.14, 0.18, 0.22, 0.26, 0.30]
+      }
+    }
+  };
+  try { window.__softCompGmSplits = SOFT_COMP_GM_SPLITS; } catch (eComp) {}
+
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -57138,7 +57193,8 @@ function ensureCarriGmSeed(s) {
   }
   function softRowLooksRepeatForGm(row) {
     if (!row) return false;
-    if (String(row.repeatOrNew || row.repeatOrNew || '') === 'Repeat') return true;
+    var ron = String(row.repeatOrNew || row.repeatOrNew || '');
+    if (ron === 'Repeat') return true;
     if (String(row.repeatRep || '').trim()) return true;
     if (row.owners && row.owners.recruiter && softShortRepName(row.owners.recruiter.name || row.owners.recruiter)) return true;
     var gl = String(row.gmLabel || '');
@@ -57167,9 +57223,6 @@ function ensureCarriGmSeed(s) {
       if (rn && softIsRecPersonName(rn)) return rn;
     }
     if (ow && ow.b && ow.b.name && softIsRecPersonName(ow.b.name)) return softShortRepName(ow.b.name);
-    if (ow && ow.mode === 'Whole' && ow.primary && softIsRecPersonName(ow.primary) && softIsBdPersonName(row.rep)) {
-      /* recruiting-side Whole seed with BD rep elsewhere — not enough alone */
-    }
     return '';
   }
   function softOwnersAlreadyStandard601030(ow, bd, rec) {
@@ -57182,109 +57235,121 @@ function ensureCarriGmSeed(s) {
     return bdN === bd && recN === rec && bdP === 60 && recP === 30 && hP === 10;
   }
   function softBuildRepeatGm601030Owners(bd, rec) {
+    /* Soft Soft face from xlsx SoT: BDR Repeat Up Front 60% + Recruiting Repeat Retainer 30%;
+       House = board-face remainder (100-60-30), documented in SOFT_COMP_GM_SPLITS — not an xlsx line item. */
+    var face = (typeof SOFT_COMP_GM_SPLITS !== 'undefined' && SOFT_COMP_GM_SPLITS.softRepeatOwnerFace)
+      ? SOFT_COMP_GM_SPLITS.softRepeatOwnerFace
+      : { bdPct: 60, repeatRecruiterPct: 30, houseRemainderPct: 10 };
+    var bdPct = Number(face.bdPct) || 60;
+    var recPct = Number(face.repeatRecruiterPct) || 30;
+    var housePct = (face.houseRemainderPct != null)
+      ? Number(face.houseRemainderPct)
+      : Math.max(0, 100 - bdPct - recPct);
     return {
       mode: 'Split',
-      bdA: { name: bd, pct: 60 },
-      recruiter: { name: rec, pct: 30 },
-      housePct: 10,
-      softRepeatGmStamp: 'soft-repeat-gm-60-30-10-20260920'
+      bdA: { name: bd, pct: bdPct },
+      recruiter: { name: rec, pct: recPct },
+      housePct: housePct,
+      houseRemainderNote: face.houseRemainderNote || 'Board-face remainder (100-60-30); spreadsheet has no House 10% line',
+      softRepeatGmStamp: 'soft-comp-gm-splits-xlsx-20260920'
     };
   }
   function softApplyRepeatGm601030ToRow(row, bd, rec, why) {
     if (!row || !bd || !rec) return false;
-    if (row.softGmSplitOverride) return false;
-    if (softOwnersAlreadyStandard601030(row.owners, bd, rec) && softShortRepName(row.repeatRep) === rec) {
-      return false;
-    }
+    if (row.softGmSplitOverride || row.softGmSplitManual) return false;
+    if (softOwnersAlreadyStandard601030(row.owners, bd, rec) && softShortRepName(row.repeatRep) === rec) return false;
     var before = JSON.stringify({ o: row.owners, g: row.gmLabel, r: row.repeatRep, rep: row.rep });
     row.owners = softBuildRepeatGm601030Owners(bd, rec);
     row.gmMode = 'Split';
     try {
-      row.gmLabel = (typeof gmLabelFromOwners === 'function') ? gmLabelFromOwners(row.owners) : ('Split · ' + bd + ' 60% / ' + rec + ' 30% / House 10%');
+      row.gmLabel = (typeof gmLabelFromOwners === 'function')
+        ? gmLabelFromOwners(row.owners)
+        : ('Split · ' + bd + ' 60% / ' + rec + ' 30% / House 10%');
     } catch (eGl) {
       row.gmLabel = 'Split · ' + bd + ' 60% / ' + rec + ' 30% / House 10%';
     }
     row.repeatRep = rec;
-    /* Keep BD as face rep when identifiable */
     if (softIsBdPersonName(row.rep) || !row.rep) row.rep = bd;
-    row.softRepeatGm601030 = why || 'soft-repeat-gm-60-30-10-20260920';
+    row.softRepeatGm601030 = why || 'soft-comp-gm-splits-xlsx-20260920';
     var after = JSON.stringify({ o: row.owners, g: row.gmLabel, r: row.repeatRep, rep: row.rep });
     return before !== after;
+  }
+  /* Book/modify hook — apply standing rule when both parties known; Bibb 17082 hard-lock */
+  function softApplyStandingRepeatGm601030(row) {
+    if (!row) return false;
+    if (row.softGmSplitOverride || row.softGmSplitManual) return false;
+    if (softRowTiedToQb17082(row)) return softApplyBib17082NateLock(row);
+    /* Skip Carri amount-sliced GM seeds (already $plit) unless 17082 */
+    if (row.carriGmSeed || row.carriBdGmSeed) return false;
+    if (!softRowLooksRepeatForGm(row)) return false;
+    var bd = softResolveBdNameForRepeatGm(row);
+    var rec = softResolveRepeatRecruiterForGm(row);
+    if (!bd || !rec) return false;
+    return softApplyRepeatGm601030ToRow(row, bd, rec, 'soft-comp-gm-splits-xlsx-20260920');
   }
   function softRowTiedToQb17082(row) {
     if (!row) return false;
     var qb = String(row.qbInvoice || row.qbNumber || row.sampleId || '').trim();
     if (qb === '17082') return true;
     var id = String(row.id || '');
-    if (id === 'carri_qb_17082' || /_17082\b/.test(id) || /17082/.test(id) && /bibb/i.test(String(row.client || ''))) return true;
+    if (id === 'carri_qb_17082') return true;
+    if (/17082/.test(id) && /bibb/i.test(String(row.client || ''))) return true;
     if (String(row.linkRowId || '') === 'carri_qb_17082') return true;
     return false;
   }
   function softApplyBib17082NateLock(row) {
     if (!softRowTiedToQb17082(row)) return false;
-    if (!/bibb/i.test(String(row.client || '')) && String(row.qbInvoice || row.qbNumber || '') !== '17082') return false;
+    var client = String(row.client || '');
+    var qb = String(row.qbInvoice || row.qbNumber || '').trim();
+    if (!/bibb/i.test(client) && qb !== '17082') return false;
     var bd = softResolveBdNameForRepeatGm(row) || 'Brenton';
     if (!softIsBdPersonName(bd)) bd = 'Brenton';
     var rec = 'Nate';
-    /* Force repeat classification for this QB lock */
-    if (!row.repeatOrNew && !row.repeatOrNew) row.repeatOrNew = 'Repeat';
-    else {
-      if (row.repeatOrNew != null) row.repeatOrNew = 'Repeat';
-      if (row.repeatOrNew != null) row.repeatOrNew = 'Repeat';
-    }
+    if (row.repeatOrNew != null) row.repeatOrNew = 'Repeat';
+    if (row.repeatOrNew != null) row.repeatOrNew = 'Repeat';
+    if (row.repeatOrNew == null && row.repeatOrNew == null) row.repeatOrNew = 'Repeat';
     return softApplyRepeatGm601030ToRow(row, bd, rec, 'soft-bib-17082-nate-30-20260920');
   }
-  function softApplyStandingRepeatGm601030(row) {
-    if (!row) return false;
-    if (row.softGmSplitOverride) return false;
-    /* Don't invent parties on Carri amount-sliced GM seeds except explicit 17082 lock */
-    if ((row.carriGmSeed || row.carriBdGmSeed) && !softRowTiedToQb17082(row)) return false;
-    if (!softRowLooksRepeatForGm(row) && !softRowTiedToQb17082(row)) return false;
-    var bd = softResolveBdNameForRepeatGm(row);
-    var rec = softResolveRepeatRecruiterForGm(row);
-    if (softRowTiedToQb17082(row)) {
-      return softApplyBib17082NateLock(row);
-    }
-    if (!bd || !rec) return false;
-    return softApplyRepeatGm601030ToRow(row, bd, rec, 'soft-repeat-gm-60-30-10-20260920');
-  }
   function ensureSoftRepeatGm601030(state) {
-    /* soft-repeat-gm-60-30-10-20260920 — standing Repeat → 60 BD / 30 recruiter / 10 House;
-       Bibb QB 17082 forces Nate 30% (Brenton 60 / House 10). Honors softGmSplitOverride. */
+    /* soft-comp-gm-splits-xlsx-20260920 — xlsx SoT: BDR Repeat Up Front 60% + Recruiting Repeat Retainer 30%; House 10% = face remainder (100-60-30), not an xlsx line.
+       Standing Soft Soft rule on Repeat deals; Bibb QB 17082 locks Nate 30% / Brenton 60% / House 10%.
+       Honors softGmSplitOverride. Soft only. Never Hub. */
     if (!state || !Array.isArray(state.rows)) return state;
-    var stamp = 'soft-repeat-gm-60-30-10-20260920';
+    var stamp = 'soft-comp-gm-splits-xlsx-20260920';
     var flipped = 0;
     var ids = [];
     var skipped = 0;
     state.rows.forEach(function (row) {
       if (!row) return;
-      if (row.softGmSplitOverride) { skipped++; return; }
+      if (row.softGmSplitOverride || row.softGmSplitManual) { skipped++; return; }
       var changed = false;
-      if (softRowTiedToQb17082(row)) changed = softApplyBib17082NateLock(row);
-      else if (softIsProductionVisibleRow(row) || softIsDealLikeForRepAutofix(row)) changed = softApplyStandingRepeatGm601030(row);
-      if (changed) { flipped++; ids.push(String(row.id || row.sampleId || '')); }
+      if (softRowTiedToQb17082(row)) {
+        changed = softApplyBib17082NateLock(row);
+      } else if (softIsProductionVisibleRow(row) || softIsDealLikeForRepAutofix(row)) {
+        changed = softApplyStandingRepeatGm601030(row);
+      }
+      if (changed) {
+        flipped++;
+        ids.push(String(row.id || row.sampleId || ''));
+      }
     });
-    /* Spine invoice carri_qb_17082 / qb 17082 */
     var spineFlipped = 0;
     try {
-      var list = (typeof window.__softListSpineInvoices === 'function') ? window.__softListSpineInvoices() : (typeof SPINE_INVOICES !== 'undefined' ? SPINE_INVOICES : []);
-      (list || []).forEach(function (inv) {
+      var list = [];
+      if (typeof window.__softListSpineInvoices === 'function') list = window.__softListSpineInvoices() || [];
+      else if (typeof SPINE_INVOICES !== 'undefined' && Array.isArray(SPINE_INVOICES)) list = SPINE_INVOICES;
+      list.forEach(function (inv) {
         if (!inv) return;
-        var q = String(inv.qbNumber || inv.sampleId || '').replace(/^carri_qb_/, '');
+        var q = String(inv.qbNumber || '').trim();
+        var sid = String(inv.sampleId || '').replace(/^carri_qb_/, '');
         var id = String(inv.id || '');
-        if (q !== '17082' && id !== 'carri_qb_17082' && !/17082/.test(id)) return;
-        if (!/bibb/i.test(String(inv.client || '')) && q !== '17082') return;
-        var bd = 'Brenton';
-        var rec = 'Nate';
-        inv.owners = softBuildRepeatGm601030Owners(bd, rec);
+        if (q !== '17082' && sid !== '17082' && id !== 'carri_qb_17082') return;
+        if (!/bibb/i.test(String(inv.client || '')) && q !== '17082' && sid !== '17082') return;
+        inv.owners = softBuildRepeatGm601030Owners('Brenton', 'Nate');
         inv.softRepeatGm601030 = stamp;
         spineFlipped++;
-        try {
-          if (typeof ensureBridgeRowForSpine === 'function') ensureBridgeRowForSpine(inv);
-          else if (typeof window.__softEnsureBridgeRowForSpine === 'function') window.__softEnsureBridgeRowForSpine(inv);
-        } catch (eBr) {}
+        try { ensureBridgeRowForSpine(inv); } catch (eBr) {}
       });
-      /* Also patch CARRI_QB_SPINE compact owners if present */
       if (typeof CARRI_QB_SPINE !== 'undefined' && Array.isArray(CARRI_QB_SPINE)) {
         CARRI_QB_SPINE.forEach(function (sp) {
           if (!sp || String(sp.n) !== '17082') return;
@@ -57296,14 +57361,20 @@ function ensureCarriGmSeed(s) {
         });
       }
     } catch (eSp) {}
-    state.softRepeatGm601030 = { stamp: stamp, flipped: flipped, ids: ids, skippedOverride: skipped, spineFlipped: spineFlipped, at: '2026-09-20' };
+    state.softRepeatGm601030 = {
+      stamp: stamp,
+      flipped: flipped,
+      ids: ids,
+      skippedOverride: skipped,
+      spineFlipped: spineFlipped,
+      sot: 'Recruiting Repeat Retainer 30% · BDR Repeat Up Front 60% · House 10%',
+      at: '2026-09-20'
+    };
     return state;
   }
   try { window.__softEnsureSoftRepeatGm601030 = ensureSoftRepeatGm601030; } catch (eRepGm) {}
-  try { window.__softApplyRepeatGm601030ToRow = softApplyRepeatGm601030ToRow; } catch (eRepGm2) {}
-
-
-
+  try { window.__softApplyStandingRepeatGm601030 = softApplyStandingRepeatGm601030; } catch (eRepGm2) {}
+  try { window.__softApplyRepeatGm601030ToRow = softApplyRepeatGm601030ToRow; } catch (eRepGm3) {}
 
 
   function ensureSoftProdPaidFromSpineSoT(s) {
