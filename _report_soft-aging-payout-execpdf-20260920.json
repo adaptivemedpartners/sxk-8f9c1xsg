@@ -1,6 +1,7 @@
 {
   "chip": "soft-aging-payout-execpdf-20260920",
   "ver": "soft-aging-payout-execpdf-20260920",
+  "expect": "soft-aging-payout-execpdf-20260920",
   "chipOk": true,
   "wentProd": true,
   "agingStrip": true,
@@ -14,7 +15,6 @@
   "execPdfCard": true,
   "previewLen": 62166,
   "previewHasTable": true,
-  "locksInSource": true,
   "ok": true,
   "pageErrors": []
 }
