@@ -51905,8 +51905,7 @@ function mktSendAmplified(searchKey) {
         <!-- soft-prod-demo-cue-removed-20260915 Mike: bar gone; Soft real tidy -->
         <div class="toolbar">
           <span class="stat" id="prod-stat">0 rows</span>
-          <button type="button" class="mini-btn" id="btn-reset-seed">Reset to Production seed</button>
-          <button type="button" class="mini-btn" id="btn-clear-ls">Clear localStorage sandbox</button>
+          <!-- soft-prod-remove-seed-sandbox-btns-20260920: Reset seed + Clear LS sandbox removed (live-source Soft Soft) -->
           <label class="field" style="margin:0">Month filter <span style="opacity:.7;font-weight:400">(2024–2026)</span>
             <select id="prod-month" style="width:auto;min-width:140px">
               <option value="all">All months</option>
@@ -71594,13 +71593,7 @@ ownersDetailHtml(row) +
     });
   })();
   document.getElementById('prod-month').addEventListener('change', renderProduction);
-  document.getElementById('btn-reset-seed').addEventListener('click', function () {
-    state = normalizeState(seedState()); saveState(); toast('Reset to Production seed (+ accounting Lives)'); renderAll();
-  });
-  document.getElementById('btn-clear-ls').addEventListener('click', function () {
-    localStorage.removeItem(LS_KEY); state = normalizeState(seedState()); saveState();
-    toast('localStorage cleared · Production seed restored'); renderAll();
-  });
+  /* soft-prod-remove-seed-sandbox-btns-20260920 — btn-reset-seed / btn-clear-ls removed */
 
   function renderFanout() {
     paintClientPath();
