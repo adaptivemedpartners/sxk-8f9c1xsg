@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+/* soft-writeoff-request-20260920 — Soft Production Deal write-off: request from Production board/detail → Carri QB queue → discovery-month Soft negative line (GM). Soft only. Never Hub. America/Chicago 2026-09-20 CT */
 /* soft-scrub-flow-mock-20260919 — Soft live scrub: hide PARALLEL banner · remove Flow Mock production boards meta + top Book · clean Flow Mock header chrome; booking stays via .prod-book-deal. Soft only. Never Hub. America/Chicago 2026-09-19 CT */
 /* soft-prod-iv-harden-20260919 — Soft Production board + Invoice spine: strip source-attribution UI · light/dark contrast · save/delete integrity (tombstones + save verify + prodHidden persist). Soft only. Never Hub. America/Chicago 2026-09-19 12:06 PM CT */
 /* soft-exec-production-20260918 — LIVE Soft: Exec → Total GM → Exec Production sub-tab (BD/Mkt booked|recurring + Placements · Jan–Dec 2026 · Carri Production SoT) · panel #exec-panel-production · LS v62 · 2026-09-18 4:18 PM CT */
@@ -13367,6 +13368,54 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   .erq-status.pending { background: #FEF3C7; color: #92400E; }
   .erq-status.approved { background: #D1FAE5; color: #065F46; }
   .erq-status.denied { background: #FEE2E2; color: #991B1B; }
+
+  /* soft-writeoff-request-20260920 — Deal write-off (Production → Carri QB) */
+  .wo-req-backdrop {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, .45); z-index: 82;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .wo-req-backdrop[hidden] { display: none !important; }
+  .wo-req-modal {
+    width: min(560px, 100%); background: var(--card); border-radius: 14px;
+    border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(15,23,42,.25);
+    padding: 16px 18px; max-height: min(90vh, 720px); overflow: auto;
+  }
+  .wo-req-modal h3 { margin: 0 0 4px; font-size: 1.05rem; }
+  .wo-req-modal .rr-sub { color: #64748b; font-size: 12.5px; margin: 0 0 12px; line-height: 1.4; }
+  .wo-req-modal .rr-field { display: block; margin: 0 0 10px; font-size: 12.5px; font-weight: 650; color: #334155; }
+  .wo-req-modal .rr-field select,
+  .wo-req-modal .rr-field textarea,
+  .wo-req-modal .rr-field input[type="text"],
+  .wo-req-modal .rr-field input[type="number"],
+  .wo-req-modal .rr-field input[type="month"] {
+    display: block; width: 100%; margin-top: 4px; padding: 7px 10px;
+    border: 1px solid #94A3B8; border-radius: 8px; font: inherit; font-size: 13px;
+    box-sizing: border-box; background: var(--card); color: #0f172a;
+  }
+  .wo-req-modal .rr-field textarea { min-height: 64px; resize: vertical; }
+  .wo-req-modal .rr-ro { font-weight: 550; color: #0f172a; margin-top: 4px; font-size: 13px; }
+  .wo-req-modal .rr-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .wo-req-modal .rr-req { font-size: 11px; color: #b45309; font-weight: 650; }
+  .prod-writeoff-queue {
+    margin: 14px 0 8px; padding: 12px 14px; border: 1px solid #F59E0B; border-radius: 12px;
+    background: #FFFBEB;
+  }
+  .prod-writeoff-queue h3 { margin: 0 0 4px; font-size: 14px; color: #92400E; }
+  .prod-writeoff-queue .erq-sub { margin: 0 0 10px; font-size: 12px; color: #78716c; }
+  .erq-status.done { background: #D1FAE5; color: #065F46; }
+  html[data-look="dark"] .prod-writeoff-queue {
+    background: color-mix(in srgb, var(--warn, #B45309) 12%, var(--card));
+    border-color: color-mix(in srgb, var(--warn, #B45309) 45%, var(--border));
+  }
+  html[data-look="dark"] .prod-writeoff-queue h3 { color: var(--warn, #FBBF24); }
+  html[data-look="dark"] .wo-req-modal .rr-sub { color: var(--muted); }
+  html[data-look="dark"] .wo-req-modal .rr-field { color: var(--muted); }
+  html[data-look="dark"] .wo-req-modal .rr-ro { color: var(--text); }
+  html[data-look="dark"] .wo-req-modal .rr-field select,
+  html[data-look="dark"] .wo-req-modal .rr-field textarea,
+  html[data-look="dark"] .wo-req-modal .rr-field input {
+    background: var(--card); color: var(--text); border-color: var(--border);
+  }
   .gm-rec-actions select { max-width: min(420px, 100%); }
 
   /* ===== Exec Awards (Mike lock 2026-09-09 ~8:37 PM CT) — Live ===== */
@@ -15302,7 +15351,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-scrub-flow-mock-20260919</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-writeoff-request-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -50742,6 +50791,49 @@ function mktSendAmplified(searchKey) {
     </div>
   </div>
 
+<!-- soft-writeoff-request-20260920 — Deal write-off request (Production-board-native) -->
+<div class="wo-req-backdrop" id="wo-req-backdrop" role="dialog" aria-modal="true" aria-labelledby="wo-req-title" hidden>
+  <div class="wo-req-modal">
+    <h3 id="wo-req-title">Deal write-off</h3>
+    <p class="rr-sub">When a placement (mostly) or marketing deal was booked and invoiced but the client never paid, request a write-off so <strong>Carri</strong> can write off placements as a <strong>negative line item in QuickBooks</strong> and keep our gross margin correct. Request is pushed to Carri — she takes care of it in QuickBooks. Soft does <em>not</em> call QuickBooks APIs. Write-off hits the <strong>month it is discovered</strong>, not the original book month. Example framing: April book with Stephanie, unpaid hospitalist later discovered → negative line for that recruiter in the discovery month.</p>
+    <input type="hidden" id="wo-req-row-id" value="" />
+    <label class="rr-field">Book type <span class="rr-req">required</span>
+      <select id="wo-req-book-type">
+        <option value="Placement" selected>Placement</option>
+        <option value="Marketing">Marketing</option>
+      </select>
+    </label>
+    <label class="rr-field">Attributed person <span class="rr-req">required</span>
+      <span style="display:block;font-weight:500;color:#64748b;font-size:11px;margin-top:2px">Recruiter for Placement · BD/owner for Marketing</span>
+      <select id="wo-req-person"></select>
+    </label>
+    <div class="rr-field">Client / deal
+      <div class="rr-ro" id="wo-req-deal-label">—</div>
+    </div>
+    <div class="rr-field">Original book month <span style="font-weight:500;color:#64748b">(read-only context)</span>
+      <div class="rr-ro" id="wo-req-orig-month">—</div>
+    </div>
+    <label class="rr-field">Amount (positive dollars) <span class="rr-req">required</span>
+      <span style="display:block;font-weight:500;color:#64748b;font-size:11px;margin-top:2px">Soft stores &amp; displays as write-off / negative for GM</span>
+      <input type="number" id="wo-req-amount" min="0.01" step="0.01" placeholder="e.g. 25000" />
+    </label>
+    <label class="rr-field">Discovery month (hits GM) <span class="rr-req">required</span>
+      <span style="display:block;font-weight:500;color:#64748b;font-size:11px;margin-top:2px">NOT original book month · default America/Chicago current month</span>
+      <input type="month" id="wo-req-discovery" />
+    </label>
+    <label class="rr-field">Note / why <span style="font-weight:500;color:#64748b">(optional)</span>
+      <textarea id="wo-req-note" placeholder="Why write off — unpaid, discovered when…"></textarea>
+    </label>
+    <label class="rr-field">Requested by
+      <input type="text" id="wo-req-by" placeholder="Your name" />
+    </label>
+    <div class="rr-actions">
+      <button type="button" class="mini-btn" id="wo-req-cancel">Cancel</button>
+      <button type="button" class="mini-btn teal" id="wo-req-submit">Submit to Carri</button>
+    </div>
+  </div>
+</div>
+
 <div id="soft-flow-hold" hidden>
 <div id="soft-flow-port" hidden data-soft-flow="1">
 <!-- Soft-ported Flow Mock panels — native Mess chrome; no nested Team Hub iframe -->
@@ -51689,7 +51781,7 @@ function mktSendAmplified(searchKey) {
     </section>
 <section class="view" id="view-production">
       <div class="card prod-card">
-        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-prod-iv-harden-20260919</span></h2>
+        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-writeoff-request-20260920</span></h2>
         <p class="lede">Soft live Production · stages <strong>Booked → Invoiced → Paid</strong>. Status follows Invoice spine (green = Paid). <strong>Mark paid</strong> on Invoice spine only — not Production Actions. Modify GM Whole/Split stays the editor.</p>
         <!-- soft-prod-demo-cue-removed-20260915 Mike: bar gone; Soft real tidy -->
         <div class="toolbar">
@@ -51818,6 +51910,13 @@ function mktSendAmplified(searchKey) {
               <tbody></tbody>
             </table>
           </div>
+        </div>
+        <!-- soft-writeoff-request-20260920 — Carri queue on Production board -->
+        <div class="prod-writeoff-queue exec-rec-queue" id="prod-writeoff-queue" aria-label="Write-off requests for Carri QuickBooks">
+          <h3>Write-off requests (Carri · QuickBooks)</h3>
+          <p class="erq-sub">Pending Deal write-off requests from Production. Carri marks <strong>Done in QuickBooks</strong> (Soft inserts discovery-month negative line for GM) or Deny. Soft does not call QuickBooks APIs. Spell <strong>Carri</strong>.</p>
+          <div id="prod-writeoff-queue-body"><div class="erq-empty">No pending write-off requests — open a Placement or Marketing row → Deal write-off.</div></div>
+          <div id="prod-writeoff-activity" style="margin-top:10px" aria-label="Write-off activity"></div>
         </div>
         <p class="legend">Production = Soft deals / GM / fan-out · Blue = Invoiced · Green = Paid (Invoice spine) · Name glow = recruiter color</p>
       </div>
@@ -54698,7 +54797,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-prod-iv-harden-20260919'; /* soft-prod-iv-harden-20260919 — Production+spine harden; Soft F cash SoT untouched */
+  var CHIP = 'soft-writeoff-request-20260920'; /* soft-writeoff-request-20260920 — Deal write-off Prod→Carri QB; prior soft-prod-iv-harden-20260919 · soft-scrub-flow-mock-20260919 · soft-exec-production-20260918 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -55871,6 +55970,8 @@ function softIsoDate(v) {
     if (!s.recurringUi.person) s.recurringUi.person = 'Zach';
     if (!Array.isArray(s.recurringActivity)) s.recurringActivity = [];
     if (!Array.isArray(s.recurringRequests)) s.recurringRequests = [];
+    if (!Array.isArray(s.writeOffRequests)) s.writeOffRequests = []; /* soft-writeoff-request-20260920 */
+    if (!Array.isArray(s.writeOffActivity)) s.writeOffActivity = [];
     if (!s.awardsUi || typeof s.awardsUi !== 'object') s.awardsUi = { period: 'month', monthKey: '2026-09', year: '2026' };
     if (!s.awardsUi.period) s.awardsUi.period = 'month';
     if (!s.awardsUi.monthKey) s.awardsUi.monthKey = '2026-09';
@@ -66998,7 +67099,7 @@ function softIsoDate(v) {
     /* soft-invoice-spine-strip-example-20260912 removed pure-demo row */
 
 
-    var seeded = { rows: rows, fanLog: [], commissionLines: [], execMode: 'combined', deletedRowIds: {}, deletedInvoiceIds: {}, gmMoneySeed: buildGmMoneySeed(), gmMoneyUi: { side: 'both', person: 'Mike', asof: '2024-12-15', year: '2024', tab: 'unpaid' }, spineOverrides: {}, spineUi: { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true, statusFilter: 'all', invSort: 'date-desc' }, recurringOverrides: {}, recurringActivity: [], recurringRequests: [], recurringUi: { mode: 'exec', person: 'Zach', simulateMonthClose: false, monthCloseConfirmedFor: '', asOfDate: '2026-09-09' }, awardsUi: { period: 'month', monthKey: '2026-09', year: '2026' }, execArUi: { year: '2026', quarter: 3 }, execProdUi: { year: '2026', month: 'all' }, execArCash: {}, execArExpenses: {}, execCommUi: { event: 'recruiting', payDate: '2026-09-15' }, excelProdSeedMeta: { source: '2024+2025+2026 Production Board.xlsx', seededAtCt: '2026-09-11 10:15 PM CT', rowCount: 369, years: [2024,2025,2026] } };
+    var seeded = { rows: rows, fanLog: [], commissionLines: [], execMode: 'combined', deletedRowIds: {}, deletedInvoiceIds: {}, gmMoneySeed: buildGmMoneySeed(), gmMoneyUi: { side: 'both', person: 'Mike', asof: '2024-12-15', year: '2024', tab: 'unpaid' }, spineOverrides: {}, spineUi: { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true, statusFilter: 'all', invSort: 'date-desc' }, recurringOverrides: {}, recurringActivity: [], recurringRequests: [], writeOffRequests: [], writeOffActivity: [], recurringUi: { mode: 'exec', person: 'Zach', simulateMonthClose: false, monthCloseConfirmedFor: '', asOfDate: '2026-09-09' }, awardsUi: { period: 'month', monthKey: '2026-09', year: '2026' }, execArUi: { year: '2026', quarter: 3 }, execProdUi: { year: '2026', month: 'all' }, execArCash: {}, execArExpenses: {}, execCommUi: { event: 'recruiting', payDate: '2026-09-15' }, excelProdSeedMeta: { source: '2024+2025+2026 Production Board.xlsx', seededAtCt: '2026-09-11 10:15 PM CT', rowCount: 369, years: [2024,2025,2026] } };
     ensureExecArExampleStubs(seeded);
     tagMoHighlandsMonthlies(seeded);
     ensureCarriTrackerBackfill(seeded);
@@ -70445,9 +70546,14 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         modifyBtn = ' <button type="button" class="mini-btn teal" data-act="modify" data-id="' + row.id + '" title="Exec only · edit booked truth · re-fan BH + GM">Modify marketing</button>';
       }
       var delBtn = ' <button type="button" class="mini-btn" data-act="delete" data-id="' + row.id + '" title="Delete row · persists · will not reseed">Delete</button>';
+      /* soft-writeoff-request-20260920 — Production-board-native Deal write-off (Placement / Marketing) */
+      var woBtn = '';
+      if (row.bookType === 'Placement' || row.bookType === 'Marketing') {
+        woBtn = ' <button type="button" class="mini-btn" data-act="writeoff" data-id="' + row.id + '" title="Deal write-off · request Carri QB negative line">Deal write-off</button>';
+      }
       var actions = detailBtn
-        ? '<span class="prod-act-row">' + detailBtn + modifyBtn + delBtn + '</span>'
-        : '<span class="prod-act-row">' + delBtn + '</span>';
+        ? '<span class="prod-act-row">' + detailBtn + modifyBtn + woBtn + delBtn + '</span>'
+        : '<span class="prod-act-row">' + woBtn + delBtn + '</span>';
       function decorate(tr) {
         tr.setAttribute('data-row-id', row.id);
         if (row.example) tr.classList.add('example');
@@ -70543,6 +70649,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         setTimeout(function () { flashRowId = null; }, 3200);
       }
     }
+    try { renderWriteOffQueue(); } catch (eWoQ) {} /* soft-writeoff-request-20260920 */
   }
 
   function prodRowAmt(row) {
@@ -70741,7 +70848,10 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="dd-k">Invoiced</div><div class="dd-v">' + invLine + '</div>' +
       '<div class="dd-k">Amount</div><div class="dd-v">' + money(row.fee) + '</div>' +
       ownersDetailHtml(row) +
-      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>';
+      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>' +
+      '<div class="dd-k">Deal write-off</div><div class="dd-v">' +
+        '<button type="button" class="mini-btn" data-act="writeoff" data-id="' + escHtml(row.id) + '">Deal write-off</button>' +
+        '<div style="font-size:11.5px;color:#64748b;margin-top:6px">Request → Carri writes off in QuickBooks as a negative line item · hits discovery month (not original book month)</div></div>';
     backdrop.hidden = false;
     backdrop.classList.add('show');
   }
@@ -70770,7 +70880,10 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="dd-k">Date</div><div class="dd-v">' + escHtml(row.date || '—') + ' · ' + escHtml(row.month || '') + '</div>' +
       '<div class="dd-k">Amount</div><div class="dd-v">' + money(amt) + '</div>' +
       ownersDetailHtml(row) +
-      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>';
+      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>' +
+      '<div class="dd-k">Deal write-off</div><div class="dd-v">' +
+        '<button type="button" class="mini-btn" data-act="writeoff" data-id="' + escHtml(row.id) + '">Deal write-off</button>' +
+        '<div style="font-size:11.5px;color:#64748b;margin-top:6px">Request → Carri writes off in QuickBooks as a negative line item · hits discovery month (not original book month)</div></div>';
     backdrop.hidden = false;
     backdrop.classList.add('show');
   }
@@ -71263,6 +71376,9 @@ ownersDetailHtml(row) +
       openPlacementDetail(row);
     } else if (btn.getAttribute('data-act') === 'mkt-detail') {
       openMarketingDetail(row);
+    } else if (btn.getAttribute('data-act') === 'writeoff') {
+      /* soft-writeoff-request-20260920 */
+      openWriteOffRequestModal(row, 'production');
     } else if (btn.getAttribute('data-act') === 'delete') {
       var label = (row.client || row.physician || row.campaign || row.id || 'row');
       if (!window.confirm('Delete this Production row?\n\n' + label + '\n\nPersists in Soft storage. Will not reappear on refresh.')) return;
@@ -76457,6 +76573,372 @@ ownersDetailHtml(row) +
     }
   }
 
+  /* ===== soft-writeoff-request-20260920 — Deal write-off (Production → Carri QB) ===== */
+  function chicagoYmNow() {
+    try {
+      var parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit' }).formatToParts(new Date());
+      var y = '', m = '';
+      parts.forEach(function (p) {
+        if (p.type === 'year') y = p.value;
+        if (p.type === 'month') m = p.value;
+      });
+      if (y && m) return y + '-' + m;
+    } catch (e) {}
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  }
+  function ensureWriteOffRequests() {
+    if (!Array.isArray(state.writeOffRequests)) state.writeOffRequests = [];
+    return state.writeOffRequests;
+  }
+  function ensureWriteOffActivity() {
+    if (!Array.isArray(state.writeOffActivity)) state.writeOffActivity = [];
+    return state.writeOffActivity;
+  }
+  function writeOffAttributedDefault(row) {
+    if (!row) return '';
+    if (row.bookType === 'Marketing') {
+      return row.marketer || primaryRepFromOwners(row.owners, row.rep) || row.rep || '';
+    }
+    return row.rep || primaryRepFromOwners(row.owners, '') || '';
+  }
+  function writeOffDealLabel(row) {
+    if (!row) return '—';
+    var bits = [];
+    if (row.client) bits.push(row.client);
+    var ref = row.dealRef || row.searchRefs || row.campaign || '';
+    if (ref) bits.push(String(ref).split(',')[0].trim());
+    if (row.bookType === 'Placement' && row.physician) bits.push(row.physician);
+    return bits.join(' · ') || row.id || '—';
+  }
+  function writeOffPersonOptions(bookType, selected) {
+    var list = bookType === 'Marketing' ? BD_PEOPLE.slice() : REC_PEOPLE.slice();
+    /* Also allow whoever is already on the row */
+    if (selected && list.indexOf(selected) < 0) list = [selected].concat(list);
+    var html = '<option value="">— pick —</option>';
+    list.forEach(function (p) {
+      html += '<option value="' + escHtml(p) + '"' + (p === selected ? ' selected' : '') + '>' + escHtml(p) + '</option>';
+    });
+    return html;
+  }
+  function writeOffRowAmount(row) {
+    if (!row) return '';
+    if (row.bookType === 'Placement') {
+      var f = Number(row.fee);
+      return isNaN(f) ? '' : String(Math.abs(f));
+    }
+    var a = row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth;
+    var n = Number(a);
+    return isNaN(n) ? '' : String(Math.abs(n));
+  }
+  function closeWriteOffRequestModal() {
+    var bd = document.getElementById('wo-req-backdrop');
+    if (bd) { bd.hidden = true; bd.classList.remove('show'); }
+  }
+  function openWriteOffRequestModal(row, surface) {
+    if (!row) { toast('Pick a Placement or Marketing deal on Production'); return; }
+    if (row.bookType !== 'Placement' && row.bookType !== 'Marketing') {
+      toast('Deal write-off is for Placement or Marketing rows');
+      return;
+    }
+    var bd = document.getElementById('wo-req-backdrop');
+    if (!bd) { toast('Write-off panel missing'); return; }
+    var bookType = row.bookType === 'Marketing' ? 'Marketing' : 'Placement';
+    var person = writeOffAttributedDefault(row);
+    var btEl = document.getElementById('wo-req-book-type');
+    var personEl = document.getElementById('wo-req-person');
+    var dealEl = document.getElementById('wo-req-deal-label');
+    var origEl = document.getElementById('wo-req-orig-month');
+    var amtEl = document.getElementById('wo-req-amount');
+    var discEl = document.getElementById('wo-req-discovery');
+    var noteEl = document.getElementById('wo-req-note');
+    var byEl = document.getElementById('wo-req-by');
+    var rowIdEl = document.getElementById('wo-req-row-id');
+    if (btEl) btEl.value = bookType;
+    if (personEl) personEl.innerHTML = writeOffPersonOptions(bookType, person);
+    if (dealEl) dealEl.textContent = writeOffDealLabel(row);
+    if (origEl) origEl.textContent = row.month || (row.date ? String(row.date).slice(0, 7) : '—');
+    if (amtEl) amtEl.value = writeOffRowAmount(row);
+    if (discEl) discEl.value = chicagoYmNow();
+    if (noteEl) noteEl.value = '';
+    if (byEl && !byEl.value) byEl.value = 'Walkthrough';
+    if (rowIdEl) rowIdEl.value = row.id || '';
+    bd.dataset.surface = surface || 'production';
+    bd.dataset.rowId = row.id || '';
+    bd.hidden = false;
+    bd.classList.add('show');
+    try { if (amtEl) amtEl.focus(); } catch (e) {}
+  }
+  function submitWriteOffRequest() {
+    var bd = document.getElementById('wo-req-backdrop');
+    var rowId = (document.getElementById('wo-req-row-id') || {}).value || (bd && bd.dataset.rowId) || '';
+    var row = (state.rows || []).filter(function (r) { return r.id === rowId; })[0];
+    if (!row) { toast('Production row missing — open Deal write-off from the board'); return; }
+    var bookTypeEl = document.getElementById('wo-req-book-type');
+    var personEl = document.getElementById('wo-req-person');
+    var amtEl = document.getElementById('wo-req-amount');
+    var discEl = document.getElementById('wo-req-discovery');
+    var noteEl = document.getElementById('wo-req-note');
+    var byEl = document.getElementById('wo-req-by');
+    var bookType = bookTypeEl ? bookTypeEl.value : 'Placement';
+    if (bookType !== 'Placement' && bookType !== 'Marketing') bookType = 'Placement';
+    var attributedPerson = personEl ? String(personEl.value || '').trim() : '';
+    var amtRaw = amtEl ? String(amtEl.value || '').trim() : '';
+    var amountPos = Math.abs(Number(amtRaw));
+    var discoveryMonth = discEl ? String(discEl.value || '').trim() : '';
+    var note = noteEl ? String(noteEl.value || '').trim() : '';
+    var requestedBy = byEl ? String(byEl.value || '').trim() : 'Walkthrough';
+    var surface = (bd && bd.dataset.surface) || 'production';
+    if (!attributedPerson) { toast('Pick attributed person'); try { if (personEl) personEl.focus(); } catch (e) {} return; }
+    if (!amtRaw || isNaN(amountPos) || amountPos <= 0) { toast('Enter a positive dollar amount'); try { if (amtEl) amtEl.focus(); } catch (e) {} return; }
+    if (!/^\d{4}-\d{2}$/.test(discoveryMonth)) { toast('Pick discovery month (YYYY-MM)'); try { if (discEl) discEl.focus(); } catch (e) {} return; }
+    var origMonth = row.month || (row.date ? String(row.date).slice(0, 7) : '');
+    var req = {
+      id: uid('woreq'),
+      sourceRowId: row.id,
+      bookType: bookType,
+      attributedPerson: attributedPerson,
+      client: row.client || '',
+      dealRef: row.dealRef || row.searchRefs || row.campaign || '',
+      candidateName: bookType === 'Placement' ? (row.physician || '') : '',
+      campaign: bookType === 'Marketing' ? (row.campaign || '') : '',
+      amountPositive: amountPos,
+      amountNegative: -amountPos,
+      discoveryMonth: discoveryMonth,
+      originalBookMonth: origMonth,
+      note: note,
+      requestedBy: requestedBy || 'Walkthrough',
+      at: new Date().toISOString(),
+      whenLocal: nowLocalLabel(),
+      status: 'pending',
+      surface: surface,
+      decidedBy: '',
+      decidedAt: '',
+      writeOffRowId: ''
+    };
+    ensureWriteOffRequests().push(req);
+    ensureWriteOffActivity().push({
+      id: uid('woact'),
+      at: req.at,
+      whenLocal: req.whenLocal,
+      kind: 'request',
+      requestId: req.id,
+      label: 'Deal write-off requested',
+      detail: bookType + ' · ' + attributedPerson + ' · ' + money(amountPos) + ' · discovery ' + discoveryMonth,
+      by: req.requestedBy
+    });
+    saveState();
+    closeWriteOffRequestModal();
+    try { closeDealDetail(); } catch (e) {}
+    toast('<strong>Write-off requested</strong><br>' + escHtml(bookType) + ' · ' + escHtml(attributedPerson) +
+      '<br>' + escHtml(money(amountPos)) + ' → Carri · discovery ' + escHtml(discoveryMonth));
+    renderWriteOffQueue();
+    try { renderProduction(); } catch (e2) {}
+  }
+  function insertWriteOffNegativeLine(req) {
+    var src = (state.rows || []).filter(function (r) { return r.id === req.sourceRowId; })[0] || null;
+    var person = req.attributedPerson || 'Unassigned';
+    var neg = Math.abs(Number(req.amountPositive) || 0) * -1;
+    var disc = req.discoveryMonth || chicagoYmNow();
+    var dateIso = disc + '-01';
+    try {
+      /* Prefer mid-month CT stamp for readability when decided today in that month */
+      var nowParts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      var ny = '', nm = '', nd = '';
+      nowParts.forEach(function (p) {
+        if (p.type === 'year') ny = p.value;
+        if (p.type === 'month') nm = p.value;
+        if (p.type === 'day') nd = p.value;
+      });
+      if (ny && nm && (ny + '-' + nm) === disc) dateIso = ny + '-' + nm + '-' + nd;
+    } catch (e) {}
+    var note = 'Write-off · negative line item · QB by Carri · discovery month ' + disc +
+      ' · original book ' + (req.originalBookMonth || '—');
+    if (req.note) note += ' · ' + req.note;
+    var row = {
+      id: uid('wo'),
+      example: false,
+      bookType: req.bookType === 'Marketing' ? 'Marketing' : 'Placement',
+      side: req.bookType === 'Marketing' ? 'bd' : 'recruiting',
+      date: dateIso,
+      month: disc,
+      rep: person,
+      researchRep: src && src.researchRep ? src.researchRep : '',
+      marketer: req.bookType === 'Marketing' ? person : (src && src.marketer ? src.marketer : ''),
+      client: req.client || (src && src.client) || '',
+      dealRef: req.dealRef || (src && (src.dealRef || src.searchRefs)) || '',
+      searchRefs: req.dealRef || (src && (src.searchRefs || src.dealRef)) || '',
+      physician: req.candidateName || (src && src.physician) || '',
+      campaign: req.campaign || (src && src.campaign) || '',
+      specialties: src && src.specialties ? src.specialties : '',
+      fee: neg,
+      accountingBilled: neg,
+      bookValueThisMonth: neg,
+      gmMode: 'Whole',
+      gmLabel: 'Whole · ' + person + ' 100%',
+      owners: { mode: 'Whole', primary: person },
+      status: 'Paid',
+      paid: true,
+      gmCashState: 'paid',
+      paidSource: 'soft-writeoff-request-20260920 · Carri Done in QuickBooks',
+      paidDate: dateIso,
+      note: note,
+      writeOffOfRowId: req.sourceRowId || '',
+      writeOffRequestId: req.id || '',
+      writeOff: true
+    };
+    if (!Array.isArray(state.rows)) state.rows = [];
+    state.rows.push(row);
+    return row;
+  }
+  function decideWriteOffRequest(reqId, decision) {
+    var list = ensureWriteOffRequests();
+    var req = list.filter(function (r) { return r.id === reqId; })[0];
+    if (!req) { toast('Write-off request not found'); return; }
+    if (req.status !== 'pending') { toast('Already ' + req.status); return; }
+    if (decision === 'deny') {
+      req.status = 'denied';
+      req.decidedBy = 'Carri';
+      req.decidedAt = new Date().toISOString();
+      ensureWriteOffActivity().push({
+        id: uid('woact'),
+        at: req.decidedAt,
+        whenLocal: nowLocalLabel(),
+        kind: 'denied',
+        requestId: req.id,
+        label: 'Write-off denied',
+        detail: (req.bookType || '') + ' · ' + (req.attributedPerson || '') + ' · ' + money(req.amountPositive),
+        by: 'Carri'
+      });
+      saveState();
+      renderWriteOffQueue();
+      toast('<strong>Denied</strong><br>Deal write-off · ' + escHtml(req.client || '') + '<br>by Carri');
+      return;
+    }
+    /* Done in QuickBooks → Soft negative line in discovery month */
+    var negRow = insertWriteOffNegativeLine(req);
+    req.status = 'done';
+    req.decidedBy = 'Carri';
+    req.decidedAt = new Date().toISOString();
+    req.writeOffRowId = negRow.id;
+    ensureWriteOffActivity().push({
+      id: uid('woact'),
+      at: req.decidedAt,
+      whenLocal: nowLocalLabel(),
+      kind: 'done',
+      requestId: req.id,
+      writeOffRowId: negRow.id,
+      label: 'Done in QuickBooks · Soft negative line',
+      detail: (req.bookType || '') + ' · ' + (req.attributedPerson || '') + ' · ' + money(req.amountNegative) +
+        ' · discovery ' + (req.discoveryMonth || ''),
+      by: 'Carri'
+    });
+    saveState();
+    renderWriteOffQueue();
+    try { renderProduction(); } catch (e) {}
+    try { renderBdGm(); renderRecGm(); renderExecGm(); } catch (e2) {}
+    try { renderFanout(); } catch (e3) {}
+    toast('<strong>Done in QuickBooks</strong><br>Soft negative line · ' + escHtml(req.discoveryMonth || '') +
+      '<br>' + escHtml(money(req.amountNegative)) + ' · ' + escHtml(req.attributedPerson || ''));
+  }
+  function renderWriteOffQueue() {
+    var body = document.getElementById('prod-writeoff-queue-body');
+    var actEl = document.getElementById('prod-writeoff-activity');
+    if (!body) return;
+    var pending = ensureWriteOffRequests().filter(function (r) { return r.status === 'pending'; }).slice().reverse();
+    var recent = ensureWriteOffRequests().filter(function (r) { return r.status !== 'pending'; }).slice().reverse().slice(0, 8);
+    function rowHtml(r, isPending) {
+      var acts = '';
+      if (isPending) {
+        acts = '<div class="erq-acts">' +
+          '<button type="button" class="mini-btn teal" data-wo-decide="done" data-req-id="' + escHtml(r.id) + '">Mark Done in QuickBooks</button>' +
+          '<button type="button" class="mini-btn" data-wo-decide="deny" data-req-id="' + escHtml(r.id) + '">Deny</button>' +
+          '</div>';
+      } else {
+        acts = '<div class="erq-acts"><span class="erq-status ' + escHtml(r.status) + '">' + escHtml(r.status) +
+          (r.decidedBy ? ' · ' + escHtml(r.decidedBy) : '') + '</span></div>';
+      }
+      var dealBits = escHtml(r.client || '');
+      if (r.dealRef) dealBits += ' · ' + escHtml(String(r.dealRef).split(',')[0].trim());
+      if (r.candidateName) dealBits += ' · ' + escHtml(r.candidateName);
+      return '<div class="erq-row" data-req-id="' + escHtml(r.id) + '">' +
+        '<div class="erq-meta"><strong>Deal write-off</strong> · ' + escHtml(r.bookType || '') +
+        ' · ' + escHtml(r.attributedPerson || '') +
+        '<span class="erq-status ' + escHtml(r.status || 'pending') + '">' + escHtml(r.status || 'pending') + '</span>' +
+        '<div style="margin-top:2px">' + dealBits + '</div>' +
+        '<div style="font-size:12px;margin-top:2px">Write-off ' + escHtml(money(r.amountNegative != null ? r.amountNegative : -(r.amountPositive || 0))) +
+        ' · discovery <strong>' + escHtml(r.discoveryMonth || '') + '</strong>' +
+        (r.originalBookMonth ? ' · original book ' + escHtml(r.originalBookMonth) : '') + '</div>' +
+        (r.note ? '<div class="erq-note">' + escHtml(r.note) + '</div>' : '') +
+        '<div style="font-size:11px;color:#78716c;margin-top:2px">by ' + escHtml(r.requestedBy || '—') +
+        ' · ' + escHtml(r.whenLocal || '') + ' · via ' + escHtml(r.surface || 'production') + '</div></div>' +
+        acts + '</div>';
+    }
+    var html = '';
+    if (!pending.length) {
+      html += '<div class="erq-empty">No pending write-off requests — open a Placement or Marketing row → Deal write-off.</div>';
+    } else {
+      html += pending.map(function (r) { return rowHtml(r, true); }).join('');
+    }
+    if (recent.length) {
+      html += '<div style="margin-top:10px;font-size:11.5px;font-weight:750;color:#78716c">Recent</div>';
+      html += recent.map(function (r) { return rowHtml(r, false); }).join('');
+    }
+    body.innerHTML = html;
+    if (actEl) {
+      var acts = ensureWriteOffActivity().slice().reverse().slice(0, 12);
+      if (!acts.length) {
+        actEl.innerHTML = '';
+      } else {
+        actEl.innerHTML = '<div style="font-size:11.5px;font-weight:750;color:#78716c;margin-bottom:4px">Activity</div>' +
+          acts.map(function (a) {
+            return '<div class="erq-row" style="grid-template-columns:1fr"><div class="erq-meta">' +
+              '<span style="font-size:11px;color:#78716c">' + escHtml(a.whenLocal || a.at || '') + '</span> · ' +
+              '<strong>' + escHtml(a.label || a.kind || '') + '</strong>' +
+              (a.detail ? ' · ' + escHtml(a.detail) : '') +
+              (a.by ? ' · ' + escHtml(a.by) : '') +
+              '</div></div>';
+          }).join('');
+      }
+    }
+  }
+  (function wireWriteOffHud() {
+    var cancel = document.getElementById('wo-req-cancel');
+    var submit = document.getElementById('wo-req-submit');
+    var bd = document.getElementById('wo-req-backdrop');
+    var btEl = document.getElementById('wo-req-book-type');
+    if (cancel) cancel.addEventListener('click', closeWriteOffRequestModal);
+    if (submit) submit.addEventListener('click', submitWriteOffRequest);
+    if (bd) {
+      bd.addEventListener('click', function (ev) {
+        if (ev.target === bd) closeWriteOffRequestModal();
+      });
+    }
+    if (btEl) {
+      btEl.addEventListener('change', function () {
+        var personEl = document.getElementById('wo-req-person');
+        var cur = personEl ? personEl.value : '';
+        if (personEl) personEl.innerHTML = writeOffPersonOptions(btEl.value, cur);
+      });
+    }
+    document.addEventListener('click', function (e) {
+      var decide = e.target && e.target.closest ? e.target.closest('[data-wo-decide]') : null;
+      if (decide) {
+        var rid = decide.getAttribute('data-req-id');
+        var decision = decide.getAttribute('data-wo-decide');
+        decideWriteOffRequest(rid, decision === 'deny' ? 'deny' : 'done');
+        return;
+      }
+      /* Deal write-off from deal-detail modal (tables already use onProdClick) */
+      var woBtn = e.target && e.target.closest ? e.target.closest('#deal-detail-backdrop button[data-act="writeoff"]') : null;
+      if (woBtn) {
+        var id = woBtn.getAttribute('data-id');
+        var row = (state.rows || []).filter(function (r) { return r.id === id; })[0];
+        if (row) openWriteOffRequestModal(row, 'deal-detail');
+      }
+    });
+  })();
+
   (function wireRecurringHud() {
     var refresh = document.getElementById('recurring-refresh');
     if (refresh) refresh.addEventListener('click', function () { renderRecurring(); toast('Recurring live list refreshed'); });
@@ -77466,7 +77948,7 @@ ownersDetailHtml(row) +
   /* /INVCHECK:JS */
 
   function renderAll() {
-    renderProduction(); renderFanout(); renderBdGm(); renderRecGm(); renderExecGm(); renderCommission(); renderGmMoney(); try { renderAwards(); } catch (e) {} try { renderSpine(); } catch (e) {} try { renderRecurring(); } catch (e) {} try { if (views.invcheck && views.invcheck.classList.contains("active")) { wireInvCheckOnce(); renderInvCheck(); } } catch (e) {} try { paintRecurringStreamSelects(); } catch (e) {} try { renderExecRecurringQueue(); } catch (e) {} try { paintRecurringMonthClose(); } catch (e) {}
+    renderProduction(); renderFanout(); renderBdGm(); renderRecGm(); renderExecGm(); renderCommission(); renderGmMoney(); try { renderAwards(); } catch (e) {} try { renderSpine(); } catch (e) {} try { renderRecurring(); } catch (e) {} try { if (views.invcheck && views.invcheck.classList.contains("active")) { wireInvCheckOnce(); renderInvCheck(); } } catch (e) {} try { paintRecurringStreamSelects(); } catch (e) {} try { renderExecRecurringQueue(); } catch (e) {} try { paintRecurringMonthClose(); } catch (e) {} try { renderWriteOffQueue(); } catch (eWo) {}
   }
 
   if (!state.fanLog.length) {
