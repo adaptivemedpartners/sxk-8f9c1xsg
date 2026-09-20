@@ -10653,7 +10653,7 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
     max-width: 16rem;
     overflow: visible;
   }
-  /* soft-prod-actions-cluster-20260920 · soft-prod-modify-fixed-width-20260920 · soft-prod-jump-month-row-fix-20260920 · soft-writeoff-modal-opaque-20260920 · soft-prod-modify-fixed-width-20260920 */
+  /* soft-prod-actions-cluster-20260920 · soft-prod-modify-fixed-width-20260920 · soft-prod-jump-month-row-fix-20260920 · soft-writeoff-modal-opaque-20260920 · soft-writeoff-modal-theme-match-20260920 · soft-prod-modify-fixed-width-20260920 */
   #view-production table.data.prod-table th:last-child,
   #view-production table.data.prod-table td.prod-actions {
     text-align: right !important;
@@ -13434,48 +13434,105 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   .erq-status.denied { background: #FEE2E2; color: #991B1B; }
 
   /* soft-writeoff-request-20260920 — Deal write-off (Production → Carri QB) */
+  /* soft-writeoff-modal-theme-match-20260920 — twin of deal-detail / Modify Placement modal */
   .wo-req-backdrop {
-    /* soft-writeoff-modal-opaque-20260920 — solid scrim + panel (var(--card) was unset → transparent) */
-    position: fixed; inset: 0; background: rgba(10, 16, 24, .72); z-index: 100210;
+    position: fixed; inset: 0; z-index: 100210;
+    background: rgba(10, 16, 24, .62);
     display: flex; align-items: center; justify-content: center; padding: 16px;
   }
   .wo-req-backdrop[hidden] { display: none !important; }
   .wo-req-modal {
     width: min(560px, 100%);
-    background: #ffffff;
-    background: var(--panel, var(--card, #ffffff));
-    color: var(--text, #0f172a);
+    max-height: min(90vh, 720px); overflow: auto;
+    background: var(--card, #fff);
+    color: inherit;
     border-radius: 14px;
-    border: 1px solid var(--border, #cfd7e3);
-    box-shadow: 0 20px 50px rgba(15,23,42,.35);
-    padding: 16px 18px; max-height: min(90vh, 720px); overflow: auto;
+    border: 1px solid #cfd7e3;
+    box-shadow: 0 20px 50px rgba(15,23,42,.25);
+    padding: 18px 18px 14px;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   }
-  html[data-look="light"] .wo-req-modal {
-    background: #ffffff;
-    color: #0f172a;
-    border-color: #cfd7e3;
+  .wo-req-modal h3 {
+    margin: 0 0 4px; font-size: 1.08rem; font-weight: 750; letter-spacing: -0.01em; color: inherit;
   }
-  html[data-look="dark"] .wo-req-modal {
-    background: var(--panel, #111827);
-    color: var(--text, #eef3f8);
-    border-color: var(--border, #2a3648);
+  .wo-req-modal .rr-sub {
+    color: #5b6b82; font-size: 12px; margin: 0 0 12px; line-height: 1.45;
   }
-  .wo-req-modal h3 { margin: 0 0 4px; font-size: 1.05rem; }
-  .wo-req-modal .rr-sub { color: #64748b; font-size: 12.5px; margin: 0 0 12px; line-height: 1.4; }
-  .wo-req-modal .rr-field { display: block; margin: 0 0 10px; font-size: 12.5px; font-weight: 650; color: #334155; }
+  .wo-req-modal .rr-field {
+    display: block; margin: 0 0 10px; font-size: 13px; font-weight: 600; color: #5b6b82;
+  }
   .wo-req-modal .rr-field select,
   .wo-req-modal .rr-field textarea,
   .wo-req-modal .rr-field input[type="text"],
   .wo-req-modal .rr-field input[type="number"],
   .wo-req-modal .rr-field input[type="month"] {
     display: block; width: 100%; margin-top: 4px; padding: 7px 10px;
-    border: 1px solid #94A3B8; border-radius: 8px; font: inherit; font-size: 13px;
-    box-sizing: border-box; background: #ffffff; background: var(--panel-2, var(--card, #ffffff)); color: #0f172a;
+    border: 1px solid #cfd7e3; border-radius: 8px; font: inherit; font-size: 13px;
+    box-sizing: border-box; background: #fff; color: #152033;
   }
   .wo-req-modal .rr-field textarea { min-height: 64px; resize: vertical; }
-  .wo-req-modal .rr-ro { font-weight: 550; color: #0f172a; margin-top: 4px; font-size: 13px; }
-  .wo-req-modal .rr-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .wo-req-modal .rr-ro { font-weight: 550; color: #152033; margin-top: 4px; font-size: 13px; }
+  .wo-req-modal .rr-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; align-items: center; }
   .wo-req-modal .rr-req { font-size: 11px; color: #b45309; font-weight: 650; }
+  .wo-req-modal .rr-actions .mini-btn,
+  .wo-req-modal .rr-actions button {
+    appearance: none; border: 1px solid #cfd7e3; background: #fff; color: #152033;
+    border-radius: 8px; padding: 6px 12px; font: inherit; font-size: 12.5px; font-weight: 650; cursor: pointer;
+  }
+  .wo-req-modal .rr-actions .mini-btn.teal,
+  .wo-req-modal .rr-actions button.teal {
+    background: #1FA6A0; color: #fff; border-color: #1FA6A0;
+  }
+
+  html[data-look="light"] .wo-req-backdrop { background: rgba(15, 23, 42, .45); }
+  html[data-look="light"] .wo-req-modal {
+    background: #fff; border: 1px solid #cfd7e3; color: #152033;
+    box-shadow: 0 20px 50px rgba(15,23,42,.25);
+  }
+  html[data-look="light"] .wo-req-modal h3 { color: #152033; }
+  html[data-look="light"] .wo-req-modal .rr-sub { color: #5b6b82; }
+  html[data-look="light"] .wo-req-modal .rr-field { color: #5b6b82; }
+  html[data-look="light"] .wo-req-modal .rr-ro { color: #152033; }
+  html[data-look="light"] .wo-req-modal .rr-field select,
+  html[data-look="light"] .wo-req-modal .rr-field textarea,
+  html[data-look="light"] .wo-req-modal .rr-field input {
+    background: #fff; color: #152033; border-color: #cfd7e3;
+  }
+  html[data-look="light"] .wo-req-modal .rr-actions .mini-btn.teal {
+    background: #1FA6A0; color: #fff; border-color: #1FA6A0;
+  }
+
+  html[data-look="dark"] .wo-req-backdrop { background: rgba(6, 10, 16, .72); }
+  html[data-look="dark"] .wo-req-modal {
+    background: linear-gradient(180deg, var(--panel-2, #1a2436), var(--panel, #111827));
+    border: 1px solid color-mix(in srgb, var(--accent, #2a9bb5) 35%, var(--border, #2a3648));
+    color: var(--text, #eef3f8);
+    box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 0 0 1px rgba(94,200,224,.08);
+  }
+  html[data-look="dark"] .wo-req-modal h3 { color: var(--text, #eef3f8); }
+  html[data-look="dark"] .wo-req-modal .rr-sub { color: var(--muted, #8b9cb3); }
+  html[data-look="dark"] .wo-req-modal .rr-field { color: var(--muted, #8b9cb3); }
+  html[data-look="dark"] .wo-req-modal .rr-ro { color: var(--text, #eef3f8); }
+  html[data-look="dark"] .wo-req-modal .rr-field select,
+  html[data-look="dark"] .wo-req-modal .rr-field textarea,
+  html[data-look="dark"] .wo-req-modal .rr-field input {
+    background: var(--panel-2, #1a2436); color: var(--text, #eef3f8);
+    border-color: var(--border, #2a3648);
+  }
+  html[data-look="dark"] .wo-req-modal .rr-actions .mini-btn,
+  html[data-look="dark"] .wo-req-modal .rr-actions button {
+    background: var(--panel-2, #1a2436); color: var(--text, #eef3f8);
+    border-color: var(--border, #2a3648);
+  }
+  html[data-look="dark"] .wo-req-modal .rr-actions .mini-btn:hover,
+  html[data-look="dark"] .wo-req-modal .rr-actions button:hover {
+    border-color: var(--accent, #2a9bb5);
+  }
+  html[data-look="dark"] .wo-req-modal .rr-actions .mini-btn.teal,
+  html[data-look="dark"] .wo-req-modal .rr-actions button.teal {
+    background: var(--accent, #2a9bb5); color: #fff; border-color: var(--accent, #2a9bb5);
+  }
+
   .prod-writeoff-queue, .acct-writeoff-queue {
     margin: 14px 0 8px; padding: 12px 14px; border: 1px solid #F59E0B; border-radius: 12px;
     background: #FFFBEB;
@@ -13485,19 +13542,11 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   .erq-status.done { background: #D1FAE5; color: #065F46; }
   html[data-look="dark"] .prod-writeoff-queue,
   html[data-look="dark"] .acct-writeoff-queue {
-    background: color-mix(in srgb, var(--warn, #B45309) 12%, var(--card));
-    border-color: color-mix(in srgb, var(--warn, #B45309) 45%, var(--border));
+    background: color-mix(in srgb, var(--warn, #B45309) 12%, var(--panel, #111827));
+    border-color: color-mix(in srgb, var(--warn, #B45309) 45%, var(--border, #2a3648));
   }
   html[data-look="dark"] .prod-writeoff-queue h3,
   html[data-look="dark"] .acct-writeoff-queue h3 { color: var(--warn, #FBBF24); }
-  html[data-look="dark"] .wo-req-modal .rr-sub { color: var(--muted); }
-  html[data-look="dark"] .wo-req-modal .rr-field { color: var(--muted); }
-  html[data-look="dark"] .wo-req-modal .rr-ro { color: var(--text); }
-  html[data-look="dark"] .wo-req-modal .rr-field select,
-  html[data-look="dark"] .wo-req-modal .rr-field textarea,
-  html[data-look="dark"] .wo-req-modal .rr-field input {
-    background: var(--panel-2, #1a2436); color: var(--text, #eef3f8); border-color: var(--border, #2a3648);
-  }
   .gm-rec-actions select { max-width: min(420px, 100%); }
 
   /* ===== Exec Awards (Mike lock 2026-09-09 ~8:37 PM CT) — Live ===== */
