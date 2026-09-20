@@ -15579,7 +15579,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-rep-owner-autofix-20260920</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-hadley-aug-ecb-dedupe-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -55111,7 +55111,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-rep-owner-autofix-20260920'; /* soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-rep-owner-autofix-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-boot-pills-unblock-20260920; prior soft-boot-pills-unblock-20260920 · soft-awards-paid-live-20260920 · soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 */
+  var CHIP = 'soft-hadley-aug-ecb-dedupe-20260920'; /* soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-rep-owner-autofix-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-boot-pills-unblock-20260920; prior soft-boot-pills-unblock-20260920 · soft-awards-paid-live-20260920 · soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -56952,6 +56952,51 @@ function ensureCarriGmSeed(s) {
   }
   try { window.__softEnsureChdAugMktDedupe = ensureChdAugMktDedupe; } catch (eChd) {}
 
+  function ensureHadleyAugEcbDedupe(state) {
+    /* soft-hadley-aug-ecb-dedupe-20260920 — Hadley Aug Placement only:
+       excel xl_pl_2026-08_3 ("Janice Moore ECB" · $5k) is ECB second-bill leftover
+       beside real placement xl_pl_2026-08_2 ("Janice Moore" · $19k). softIsEcbPlacementLine
+       already hides ECB from Production; tombstone the orphan excel ECB so it is cleared.
+       Scope: Hadley 2026-08 only — do not touch other accounts/months. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-hadley-aug-ecb-dedupe-20260920";
+    var dropId = "xl_pl_2026-08_3";
+    var keepId = "xl_pl_2026-08_2";
+    softEnsureTombstoneMaps(state);
+    var hadDrop = false;
+    var hadKeep = false;
+    for (var i = 0; i < state.rows.length; i++) {
+      var r = state.rows[i];
+      if (!r || !r.id) continue;
+      if (String(r.id) === dropId) hadDrop = true;
+      if (String(r.id) === keepId) hadKeep = true;
+    }
+    if (!state.deletedRowIds[dropId]) {
+      state.deletedRowIds[dropId] = {
+        at: "2026-09-20T13:55:00-05:00",
+        why: stamp,
+        keep: keepId,
+        note: "Hadley Aug Janice Moore ECB excel orphan; keep real placement xl_pl_2026-08_2"
+      };
+    }
+    var before = state.rows.length;
+    state.rows = state.rows.filter(function (r) {
+      return !(r && String(r.id) === dropId);
+    });
+    state.hadleyAugEcbDedupe = {
+      stamp: stamp,
+      dropped: dropId,
+      kept: keepId,
+      hadDrop: hadDrop,
+      hadKeep: hadKeep,
+      removedNow: before - state.rows.length,
+      at: "2026-09-20"
+    };
+    return state;
+  }
+  try { window.__softEnsureHadleyAugEcbDedupe = ensureHadleyAugEcbDedupe; } catch (eHad) {}
+
+
 
   function ensureSoftProdPaidFromSpineSoT(s) {
     if (!s || !Array.isArray(s.rows)) return s;
@@ -57131,6 +57176,7 @@ function softIsoDate(v) {
     dedupeBdRepeatClones(s);
     tagMoHighlandsMonthlies(s);     tagSoftEcbSplitAndSecondBills(s);     tagSoftRecurringOffProductionBoard(s); /* soft-prod-recurring-off-board-20260920 */ /* soft-prod-ecb-secondbill-20260920 */
     ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
+    ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
     softApplyRowTombstones(s); /* soft-prod-iv-harden-20260919 — after ensure* so reseed cannot revive deletes */
     if (!Array.isArray(s.fanLog)) s.fanLog = [];
     if (!Array.isArray(s.commissionLines)) s.commissionLines = [];
@@ -57203,6 +57249,7 @@ function softIsoDate(v) {
     });
     ensureHendrickSepAaron(s);
     ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
+    ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
     try { ensureSoftRepOwnerAutofix(s); } catch (eRepAf) {} /* soft-rep-owner-autofix-20260920 */
     return s;
   }
@@ -70054,6 +70101,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureSpineBookedBuckets(state);
     ensureHendrickSepAaron(state);
     ensureChdAugMktDedupe(state); /* soft-chd-aug-mkt-dedupe-20260920 */
+    ensureHadleyAugEcbDedupe(state); /* soft-hadley-aug-ecb-dedupe-20260920 */
     try { ensureSoftRepOwnerAutofix(state); } catch (eRepAf2) {}
     ensureMike2026FocusPaid(state);
     ensureSoftProdPaidFromSpineSoT(state);
