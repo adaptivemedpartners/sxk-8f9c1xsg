@@ -15579,7 +15579,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-hendrick-sep-aaron-20260920</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-hendrick-sep-aaron-lock-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -55111,7 +55111,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-hendrick-sep-aaron-20260920'; /* soft-boot-pills-unblock-20260920; prior soft-boot-pills-unblock-20260920 · soft-awards-paid-live-20260920 · soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 */
+  var CHIP = 'soft-hendrick-sep-aaron-lock-20260920'; /* soft-boot-pills-unblock-20260920; prior soft-boot-pills-unblock-20260920 · soft-awards-paid-live-20260920 · soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -56761,6 +56761,32 @@ function ensureCarriGmSeed(s) {
       at: '2026-09-20'
     };
     return s;
+  }
+
+  
+  function ensureHendrickSepAaron(state) {
+    /* soft-hendrick-sep-aaron-lock-20260920 — force Sep Hendrick 17089 / ex_spine_17089 rep=Aaron */
+    if (!state || !state.rows) return state;
+    var stamp = "soft-hendrick-sep-aaron-lock-20260920";
+    var flipped = 0;
+    state.rows.forEach(function (row) {
+      if (!row) return;
+      var isHit = (row.id === "ex_spine_17089" || String(row.sampleId || "") === "17089")
+        && /hendrick/i.test(String(row.client || ""))
+        && String(row.month || "") === "2026-09";
+      if (!isHit) return;
+      var need = (String(row.rep || "") !== "Aaron")
+        || (row.owners && row.owners.primary && String(row.owners.primary) !== "Aaron")
+        || (String(row.gmLabel || "").indexOf("Aaron") < 0 && /Whole/.test(String(row.gmLabel || "")));
+      if (!need && String(row.rep || "") === "Aaron") return;
+      row.rep = "Aaron";
+      row.gmMode = row.gmMode || "Whole";
+      row.gmLabel = "Whole · Aaron 100%";
+      row.owners = { mode: "Whole", primary: "Aaron" };
+      flipped++;
+    });
+    state.hendrickSepAaronLock = { stamp: stamp, flipped: flipped, at: "2026-09-20" };
+    return state;
   }
 
   function ensureSoftProdPaidFromSpineSoT(s) {
@@ -69829,7 +69855,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     { id: '17071', sampleId: '17071', client: 'Hendrick Medical Center', searchIds: ['s_hendrick'], searchRefs: 'CSV8454, OBG8455, END8456, RHU8457, HO8458', amount: 5000, date: '2026-08-05', status: 'Invoiced', qbNumber: '17071', paidDate: null, agreement: 'Partnership', linkRowId: 'ex_bd_sep_hendrick',
       owners: { mode: 'Whole', primary: 'Zach' } },
     { id: '17089', sampleId: '17089', client: 'Hendrick Medical Center', searchIds: ['s_hendrick'], searchRefs: 'CSV8454, OBG8455, END8456, RHU8457, HO8458', amount: 2000, date: '2026-09-01', status: 'Booked', qbNumber: '', paidDate: null, agreement: 'Partnership', linkRowId: 'ex_spine_17089',
-      owners: { mode: 'Whole', primary: 'Zach' } },
+      owners: { mode: 'Whole', primary: 'Aaron' } },
     { id: '17021', sampleId: '17021', client: 'Kittitas Valley Community Hospital', searchIds: ['s_kittitas'], searchRefs: 'FP8306, NP8229', amount: 790, date: '2026-07-01', status: 'Paid', qbNumber: '17021', paidDate: '2026-07-02', agreement: 'Internets', linkRowId: 'ex_spine_17021', excludeFromBdGm: true,
       owners: { mode: 'Whole', primary: 'Kelley' } },
     { id: '17078', sampleId: '17078', client: 'Community Health Development, INC', searchIds: ['s_chdi'], searchRefs: 'DDS-8419', amount: 19800, date: '2026-08-24', status: 'Invoiced', qbNumber: '17078', paidDate: null, agreement: 'Marketing', linkRowId: 'ex_spine_17078',
@@ -69855,6 +69881,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureSoftProdQbFromCarriSeeds(state);
     ensureSpineBookedFromCarriQb(state);
     ensureSpineBookedBuckets(state);
+    ensureHendrickSepAaron(state);
     ensureMike2026FocusPaid(state);
     ensureSoftProdPaidFromSpineSoT(state);
   } catch (eSpineCashBoot) {}
