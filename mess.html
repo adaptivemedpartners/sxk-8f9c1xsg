@@ -53019,6 +53019,7 @@ function mktSendAmplified(searchKey) {
           <button type="button" data-exec="bd">BD</button>
           <button type="button" data-exec="ar">AR</button>
           <button type="button" data-exec="production">Exec Production</button>
+          <button type="button" data-exec="unmapped2026" title="Report only — 17 unmapped 2026 faces">2026 Unmapped faces</button>
         </div>
         <div id="exec-panel-gm">
           <div class="exec-side-prod-hint" id="exec-side-prod-hint" hidden></div>
@@ -53177,6 +53178,28 @@ function mktSendAmplified(searchKey) {
           <pre class="ecr-print" id="exec-comm-printblock" hidden></pre>
         </div>
       </div>
+      <div class="card" id="exec-panel-unmapped2026" hidden>
+        <h3 style="margin:0 0 6px;font-size:1.05rem">2026 unmapped faces <span class="badge draft">report only · no edits</span></h3>
+        <p class="lede" id="soft-unmapped2026-lede">17 faces · CHIP <code>soft-2026-unmapped-faces-panel-20260920</code> · static embed from 2026 GM map report · display only (no status flips, no owner changes).</p>
+        <div class="table-wrap">
+          <table class="board" id="tbl-unmapped2026">
+            <thead>
+              <tr>
+                <th>Invoice</th>
+                <th>People / name</th>
+                <th>GM bucket</th>
+                <th class="num">Amount</th>
+                <th>Client</th>
+                <th>Date</th>
+                <th>Map</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-unmapped2026-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+
 
       
       <div class="card exec-inv-pdf-card" id="exec-inv-pdf-card">
@@ -55415,7 +55438,216 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-spine-prod-owners-first-20260920'; /* soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-2026-unmapped-faces-panel-20260920'; /* soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+
+  /* soft-2026-unmapped-faces-panel-20260920 — static read-only embed; do not invent faces */
+  var SOFT_UNMAPPED_2026_FACES = [
+  {
+    "invoice": "16786",
+    "id": "carri_inv_FPOB8385",
+    "people": "AMP House",
+    "gmBucket": "Whole · AMP House 100%",
+    "amount": 2000,
+    "client": "Blue Mountain Hospital",
+    "date": "2026-01-15",
+    "mapStatus": "unmapped",
+    "mapKind": "plain",
+    "cash": "paid"
+  },
+  {
+    "invoice": "16856",
+    "id": "carri_qb_16856",
+    "people": "Unassigned",
+    "gmBucket": "Whole · Unassigned 100%",
+    "amount": 4000,
+    "client": "Community Health Development, INC",
+    "date": "2026-02-01",
+    "mapStatus": "unmapped",
+    "mapKind": "plain",
+    "cash": "paid"
+  },
+  {
+    "invoice": "16861",
+    "id": "carri_qb_16861",
+    "people": "Mike/Amy",
+    "gmBucket": "Marketing · Mike/Amy 50% / House 25%",
+    "amount": 19800,
+    "client": "Community Health Development, INC",
+    "date": "2026-02-23",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "paid"
+  },
+  {
+    "invoice": "16943",
+    "id": "carri_qb_16943",
+    "people": "Amy/Mike",
+    "gmBucket": "Marketing · Amy/Mike 50% / House 25%",
+    "amount": 19800,
+    "client": "Community Health Development, INC",
+    "date": "2026-04-07",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "paid"
+  },
+  {
+    "invoice": "16945",
+    "id": "carri_qb_16945",
+    "people": "Mike/Nate",
+    "gmBucket": "Marketing · Mike/Nate 50% / House 25%",
+    "amount": 19800,
+    "client": "Helen Newberry Joy Hospital & Healthcare",
+    "date": "2026-04-29",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "paid"
+  },
+  {
+    "invoice": "16977",
+    "id": "carri_qb_16977",
+    "people": "Nate/Mike",
+    "gmBucket": "Marketing · Nate/Mike 50% / House 25%",
+    "amount": 15000,
+    "client": "Winn Community",
+    "date": "2026-05-21",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "paid"
+  },
+  {
+    "invoice": "17037",
+    "id": "carri_qb_17037",
+    "people": "Randy/Kelley",
+    "gmBucket": "Whole · Randy/Kelley 100%",
+    "amount": 5000,
+    "client": "Copper Queen",
+    "date": "2026-07-13",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "paid"
+  },
+  {
+    "invoice": "16822",
+    "id": "xl_bd_2026-01_3",
+    "people": "Brenton, New",
+    "gmBucket": "Whole · Brenton 100%",
+    "amount": 5000,
+    "client": "Cullman Regional",
+    "date": "2026-01-23",
+    "mapStatus": "unmapped",
+    "mapKind": "plain",
+    "cash": "paid"
+  },
+  {
+    "invoice": "16856",
+    "id": "xl_bd_2026-02_2",
+    "people": "Unassigned",
+    "gmBucket": "Whole · Unassigned 100%",
+    "amount": 4000,
+    "client": "Community Health",
+    "date": "2026-02-01",
+    "mapStatus": "unmapped",
+    "mapKind": "plain",
+    "cash": "paid"
+  },
+  {
+    "invoice": "16861",
+    "id": "xl_mkt_2026-02_33",
+    "people": "Mike/Amy, Aaron",
+    "gmBucket": "Marketing · Mike/Amy 50% / House 25%",
+    "amount": 19800,
+    "client": "Community Health Development",
+    "date": "2026-02-17",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "paid"
+  },
+  {
+    "invoice": "xl_bd_2026-04_8",
+    "id": "xl_bd_2026-04_8",
+    "people": "Mike/Randy",
+    "gmBucket": "Whole · Mike/Randy 100%",
+    "amount": 10000,
+    "client": "Indian Health of Santa Clara Valley",
+    "date": "2026-04-30",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "unpaid"
+  },
+  {
+    "invoice": "16943",
+    "id": "xl_mkt_2026-04_32",
+    "people": "Amy/Mike, Aaron",
+    "gmBucket": "Marketing · Amy/Mike 50% / House 25%",
+    "amount": 19800,
+    "client": "CHDI",
+    "date": "2026-04-03",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "paid"
+  },
+  {
+    "invoice": "16942",
+    "id": "xl_mkt_2026-04_33",
+    "people": "Mike, Zach/Aaron/Brenton",
+    "gmBucket": "Marketing · Mike 50% / House 25%",
+    "amount": 13000,
+    "client": "Concord Hospital",
+    "date": "2026-04-27",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "paid"
+  },
+  {
+    "invoice": "16945",
+    "id": "xl_mkt_2026-04_36",
+    "people": "Mike/Nate, Randy",
+    "gmBucket": "Marketing · Mike/Nate 50% / House 25%",
+    "amount": 19800,
+    "client": "Helen Newberry Joy Hospital",
+    "date": "2026-04-29",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "paid"
+  },
+  {
+    "invoice": "xl_mkt_2026-06_32",
+    "id": "xl_mkt_2026-06_32",
+    "people": "Stephanie, Aaron/Randy",
+    "gmBucket": "Marketing · Stephanie 50% / House 25%",
+    "amount": 19800,
+    "client": "Midland Health",
+    "date": "2026-06-03",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "unpaid"
+  },
+  {
+    "invoice": "xl_mkt_2026-06_33",
+    "id": "xl_mkt_2026-06_33",
+    "people": "Stephanie, Aaron/Randy",
+    "gmBucket": "Marketing · Stephanie 50% / House 25%",
+    "amount": 17800,
+    "client": "Midland Health",
+    "date": "2026-06-03",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "unpaid"
+  },
+  {
+    "invoice": "17037",
+    "id": "xl_bd_2026-07_2",
+    "people": "Randy/Kelley",
+    "gmBucket": "Whole · Randy/Kelley 100%",
+    "amount": 5000,
+    "client": "Copper Queen Commmunity",
+    "date": "2026-07-10",
+    "mapStatus": "compound_unmapped",
+    "mapKind": "compound",
+    "cash": "paid"
+  }
+];
+  var SOFT_UNMAPPED_2026_CHIP = 'soft-2026-unmapped-faces-panel-20260920';
   
   /* soft-comp-gm-splits-xlsx-20260920 — ONLY SoT: docs/AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx
      Numbers below are copied from Recruiting + BDR tabs ("% of Billed Rev Allocated to GM").
@@ -77723,6 +77955,53 @@ ownersDetailHtml(row) +
     try { paintProdAgingStrip(); } catch (eAgeExec) {} /* soft-aging-exec-pre2026-ors8432-nate-20260920 */
   }
 
+
+  /* soft-2026-unmapped-faces-panel-20260920 — read-only panel; no invoice/GM/production mutations */
+  function softFmtUnmappedAmt(n) {
+    var x = Number(n);
+    if (!isFinite(x)) return String(n == null ? '' : n);
+    try {
+      return (typeof money === 'function') ? money(x) : ('$' + x.toLocaleString('en-US', { maximumFractionDigits: 0 }));
+    } catch (eM) {
+      return '$' + String(x);
+    }
+  }
+  function softEscUnmapped(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function renderUnmapped2026FacesPanel() {
+    var body = document.getElementById('tbl-unmapped2026-body');
+    var lede = document.getElementById('soft-unmapped2026-lede');
+    var rows = Array.isArray(SOFT_UNMAPPED_2026_FACES) ? SOFT_UNMAPPED_2026_FACES : [];
+    if (lede) {
+      lede.innerHTML = rows.length + ' faces · CHIP <code>' + softEscUnmapped(SOFT_UNMAPPED_2026_CHIP || CHIP) +
+        '</code> · static embed from 2026 GM map report · display only (no status flips, no owner changes).';
+    }
+    if (!body) return;
+    body.innerHTML = rows.map(function (r) {
+      var mapLabel = (r.mapKind === 'compound' || r.mapStatus === 'compound_unmapped')
+        ? 'compound' : 'plain';
+      return '<tr>' +
+        '<td><code>' + softEscUnmapped(r.invoice || r.id) + '</code></td>' +
+        '<td>' + softEscUnmapped(r.people) + '</td>' +
+        '<td>' + softEscUnmapped(r.gmBucket) + '</td>' +
+        '<td class="num">' + softEscUnmapped(softFmtUnmappedAmt(r.amount)) + '</td>' +
+        '<td>' + softEscUnmapped(r.client) + '</td>' +
+        '<td>' + softEscUnmapped(r.date) + '</td>' +
+        '<td>' + softEscUnmapped(mapLabel) + ' <span class="badge draft">' + softEscUnmapped(r.mapStatus) + '</span></td>' +
+        '</tr>';
+    }).join('');
+  }
+  try {
+    window.__softUnmapped2026Faces = {
+      chip: SOFT_UNMAPPED_2026_CHIP,
+      faces: SOFT_UNMAPPED_2026_FACES,
+      render: renderUnmapped2026FacesPanel
+    };
+  } catch (eExpU) {}
+
   function renderExecGm() {
     var mode = state.execMode || 'combined';
     document.querySelectorAll('#exec-toggles button').forEach(function (b) {
@@ -77731,10 +78010,12 @@ ownersDetailHtml(row) +
     var panelGm = document.getElementById('exec-panel-gm');
     var panelAr = document.getElementById('exec-panel-ar');
     var panelProd = document.getElementById('exec-panel-production');
-    try { renderExecGmLayerChips((mode === 'ar' || mode === 'production') ? 'combined' : mode); } catch (eL) {}
+    var panelUnmapped = document.getElementById('exec-panel-unmapped2026');
+    try { renderExecGmLayerChips((mode === 'ar' || mode === 'production' || mode === 'unmapped2026') ? 'combined' : mode); } catch (eL) {}
     if (mode === 'ar') {
       if (panelGm) panelGm.hidden = true;
       if (panelProd) panelProd.hidden = true;
+      if (panelUnmapped) panelUnmapped.hidden = true;
       if (panelAr) panelAr.hidden = false;
       renderExecAr();
       return;
@@ -77742,13 +78023,23 @@ ownersDetailHtml(row) +
     if (mode === 'production') {
       if (panelGm) panelGm.hidden = true;
       if (panelAr) panelAr.hidden = true;
+      if (panelUnmapped) panelUnmapped.hidden = true;
       if (panelProd) panelProd.hidden = false;
       renderExecProduction();
+      return;
+    }
+    if (mode === 'unmapped2026') {
+      if (panelGm) panelGm.hidden = true;
+      if (panelAr) panelAr.hidden = true;
+      if (panelProd) panelProd.hidden = true;
+      if (panelUnmapped) panelUnmapped.hidden = false;
+      try { renderUnmapped2026FacesPanel(); } catch (eU) { console.warn('[unmapped2026]', eU); }
       return;
     }
     if (panelGm) panelGm.hidden = false;
     if (panelAr) panelAr.hidden = true;
     if (panelProd) panelProd.hidden = true;
+    if (panelUnmapped) panelUnmapped.hidden = true;
     closeExecArDrawer();
     var hint = document.getElementById('exec-side-prod-hint');
     var table = document.getElementById('tbl-exec');
