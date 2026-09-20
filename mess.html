@@ -3,6 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
+/* soft-bd-year-fractions-tentative-20260920 — Soft Soft: Provisional YTD BD deal fractions (Mike) — Brenton 6.6 · Zach 4.4 — TENTATIVE / PROVISIONAL only; split-weighted deal credit (not whole books); unconfirmed pending Randy; read-only annotation strip on Exec BD Yearly + Awards + BD Hub Comp; does NOT mutate Production/BD row SoT. Soft only. Never Hub. */
 /* soft-ihc-16972-mike-randy-5050-20260920 — Soft Soft: Indian Health Center of Santa Clara Valley / Indian Health of Santa Clara Valley QB 16972 Apr 2026 $10k Deal → Split Mike 50% / Randy 50% (bdA/bdB, no House); softGmSplitOverride+Manual; stamp qbInvoice 16972; durable after repeat GM. Soft only. Never Hub. */
 /* soft-chdi-apr-mkt-30302020-20260920 — Soft Soft: Apr CHDI mkt Mike30/Amy30/Aaron20/House20; Helen Newberry Apr mkt Mike30/Nate30/Randy20/House20; May Winn 2nd mkt Mike35/Nate35/House30 (no marketer); Cullman Jan $5k Brenton Whole; tombstone 16856 Unassigned xl_bd_2026-02_2; 16861/16943/16945 name-drift keep full-name + splits. Soft only. Never Hub. */
 /* soft-aging-exec-pre2026-ors8432-nate-20260920 — Soft Soft: (1) invoice aging strip on Production (outstanding + days unpaid · Soft Soft cash SoT Paid/Invoiced/Booked · spine/QB dates only); (2) Rec GM / commissions / Awards-adjacent payout path counts Mark paid / Paid SoT only (same gate as Awards Paid mode); (3) Exec PDF reports paid/unpaid/aging by recruiter · department · company (print-to-PDF · Soft Soft never calls QB). Soft only. Never Hub. */
@@ -10494,6 +10495,59 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   #view-production #prod-aging-strip,
   #view-production .prod-aging-strip { display: none !important; }
   #exec-panel-production #prod-aging-strip.prod-aging-strip { margin-top: 10px; }
+
+/* soft-bd-year-fractions-tentative-20260920 — read-only Provisional YTD (Mike) strip */
+.soft-bd-ytd-prov {
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed color-mix(in srgb, #f59e0b 55%, var(--border, #334155));
+  background: color-mix(in srgb, #f59e0b 12%, var(--panel, #0f172a));
+  color: var(--text, #e2e8f0);
+  max-width: 720px;
+}
+html[data-look="light"] .soft-bd-ytd-prov,
+html[data-theme="light"] .soft-bd-ytd-prov {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #78350f;
+}
+.soft-bd-ytd-prov .soft-bd-ytd-prov-h {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  font-weight: 700; font-size: 0.92rem; margin: 0 0 6px;
+}
+.soft-bd-ytd-prov .soft-bd-ytd-prov-note {
+  margin: 0 0 8px; font-size: 0.78rem; line-height: 1.35;
+  color: var(--muted, #94a3b8);
+}
+html[data-look="light"] .soft-bd-ytd-prov .soft-bd-ytd-prov-note {
+  color: #92400e;
+}
+.soft-bd-ytd-prov .soft-bd-ytd-prov-row {
+  display: flex; flex-wrap: wrap; gap: 10px;
+}
+.soft-bd-ytd-prov .soft-bd-ytd-prov-pill {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #f59e0b 40%, var(--border, #334155));
+  background: color-mix(in srgb, #f59e0b 8%, transparent);
+  font-size: 0.85rem;
+}
+.soft-bd-ytd-prov .soft-bd-ytd-prov-pill strong { font-variant-numeric: tabular-nums; }
+.soft-bd-ytd-prov .badge.tentative {
+  background: color-mix(in srgb, #f59e0b 28%, var(--panel, #0f172a));
+  color: #fde68a; border: 1px solid color-mix(in srgb, #f59e0b 50%, var(--border));
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em;
+  padding: 2px 7px; border-radius: 999px;
+}
+html[data-look="light"] .soft-bd-ytd-prov .badge.tentative {
+  background: #fef3c7; color: #92400e; border-color: #f59e0b;
+}
+.soft-bd-ytd-prov .soft-bd-ytd-prov-foot {
+  margin: 8px 0 0; font-size: 0.72rem; line-height: 1.35;
+  color: var(--muted, #94a3b8);
+}
+
   #view-execgm .prod-aging-strip {
     margin: 8px 0 12px;
     padding: 10px 12px;
@@ -15778,7 +15832,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-chdi-apr-mkt-30302020-20260920</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-bd-year-fractions-tentative-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -44573,6 +44627,40 @@ function renderWeekend() {
     t.rec = t.mkt + t.place;
     return t;
   }
+
+  /* soft-bd-year-fractions-tentative-20260920 — read-only; does not mutate rows / SoT */
+  var SOFT_BD_YEAR_FRAC_TENTATIVE = {
+    stamp: 'soft-bd-year-fractions-tentative-20260920',
+    asOf: '2026-09-20',
+    source: 'Mike provisional (caller-stated, NOT final)',
+    note: 'These currently appear to be split-weighted deal credit (not whole books). Unconfirmed pending Randy. Do not treat as locked/final.',
+    reps: [
+      { name: 'Brenton', deals: 6.6 },
+      { name: 'Zach', deals: 4.4 }
+    ]
+  };
+  function softBdYearFracTentativeHtml() {
+    var d = SOFT_BD_YEAR_FRAC_TENTATIVE;
+    var pills = (d.reps || []).map(function (r) {
+      return '<span class="soft-bd-ytd-prov-pill">' +
+        '<span>' + (typeof escHtml === 'function' ? escHtml(r.name) : String(r.name)) + '</span>' +
+        '<strong>' + (Number(r.deals).toFixed(1)) + '</strong>' +
+        '<span class="badge tentative" title="Pending Randy — split-weighted credit, not locked">Tentative</span>' +
+        '</span>';
+    }).join('');
+    return '<aside class="soft-bd-ytd-prov" data-chip="' + d.stamp + '" role="note" aria-label="Provisional BD YTD deal fractions">' +
+      '<div class="soft-bd-ytd-prov-h">Provisional YTD (Mike) · BD deals for the year' +
+      ' <span class="badge tentative">Provisional</span></div>' +
+      '<p class="soft-bd-ytd-prov-note">' +
+      (typeof escHtml === 'function' ? escHtml(d.note) : d.note) +
+      '</p>' +
+      '<div class="soft-bd-ytd-prov-row">' + pills + '</div>' +
+      '<p class="soft-bd-ytd-prov-foot">Pending Randy — split-weighted credit, not locked. ' +
+      'Annotation only — live Production / Awards deal counts unchanged. ' +
+      '<code>' + d.stamp + '</code></p>' +
+      '</aside>';
+  }
+
   function execYearStripHtml(kind) {
     var y = execYearProdTotals();
     var money = function (n) { return (typeof fmtMoney === "function") ? esc(fmtMoney(n)) : String(n); };
@@ -44605,6 +44693,7 @@ function renderWeekend() {
     var isBD = sheet === "Business Development";
     return '<div class="exec-month current" id="exec-month-yearly">' +
       '<div class="iv-month-head">Yearly totals</div>' +
+      (isBD && typeof softBdYearFracTentativeHtml === "function" ? softBdYearFracTentativeHtml() : "") +
       execYearStripHtml(isBD ? "bd" : "rec") +
       "</div>";
   }
@@ -53309,6 +53398,7 @@ function mktSendAmplified(searchKey) {
             </select>
           </label>
         </div>
+        <div id="soft-bd-ytd-prov-awards" class="soft-bd-ytd-prov-host" aria-label="Provisional BD YTD"></div>
         <div class="awards-winners" id="awards-winners" aria-live="polite"></div>
         <div class="awards-standings" id="awards-standings"></div>
         <p class="awards-reconcile" id="awards-reconcile"></p>
@@ -55440,7 +55530,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-midland-17004-mkt-stephanie-7030-20260920'; /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-bd-year-fractions-tentative-20260920'; /* soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
 
   /* soft-2026-unmapped-faces-panel-20260920 — static read-only embed; do not invent faces */
   var SOFT_UNMAPPED_2026_FACES = [
@@ -58277,6 +58367,51 @@ function ensureCarriGmSeed(s) {
   try { window.__softEnsureChdi16856UnassignedDedupe = ensureChdi16856UnassignedDedupe; } catch (e5) {}
 
 
+  function ensureKalyaniJulExcelDedupe(state) {
+    /* soft-kalyani-jul-excel-dedupe-20260920 — Kalyani July Placement only:
+       excel xl_pl_2026-07_3 ("Kalyani" · NMC Health · $28k · no Bullhorn / no ORS refs)
+       duplicates spine bridge ex_spine_17040 (Bullhorn 601843 · QB/sample 17040 · ORS-8432 · Nate 100%).
+       Keep spine; tombstone excel. Scope: this id only — do not touch other Production rows. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-kalyani-jul-excel-dedupe-20260920";
+    var dropId = "xl_pl_2026-07_3";
+    var keepId = "ex_spine_17040";
+    softEnsureTombstoneMaps(state);
+    var hadDrop = false;
+    var hadKeep = false;
+    for (var i = 0; i < state.rows.length; i++) {
+      var r = state.rows[i];
+      if (!r || !r.id) continue;
+      if (String(r.id) === dropId) hadDrop = true;
+      if (String(r.id) === keepId) hadKeep = true;
+    }
+    if (!state.deletedRowIds[dropId]) {
+      state.deletedRowIds[dropId] = {
+        at: "2026-09-20T17:20:00-05:00",
+        why: stamp,
+        keep: keepId,
+        note: "Kalyani July excel duplicate of spine 17040 ORS-8432 Nate 100%; keep ex_spine_17040"
+      };
+    }
+    var before = state.rows.length;
+    state.rows = state.rows.filter(function (r) {
+      return !(r && String(r.id) === dropId);
+    });
+    state.kalyaniJulExcelDedupe = {
+      stamp: stamp,
+      dropped: dropId,
+      kept: keepId,
+      hadDrop: hadDrop,
+      hadKeep: hadKeep,
+      removedNow: before - state.rows.length,
+      at: "2026-09-20"
+    };
+    return state;
+  }
+  try { window.__softEnsureKalyaniJulExcelDedupe = ensureKalyaniJulExcelDedupe; } catch (eKal) {}
+
+
+
   function softIsBdPersonName(name) {
     var n = softShortRepName(name);
     return !!n && BD_PEOPLE.indexOf(n) >= 0;
@@ -58664,6 +58799,7 @@ function softIsoDate(v) {
     ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
     ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
+    ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(s); /* soft-repeat-gm-60-30-10-20260920 */
     softApplyRowTombstones(s); /* soft-prod-iv-harden-20260919 — after ensure* so reseed cannot revive deletes */
     if (!Array.isArray(s.fanLog)) s.fanLog = [];
@@ -58740,6 +58876,7 @@ function softIsoDate(v) {
     ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
     ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
+    ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(s); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
     try { ensureSoftRepOwnerAutofix(s); } catch (eRepAf) {} /* soft-rep-owner-autofix-20260920 */
     ensureHendrickSepAaron(s); /* soft-hendrick-sep-aaron-lock-20260920 — one-off AFTER repeat */
@@ -58752,6 +58889,7 @@ function softIsoDate(v) {
     ensureCullmanJan5kBrenton(s); /* soft-cullman-jan-5k-brenton-20260920 */
     ensureIhc16972MikeRandy5050(s); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
+    ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     return s;
   }
   function loadState() {
@@ -71637,6 +71775,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureChdAugMktDedupe(state); /* soft-chd-aug-mkt-dedupe-20260920 */
     ensureHadleyAugEcbDedupe(state); /* soft-hadley-aug-ecb-dedupe-20260920 */
     ensureChdi16856UnassignedDedupe(state);
+    ensureKalyaniJulExcelDedupe(state); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(state); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
     try { ensureSoftRepOwnerAutofix(state); } catch (eRepAf2) {}
     ensureHendrickSepAaron(state); /* soft-hendrick-sep-aaron-lock-20260920 — one-off AFTER repeat */
@@ -81146,6 +81285,13 @@ ownersDetailHtml(row) +
 
   function renderAwards() {
     var ui = ensureAwardsUi();
+    try {
+      var _provA = document.getElementById('soft-bd-ytd-prov-awards');
+      if (_provA && typeof softBdYearFracTentativeHtml === 'function') {
+        _provA.innerHTML = softBdYearFracTentativeHtml();
+      }
+    } catch (eProvA) {}
+
     var cashMode = awardsCashMode(ui);
     var periodSeg = document.getElementById('awards-period-seg');
     var cashSeg = document.getElementById('awards-cash-seg');
@@ -82176,7 +82322,7 @@ ownersDetailHtml(row) +
     if (!host) return;
     try { if (typeof holdPort === 'function') holdPort(); } catch (eH) {}
     host.classList.remove('soft-acct-active');
-    host.innerHTML = softCompBuildHtml('bdr');
+    host.innerHTML = (typeof softBdYearFracTentativeHtml === 'function' ? softBdYearFracTentativeHtml() : '') + softCompBuildHtml('bdr');
   };
 
     window.__softMessRenderRecGm = function (host) {
