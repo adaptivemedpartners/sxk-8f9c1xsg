@@ -55022,7 +55022,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-spine-b-booked-invoiced-20260920'; /* soft-spine-b-booked-invoiced-20260920; prior soft-overnight-cleanup-20260920 · soft-writeoff-request-20260920 · soft-prod-iv-harden-20260919 · soft-scrub-flow-mock-20260919 */
+  var CHIP = 'soft-invoice-qb-roundtrip-20260920'; /* soft-invoice-qb-roundtrip-20260920; prior soft-spine-b-booked-invoiced-20260920 · soft-overnight-cleanup-20260920 · soft-writeoff-request-20260920 · soft-prod-iv-harden-20260919 · soft-scrub-flow-mock-20260919 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -56180,12 +56180,15 @@ function ensureCarriGmSeed(s) {
     return 'booked';
   }
   /** After spine Mark paid / override — stamp EVERY row sharing that QB (GM seed + Production). */
-  function softApplySpinePaidToLinkedRows(s, qbOrInvId, cash) {
+  function softApplySpinePaidToLinkedRows(s, qbOrInvId, cash, opts) {
     if (!s || !Array.isArray(s.rows)) return 0;
     var key = String(qbOrInvId || '').trim();
     if (!key) return 0;
     var n = 0;
     var src = CHIP + ' · spine Mark/override';
+    var qbFace = '';
+    if (opts && opts.qbFace) qbFace = String(opts.qbFace || '').trim();
+    else if (/^\d+$/.test(key)) qbFace = key;
     (s.rows || []).forEach(function (r) {
       if (!r) return;
       var rq = String(r.qbInvoice || r.qbNumber || '').trim();
@@ -56195,12 +56198,30 @@ function ensureCarriGmSeed(s) {
         /* Do not un-book deferred future months */
         if (r.gmCashState === 'booked' && r.carriQbMatch && r.carriQbMatch.deferred) return;
         softApplyCashSoTToRow(r, cash, src);
+        /* soft-invoice-qb-roundtrip-20260920 — write known spine QB # onto linked Production row */
+        if (qbFace && /^\d+$/.test(qbFace)) {
+          var existing = String(r.qbInvoice || r.qbNumber || '').trim();
+          if (!existing) {
+            r.qbInvoice = qbFace;
+            r.carriQbMatch = {
+              num: qbFace,
+              how: 'spine-roundtrip',
+              source: CHIP,
+              seedId: key
+            };
+            r.prodQbStamp = CHIP;
+          } else if (existing === qbFace && (!r.carriQbMatch || !r.carriQbMatch.source)) {
+            r.carriQbMatch = r.carriQbMatch || {};
+            r.carriQbMatch.source = CHIP;
+            r.carriQbMatch.how = 'spine-roundtrip';
+          }
+        }
         n++;
       }
     });
     return n;
   }
-/* soft-prod-qb-stamp-20260917k — copy known Carri/spine QB # onto Production rows.
+/* soft-invoice-qb-roundtrip-20260920 / soft-prod-qb-stamp-20260917k — copy known Carri/spine QB # onto Production rows.
      Never invent. Never overwrite a different existing QB. Never stamp blank/unbilled n:"".
      Skip deferred Booked Carri seeds (QB belongs to an earlier invoice month). Soft only. */
   function softProdRowAmt(row) {
@@ -56291,6 +56312,7 @@ function ensureCarriGmSeed(s) {
             month: String(sp.d || '').slice(0, 7),
             linkRowId: '',
             sampleId: String(sp.n),
+            searchRefs: String(sp.r || sp.memo || ''),
             spineQbSrc: true
           });
         });
@@ -56312,6 +56334,7 @@ function ensureCarriGmSeed(s) {
             month: String(ov.date || inv.date || '').slice(0, 7),
             linkRowId: inv.linkRowId || '',
             sampleId: String(inv.sampleId || inv.id || ''),
+            searchRefs: String(inv.searchRefs || inv.memo || ''),
             spineQbSrc: true
           });
         });
@@ -56327,7 +56350,7 @@ function ensureCarriGmSeed(s) {
       if (existing && existing === qb) {
         if (!row.carriQbMatch || !row.carriQbMatch.source) {
           row.carriQbMatch = row.carriQbMatch || {};
-          row.carriQbMatch.source = 'prod-qb-from-carri-20260917';
+          row.carriQbMatch.source = CHIP;
           row.carriQbMatch.how = how;
         }
         already++;
@@ -56337,10 +56360,10 @@ function ensureCarriGmSeed(s) {
       row.carriQbMatch = {
         num: qb,
         how: how,
-        source: 'prod-qb-from-carri-20260917',
+        source: CHIP,
         seedId: seedId || ''
       };
-      row.prodQbStamp = 'prod-qb-from-carri-20260917';
+      row.prodQbStamp = CHIP;
       stamped++;
       return true;
     }
@@ -56402,6 +56425,27 @@ function ensureCarriGmSeed(s) {
       }));
       if (hit) { applyStamp(row, hit.qb, 'client+amt', hit.hit.id); return; }
 
+      /* soft-invoice-qb-roundtrip-20260920 — one-time catch-up: unique search-token → spine QB */
+      var rowToks = (typeof softSpineSearchToks === 'function')
+        ? softSpineSearchToks(row.searchRefs || row.dealRef || '')
+        : [];
+      if (rowToks.length) {
+        hit = softProdUniqueQb(spineSources.filter(function (src) {
+          var q = softProdQbFace(src);
+          if (!q || !/^\d+$/.test(q)) return false;
+          var srcToks = (typeof softSpineSearchToks === 'function')
+            ? softSpineSearchToks(src.searchRefs || '')
+            : [];
+          if (!srcToks.length && src.linkRowId && String(src.linkRowId) === rid) return true;
+          for (var ti = 0; ti < rowToks.length; ti++) {
+            if (srcToks.indexOf(rowToks[ti]) >= 0) return true;
+            if (String(src.sampleId || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase() === rowToks[ti]) return true;
+          }
+          return false;
+        }));
+        if (hit) { applyStamp(row, hit.qb, 'spine-search-tok', hit.hit.id); return; }
+      }
+
       blank++;
     });
 
@@ -56411,7 +56455,7 @@ function ensureCarriGmSeed(s) {
       already: already,
       blank: blank,
       skippedConflict: skippedConflict,
-      at: '2026-09-17'
+      at: '2026-09-20'
     };
     return s;
   }
@@ -69776,6 +69820,17 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
   window.__softGetSpineInvoice = getSpineInvoice;
   try { window.__softCarriQbSpine = CARRI_QB_SPINE; } catch (eC) {}
   try { window.__softSpineInvoices = SPINE_INVOICES; } catch (eS) {}
+  /* soft-invoice-qb-roundtrip-20260920 — verify hooks */
+  window.__softEnsureProdQb = ensureSoftProdQbFromCarriSeeds;
+  window.__softApplySpinePaidToLinkedRows = softApplySpinePaidToLinkedRows;
+  window.__softEnsureBridgeRowForSpine = ensureBridgeRowForSpine;
+  window.__softExecProdQb = execProdQb;
+  window.__softOpenPlacementDetail = openPlacementDetail;
+  window.__softOpenDealDetail = openDealDetail;
+  window.__softOpenMarketingDetail = openMarketingDetail;
+  window.__softCHIP = function () { return CHIP; };
+  window.__softRenderExecGm = renderExecGm;
+  window.__softCloseDealDetail = closeDealDetail;
 
   function spineStatusChip(st) {
     var s = (st || 'Booked').toLowerCase();
@@ -69813,6 +69868,16 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       }
       row.sampleId = inv.sampleId;
       if (inv.excludeFromBdGm) row.excludeFromBdGm = true;
+      /* soft-invoice-qb-roundtrip-20260920 — spine QB → Production row */
+      var bridgeQb = String(inv.qbNumber || '').trim();
+      if (/^\d+$/.test(bridgeQb)) {
+        var exQ = String(row.qbInvoice || row.qbNumber || '').trim();
+        if (!exQ) {
+          row.qbInvoice = bridgeQb;
+          row.prodQbStamp = CHIP;
+          row.carriQbMatch = row.carriQbMatch || { num: bridgeQb, how: 'spine-bridge', source: CHIP };
+        }
+      }
       return row;
     }
     var bookType = inv.agreement === 'Placement' ? 'Placement' : (inv.agreement === 'Marketing' ? 'Marketing' : 'Deal');
@@ -69835,6 +69900,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       status: inv.status === 'Paid' ? 'Paid' : (inv.status === 'Booked' ? 'Draft' : 'Invoiced'),
       paid: inv.status === 'Paid',
       paidDate: inv.paidDate || null,
+      qbInvoice: (/^\d+$/.test(String(inv.qbNumber || '').trim()) ? String(inv.qbNumber).trim() : ''),
+      prodQbStamp: (/^\d+$/.test(String(inv.qbNumber || '').trim()) ? CHIP : undefined),
       excludeFromBdGm: !!inv.excludeFromBdGm,
       billing: { name: 'AP', email: 'ap@example.invalid', phone: '' }
     };
@@ -70235,9 +70302,18 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     /* soft-spine-sot-wire-20260915f — ONE path: spine override is SoT; stamp ALL linked rows (GM + Production) from it */
     var cashKey = status === 'Paid' ? 'paid' : (status === 'Invoiced' ? 'unpaid' : 'booked');
     var qbKey = qbVal || inv.qbNumber || inv.id;
-    var linked = softApplySpinePaidToLinkedRows(state, qbKey, cashKey);
+    var qbFaceOpt = { qbFace: (/^\d+$/.test(String(qbVal || '').trim()) ? String(qbVal).trim() : '') };
+    var linked = softApplySpinePaidToLinkedRows(state, qbKey, cashKey, qbFaceOpt);
     if (inv.id && String(inv.id) !== String(qbKey)) {
-      linked += softApplySpinePaidToLinkedRows(state, inv.id, cashKey);
+      linked += softApplySpinePaidToLinkedRows(state, inv.id, cashKey, qbFaceOpt);
+    }
+    if (row && qbFaceOpt.qbFace) {
+      var exR = String(row.qbInvoice || row.qbNumber || '').trim();
+      if (!exR) {
+        row.qbInvoice = qbFaceOpt.qbFace;
+        row.prodQbStamp = CHIP;
+        row.carriQbMatch = { num: qbFaceOpt.qbFace, how: 'spine-mark-paid', source: CHIP };
+      }
     }
     if (row && status === 'Paid' && !row.paid) {
       /* fan-out / commission stubs once for bridge row */
@@ -70278,9 +70354,28 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       voided: cash.voided,
       status: nextStatus
     });
+    inv = getSpineInvoice(invId);
+    /* soft-invoice-qb-roundtrip-20260920 — Save QB stamps linked Production + catch-up */
+    var saveQb = String(cash.qbVal || '').trim();
+    if (/^\d+$/.test(saveQb)) {
+      var bridge = ensureBridgeRowForSpine(inv);
+      var cashKeySave = nextStatus === 'Paid' ? 'paid' : (nextStatus === 'Invoiced' ? 'unpaid' : 'booked');
+      softApplySpinePaidToLinkedRows(state, saveQb, cashKeySave, { qbFace: saveQb });
+      if (inv.id) softApplySpinePaidToLinkedRows(state, inv.id, cashKeySave, { qbFace: saveQb });
+      if (bridge) {
+        var exB = String(bridge.qbInvoice || bridge.qbNumber || '').trim();
+        if (!exB) {
+          bridge.qbInvoice = saveQb;
+          bridge.prodQbStamp = CHIP;
+          bridge.carriQbMatch = { num: saveQb, how: 'spine-save-qb', source: CHIP };
+        }
+      }
+    }
+    try { ensureSoftProdQbFromCarriSeeds(state); ensureSpineBookedFromCarriQb(state); ensureSpineBookedBuckets(state); ensureMike2026FocusPaid(state); ensureSoftProdPaidFromSpineSoT(state); } catch (eSyncSave) {}
     saveState();
     toast('QB / cash saved (stub) · open balance ' + money2(cash.openBalance) + ' · no live QB');
     renderSpine();
+    try { renderProduction(); renderExecGm(); } catch (eRend) {}
   }
 
   (function wireSpineUi() {
@@ -71731,6 +71826,10 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         (row.marketer ? ' · Marketer: ' + escHtml(row.marketer) : '') + '</div>' +
       '<div class="dd-k">Date</div><div class="dd-v">' + escHtml(row.date || '—') + ' · ' + escHtml(row.month || '') + '</div>' +
       '<div class="dd-k">Invoiced</div><div class="dd-v">' + invLine + '</div>' +
+      '<div class="dd-k">QB invoice #</div><div class="dd-v" style="font-variant-numeric:tabular-nums;font-weight:750">' +
+        (String(row.qbInvoice || row.qbNumber || '').trim()
+          ? escHtml(String(row.qbInvoice || row.qbNumber).trim())
+          : '<span style="color:#94a3b8;font-weight:500">— blank until spine / Carri match</span>') + '</div>' +
       '<div class="dd-k">Amount</div><div class="dd-v">' + money(row.fee) + '</div>' +
       ownersDetailHtml(row) +
       '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>' +
@@ -71766,6 +71865,10 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="dd-k">Amount</div><div class="dd-v">' + money(amt) + '</div>' +
       ownersDetailHtml(row) +
       '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>' +
+      '<div class="dd-k">QB invoice #</div><div class="dd-v" style="font-variant-numeric:tabular-nums;font-weight:750">' +
+        (String(row.qbInvoice || row.qbNumber || '').trim()
+          ? escHtml(String(row.qbInvoice || row.qbNumber).trim())
+          : '<span style="color:#94a3b8;font-weight:500">— blank until spine / Carri match</span>') + '</div>' +
       '<div class="dd-k">Deal write-off</div><div class="dd-v">' +
         '<button type="button" class="mini-btn" data-act="writeoff" data-id="' + escHtml(row.id) + '">Deal write-off</button>' +
         '<div style="font-size:11.5px;color:#64748b;margin-top:6px">Request → Carri writes off in QuickBooks as a negative line item · hits discovery month (not original book month)</div></div>';
@@ -72257,6 +72360,11 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
 ownersDetailHtml(row) +
       '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) +
         (prodBdIsMonthly(row) ? ' <span class="badge monthly">Monthly</span>' : (row.isRecurringLine ? ' <span class="badge draft">Recurring</span>' : '')) + '</div>' +
+      '<div class="dd-k">QB invoice #</div><div class="dd-v" style="font-variant-numeric:tabular-nums;font-weight:750">' +
+        (function () {
+          var q = String(row.qbInvoice || row.qbNumber || '').trim();
+          return q ? escHtml(q) : '<span style="color:#94a3b8;font-weight:500">— blank until spine / Carri match</span>';
+        })() + '</div>' +
       (row.invoiceNarrative
         ? '<div class="dd-k">Invoice path</div><div class="dd-v">' + escHtml(row.invoiceNarrative) + '</div>'
         : '') +
