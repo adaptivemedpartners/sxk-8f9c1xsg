@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+/* soft-overnight-cleanup-20260920 — Soft overnight cleanup: kill deal-detail Native Mess/Flow Mock blurb · GM legend body contrast on blue status banner · BD New/Repeat no Monthly leak · Exec Total GM #tbl-exec theme tokens · verify Flow Mock chrome scrub leftovers. Soft only. Never Hub. America/Chicago 2026-09-20 CT */
 /* soft-writeoff-request-20260920 — Soft Production Deal write-off → Accounting Write-offs (Carri · QuickBooks) → discovery-month Soft negative GM line. Soft only. Never Hub. America/Chicago 2026-09-20 CT */
 /* soft-scrub-flow-mock-20260919 — Soft live scrub: hide PARALLEL banner · remove Flow Mock production boards meta + top Book · clean Flow Mock header chrome; booking stays via .prod-book-deal. Soft only. Never Hub. America/Chicago 2026-09-19 CT */
 /* soft-prod-iv-harden-20260919 — Soft Production board + Invoice spine: strip source-attribution UI · light/dark contrast · save/delete integrity (tombstones + save verify + prodHidden persist). Soft only. Never Hub. America/Chicago 2026-09-19 12:06 PM CT */
@@ -11965,9 +11966,27 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   #view-bdgm .gm-tiers-panel .meta,
   #view-recgm .gm-tiers-panel .lede,
   #view-bdgm .gm-tiers-panel .lede,
+  /* soft-overnight-cleanup-20260920: darker body copy on blue GM status/legend banner — non-strong labels readable light+dark */
   #view-recgm .hint.mess-hint,
   #view-bdgm .hint.mess-hint {
-    color: #dbe4ef !important;
+    color: #1e293b !important; /* dark slate body on blue-tint banner (light) */
+    background: color-mix(in srgb, var(--mess-accent, #2a9bb5) 16%, #dbe7f5);
+    border-color: color-mix(in srgb, var(--mess-accent, #2a9bb5) 36%, var(--mess-border, #94a3b8));
+  }
+  #view-recgm .hint.mess-hint strong,
+  #view-bdgm .hint.mess-hint strong {
+    color: #0f172a !important;
+    font-weight: 800;
+  }
+  html[data-look="dark"] #view-recgm .hint.mess-hint,
+  html[data-look="dark"] #view-bdgm .hint.mess-hint {
+    color: #e2e8f0 !important; /* brighter than washed #94a3b8; still darker than neon white wash */
+    background: color-mix(in srgb, var(--mess-accent, #2a9bb5) 22%, #0f1a2e);
+    border-color: color-mix(in srgb, var(--mess-accent, #2a9bb5) 40%, var(--mess-border, #2a3648));
+  }
+  html[data-look="dark"] #view-recgm .hint.mess-hint strong,
+  html[data-look="dark"] #view-bdgm .hint.mess-hint strong {
+    color: #f8fafc !important;
   }
   /* Dollar cells: yellow unpaid · green paid (Mess twin) */
   #view-recgm table.board.gm-table td.num.gm-amt-unpaid, #view-bdgm table.board.gm-table td.num.gm-amt-unpaid,
@@ -14352,6 +14371,72 @@ html[data-look="dark"] #view-execgm .card {
 }
 </style>
 
+
+<style id="soft-overnight-cleanup-20260920">
+/* soft-overnight-cleanup-20260920 — Exec Total GM (#tbl-exec / #view-execgm): theme-token cat/subcat/total rows.
+   Kill hardcoded #E8EEF6 / navy-only so light AND dark stay readable. Soft only. Never Hub. */
+#view-execgm #tbl-exec tr.cat td,
+#view-execgm table.board.gm-table tr.cat td {
+  background: color-mix(in srgb, var(--accent, #1FA6A0) 22%, var(--panel-2, #1a2436)) !important;
+  color: var(--text, #e8eef6) !important;
+  border-color: var(--border, #2a3648) !important;
+}
+#view-execgm #tbl-exec tr.cat td:first-child,
+#view-execgm table.board.gm-table tr.cat td:first-child {
+  background: color-mix(in srgb, var(--accent, #1FA6A0) 28%, var(--panel-2, #1a2436)) !important;
+  color: var(--text, #e8eef6) !important;
+}
+#view-execgm #tbl-exec tr.subcat td,
+#view-execgm table.board.gm-table tr.subcat td {
+  background: var(--panel-2, #1a2436) !important;
+  color: var(--text, #e8eef6) !important;
+  border-color: var(--border, #2a3648) !important;
+}
+#view-execgm #tbl-exec tr.subcat td:first-child,
+#view-execgm table.board.gm-table tr.subcat td:first-child {
+  color: var(--text, #e8eef6) !important;
+  background: var(--panel-2, #1a2436) !important;
+  font-weight: 650;
+}
+#view-execgm #tbl-exec tr.total td,
+#view-execgm table.board.gm-table tr.total td {
+  font-weight: 750;
+  background: color-mix(in srgb, var(--accent, #1FA6A0) 12%, var(--panel, #111827)) !important;
+  color: var(--text, #e8eef6) !important;
+  border-color: var(--border, #2a3648) !important;
+}
+#view-execgm #tbl-exec tr.grand td,
+#view-execgm table.board.gm-table tr.grand td {
+  font-weight: 800;
+  background: color-mix(in srgb, var(--accent, #1FA6A0) 18%, var(--panel, #111827)) !important;
+  color: var(--text, #e8eef6) !important;
+  border-top: 2px solid var(--border, #94A3B8) !important;
+}
+html[data-look="light"] #view-execgm #tbl-exec tr.cat td,
+html[data-look="light"] #view-execgm table.board.gm-table tr.cat td,
+html[data-look="light"] #view-execgm #tbl-exec tr.cat td:first-child,
+html[data-look="light"] #view-execgm table.board.gm-table tr.cat td:first-child {
+  background: color-mix(in srgb, var(--accent, #1FA6A0) 18%, #e8eef6) !important;
+  color: var(--text, #0f172a) !important;
+}
+html[data-look="light"] #view-execgm #tbl-exec tr.subcat td,
+html[data-look="light"] #view-execgm table.board.gm-table tr.subcat td,
+html[data-look="light"] #view-execgm #tbl-exec tr.subcat td:first-child,
+html[data-look="light"] #view-execgm table.board.gm-table tr.subcat td:first-child {
+  background: var(--panel-2, #f1f5f9) !important;
+  color: var(--text, #0f172a) !important;
+}
+html[data-look="light"] #view-execgm #tbl-exec tr.total td,
+html[data-look="light"] #view-execgm table.board.gm-table tr.total td {
+  background: color-mix(in srgb, var(--accent, #1FA6A0) 10%, #e8eef6) !important;
+  color: var(--text, #0f172a) !important;
+}
+html[data-look="light"] #view-execgm #tbl-exec tr.grand td,
+html[data-look="light"] #view-execgm table.board.gm-table tr.grand td {
+  background: color-mix(in srgb, var(--accent, #1FA6A0) 16%, #dce7f5) !important;
+  color: var(--text, #0f172a) !important;
+}
+</style>
 <style id="soft-prod-iv-harden-20260919">
 /* soft-prod-iv-harden-20260919 — Production board + Invoice spine contrast ONLY.
    Soft board forced #fff glow on all looks → unreadable in light. Soft only. Never Hub. */
@@ -15353,7 +15438,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-writeoff-request-20260920</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-overnight-cleanup-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -51783,7 +51868,7 @@ function mktSendAmplified(searchKey) {
     </section>
 <section class="view" id="view-production">
       <div class="card prod-card">
-        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-writeoff-request-20260920</span></h2>
+        <h2>Production board <span class="badge" id="soft-prod-ver-chip" style="margin-left:8px;font-size:11px;vertical-align:middle">soft-overnight-cleanup-20260920</span></h2>
         <p class="lede">Soft live Production · stages <strong>Booked → Invoiced → Paid</strong>. Status follows Invoice spine (green = Paid). <strong>Mark paid</strong> on Invoice spine only — not Production Actions. Modify GM Whole/Split stays the editor.</p>
         <!-- soft-prod-demo-cue-removed-20260915 Mike: bar gone; Soft real tidy -->
         <div class="toolbar">
@@ -54804,7 +54889,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-writeoff-request-20260920'; /* soft-writeoff-request-20260920 — Deal write-off Prod→Carri QB; prior soft-prod-iv-harden-20260919 · soft-scrub-flow-mock-20260919 · soft-exec-production-20260918 */
+  var CHIP = 'soft-overnight-cleanup-20260920'; /* soft-overnight-cleanup-20260920; prior soft-writeoff-request-20260920 · soft-prod-iv-harden-20260919 · soft-scrub-flow-mock-20260919 · soft-exec-production-20260918 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -55093,8 +55178,12 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     return ' <span class="badge monthly" title="Recurring monthly split — not a new BD book">Monthly</span>';
   }
   function prodBdRepeatLabel(row) {
-    if (prodBdIsMonthly(row)) return 'Monthly';
-    return (row && row.repeatOrNew) ? row.repeatOrNew : '—';
+    /* soft-overnight-cleanup-20260920: New/Repeat column = New|Repeat only — Monthly is badge, not classification */
+    var v = (row && row.repeatOrNew) ? String(row.repeatOrNew).trim() : '';
+    if (/^new$/i.test(v)) return 'New';
+    if (/^repeat$/i.test(v)) return 'Repeat';
+    if (/^monthly$/i.test(v)) return '—'; /* never leak Monthly into New/Repeat */
+    return v || '—';
   }
   /* Drop Carri/wrong-primary BD clones that double an Excel Production BD book.
      Also drops $0 / recruiter-primary clones matching same client+month. */
@@ -70630,7 +70719,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
           '<td>' + whoGlow(row.repeatRep || '—') + '</td>' +
           '<td>' + glowHtml(refHtml) + '</td>' +
           '<td>' + glowHtml(clientCell) + '</td>' +
-          '<td>' + (prodBdIsMonthly(row) ? prodMonthlyBadgeHtml(row).trim() : glowText(row.repeatOrNew || '—')) + '</td>' +
+          '<td>' + glowText(prodBdRepeatLabel(row)) + '</td>' + /* soft-overnight-cleanup-20260920: New|Repeat only */
           '<td>' + glowText(row.specialties || '') + '</td>' +
           moneyCell(row.initiation) + moneyCell(row.firstMonthRetainer) +
           moneyCell(row.internets) + moneyCell(row.accountingBilled) +
@@ -71320,7 +71409,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         (row.repeatRep ? '<br>Repeat rep: ' + escHtml(row.repeatRep) : '') + '</div>' +
       '<div class="dd-k">Date</div><div class="dd-v">' + escHtml(row.date || '—') + ' · ' + escHtml(row.month || '') + '</div>' +
       '<div class="dd-k">Specialties</div><div class="dd-v">' + escHtml(row.specialties || '—') + '</div>' +
-      '<div class="dd-k">New / Repeat</div><div class="dd-v">' + (prodBdIsMonthly(row) ? '<span class="badge monthly">Monthly</span> <span style="font-size:11.5px;color:#64748b">recurring monthly — not a new book</span>' : escHtml(row.repeatOrNew || '—')) + '</div>' +
+      '<div class="dd-k">New / Repeat</div><div class="dd-v">' + escHtml(prodBdRepeatLabel(row)) + '</div>' + /* soft-overnight-cleanup-20260920 */
       '<div class="dd-k">Amounts</div><div class="dd-v">Initiation ' + money(row.initiation) +
         ' · First month ' + money(row.firstMonthRetainer) +
         ' · Internets ' + money(row.internets) +
