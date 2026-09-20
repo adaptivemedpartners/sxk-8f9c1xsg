@@ -11960,7 +11960,7 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   #view-bdgm .gm-tiers-panel .meta,
   #view-recgm .gm-tiers-panel .lede,
   #view-bdgm .gm-tiers-panel .lede,
-  /* soft-overnight-cleanup-20260920 · soft-prod-delete-in-modify-20260920 · soft-gm-tab-cleanup-20260920: darker body copy on blue GM status/legend banner — non-strong labels readable light+dark */
+  /* soft-overnight-cleanup-20260920 · soft-prod-delete-in-modify-20260920 · soft-gm-tab-cleanup-20260920 · soft-modify-delete-exec-gate-fix-20260920: darker body copy on blue GM status/legend banner — non-strong labels readable light+dark */
   #view-recgm .hint.mess-hint,
   #view-bdgm .hint.mess-hint {
     color: #1e293b !important; /* dark slate body on blue-tint banner (light) */
@@ -37146,6 +37146,13 @@ window.SNAP = {
   function isMike() {
     return hasCap("hub.weekly");
   }
+  /* soft-modify-delete-exec-gate-fix-20260920 — Soft Soft IIFE cannot see Hub locals */
+  try {
+    window.hasCap = hasCap;
+    window.isLeadership = isLeadership;
+    window.isRecruiterIdentity = isRecruiterIdentity;
+    window.isMike = isMike;
+  } catch (eExposeAuth) {}
   function weeklyCanEditName(name) {
     if (isMike()) return true;
     if (!isRecruiterIdentity()) return false;
@@ -71179,6 +71186,25 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     } catch (eComm) {}
   }
 
+  /* soft-modify-delete-exec-gate-fix-20260920 */
+  function softIsExec() {
+    try {
+      if (typeof window.isLeadership === 'function' && typeof window.hasCap === 'function') {
+        if (window.isLeadership() && window.hasCap('hub.exec')) return true;
+      }
+    } catch (e1) {}
+    try {
+      if (typeof window.isMike === 'function' && window.isMike()) return true;
+    } catch (e2) {}
+    try {
+      /* Hub may also mirror AMP_AUTH later; keep local fallbacks */
+      if (typeof isLeadership === 'function' && typeof hasCap === 'function') {
+        if (isLeadership() && hasCap('hub.exec')) return true;
+      }
+    } catch (e3) {}
+    return false;
+  }
+
   function openModifyShell(row, titleText, subText, fieldsHtml, onSave) {
     var backdrop = document.getElementById('deal-detail-backdrop');
     var body = document.getElementById('deal-detail-body');
@@ -71199,7 +71225,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="md-actions">' +
         '<button type="button" class="mini-btn" id="md-cancel">Cancel</button> ' +
         '<button type="button" class="mini-btn teal" id="md-save" data-row-id="' + escHtml(row.id) + '">Save &amp; re-fan (BH + GM)</button>' +
-        ((typeof isLeadership === 'function' && isLeadership() && typeof hasCap === 'function' && hasCap('hub.exec'))
+        (softIsExec()
           ? (' <button type="button" class="mini-btn" id="md-delete" data-row-id="' + escHtml(row.id) + '" title="Exec only · permanent Soft delete">Delete</button>')
           : '') +
       '</div>' +
@@ -71213,7 +71239,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     var mdDel = document.getElementById('md-delete');
     if (mdDel) {
       mdDel.onclick = function () {
-        if (!(typeof isLeadership === 'function' && isLeadership() && typeof hasCap === 'function' && hasCap('hub.exec'))) {
+        if (!softIsExec()) {
           toast('Delete is exec-only.');
           return;
         }
