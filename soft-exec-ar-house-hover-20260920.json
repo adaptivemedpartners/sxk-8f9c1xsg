@@ -1,0 +1,53 @@
+{
+  "chip": "soft-exec-ar-house-hover-20260920",
+  "probe": {
+    "chip": "soft-exec-ar-house-hover-20260920",
+    "okRows": true,
+    "rows": [
+      "Business Development",
+      "Recruiting",
+      "Marketing",
+      "Recurring",
+      "House",
+      "Total Billed Revenue"
+    ],
+    "houseJul": "$13,000",
+    "cssHasHoverMix": true,
+    "oldBadHoverGone": true
+  },
+  "contrasts": {
+    "light": {
+      "color": "rgb(14, 36, 48)",
+      "backgroundColor": "color(srgb 0.816235 0.913725 0.936157)",
+      "text": "$40,800",
+      "fg": [
+        14,
+        36,
+        48
+      ],
+      "bg": [
+        208,
+        233,
+        239
+      ],
+      "ratio": 12.623815094317086
+    },
+    "dark": {
+      "color": "rgb(232, 238, 246)",
+      "backgroundColor": "color(srgb 0.0912941 0.213255 0.287686)",
+      "text": "$40,800",
+      "fg": [
+        232,
+        238,
+        246
+      ],
+      "bg": [
+        23,
+        54,
+        73
+      ],
+      "ratio": 10.836398253456984
+    }
+  },
+  "pass": true
+}
