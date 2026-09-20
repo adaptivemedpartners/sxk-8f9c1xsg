@@ -15579,7 +15579,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-overnight-cleanup-20260920</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-boot-pills-unblock-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -36698,6 +36698,10 @@ window.SNAP = {
         return;
       }
       ov.hidden = false;
+      /* soft-boot-pills-unblock-20260920 — never block Hub boot / work-pill wiring on the modal.
+         Soft Soft stayed on static Board with dead tabs while this promise waited for Sign in.
+         Resolve now; successful sign-in still applies auth + hydrate + re-render. */
+      resolve();
       function onSubmit(e) {
         e.preventDefault();
         var email = emailEl ? emailEl.value : "";
@@ -36718,7 +36722,16 @@ window.SNAP = {
             AMP_SESSION_USER = signed;
             ampApplyAuth(signed);
           }
-          resolve();
+          try {
+            ampHydrateMessKeys(db).then(function () {
+              try { ampTeamStartRealtime(); } catch (eRt) {}
+              try { ampHydrateAllBackground(db); } catch (eBg) {}
+              try { if (typeof render === "function") render(); } catch (eR) {}
+            }).catch(function (eH) { console.error(eH); try { if (typeof render === "function") render(); } catch (eR2) {} });
+          } catch (eHyd) {
+            console.error(eHyd);
+            try { if (typeof render === "function") render(); } catch (eR3) {}
+          }
         }).catch(function (err) {
           if (errEl) {
             errEl.textContent = (err && err.message) || "Sign-in failed.";
@@ -36727,6 +36740,23 @@ window.SNAP = {
         });
       }
       form.addEventListener("submit", onSubmit);
+      /* Soft Soft: Skip — use local Soft data without Hub session */
+      try {
+        if (!ov.getAttribute("data-soft-skip-wired")) {
+          ov.setAttribute("data-soft-skip-wired", "1");
+          var skip = document.createElement("button");
+          skip.type = "button";
+          skip.id = "amp-auth-skip";
+          skip.textContent = "Continue without signing in (Soft Soft)";
+          skip.style.cssText = "margin-top:8px;font:650 12px/1.3 ui-sans-serif,system-ui,sans-serif;padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(148,163,184,.45);background:transparent;color:inherit;";
+          skip.addEventListener("click", function () {
+            ov.hidden = true;
+            try { ampApplyAuth(null); } catch (eA) {}
+            try { if (typeof render === "function") render(); } catch (eR) {}
+          });
+          if (form && form.parentNode) form.appendChild(skip);
+        }
+      } catch (eSkip) {}
     });
   }
   function ampWaitForStorage() {
@@ -36767,10 +36797,16 @@ window.SNAP = {
           AMP_SESSION_USER = sess && sess.user ? sess.user : null;
           ampApplyAuth(AMP_SESSION_USER);
           if (!AMP_SESSION_USER) return;
-          return ampHydrateMessKeys(db).then(function () {
-            ampTeamStartRealtime();
-            ampHydrateAllBackground(db);
+          /* soft-boot-pills-unblock-20260920 — hydrate in background so boot/pills never wait on Supabase */
+          ampHydrateMessKeys(db).then(function () {
+            try { ampTeamStartRealtime(); } catch (eRt) {}
+            try { ampHydrateAllBackground(db); } catch (eBg) {}
+            try { if (_ampBooted && typeof render === "function") render(); } catch (eR) {}
+          }).catch(function (eH) {
+            console.error(eH);
+            try { if (_ampBooted && typeof render === "function") render(); } catch (eR2) {}
           });
+          return;
         });
       });
     }).catch(function (err) {
@@ -50966,6 +51002,14 @@ function mktSendAmplified(searchKey) {
     }).then(function () {
       boot();
     });
+    /* soft-boot-pills-unblock-20260920 — watchdog: never leave static Board with dead work-pills */
+    setTimeout(function () {
+      if (_ampBooted) return;
+      try {
+        console.warn("[soft-mess] boot watchdog — wiring pills while auth/hydrate pending");
+        boot();
+      } catch (eW) { console.error(eW); }
+    }, 2000);
   }
   window.__ampOnStorageReady = function () { ampStartTeamHub(); };
   if (document.readyState === "loading") {
@@ -55067,7 +55111,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-awards-booked-paid-toggle-20260920'; /* soft-awards-booked-paid-toggle-20260920; prior soft-awards-paid-live-20260920 · soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 */
+  var CHIP = 'soft-boot-pills-unblock-20260920'; /* soft-boot-pills-unblock-20260920; prior soft-boot-pills-unblock-20260920 · soft-awards-paid-live-20260920 · soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
