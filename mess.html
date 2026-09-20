@@ -13634,6 +13634,12 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   #view-awards .awards-assumptions {
     margin-top: 14px; font-size: 12px; color: var(--muted); line-height: 1.45;
   }
+  .awards-reconcile {
+    margin: 10px 0 0; padding: 8px 10px; border-radius: 8px; font-size: 12px; line-height: 1.45;
+    background: color-mix(in srgb, var(--teal) 8%, var(--panel)); border: 1px solid color-mix(in srgb, var(--teal) 22%, var(--border));
+  }
+  .awards-reconcile strong { color: var(--navy); }
+  #awards-live-badge { font-size: 11px; vertical-align: middle; }
   /* ===== INVCHECK:CSS ===== */
   /* ===== Invoice check (Mike 2026-09-10 ~6:40 PM CT) — Carri tracker backfill + Incomplete ===== */
   body.invcheck-wide .wrap {
@@ -52876,10 +52882,10 @@ function mktSendAmplified(searchKey) {
     </section>
 <section class="view" id="view-awards">
       <div class="card">
-        <h2>Exec Awards</h2>
-        <p class="lede">Carri monthly feel — Recruiter / BD of the Month · Impact Player of the Quarter (Rec + BD) · Recruiter / BD of the Year · standings race boards. Derived from Production rows · no live Mess / QB.</p>
+        <h2>Exec Awards · <span class="badge" id="awards-live-badge">2026 Live</span></h2>
+        <p class="lede">Carri monthly feel — Recruiter / BD of the Month · Impact Player of the Quarter (Rec + BD) · Recruiter / BD of the Year · standings race boards. Live from <strong>Paid</strong> Production (Soft cash SoT) · EXAMPLE excluded.</p>
         <div class="awards-hint">
-          <strong>Live Soft awards.</strong> Thresholds: Rec Month ≥ 1.5 placements · BD Month ≥ 2 deals. Split owners get fractional placement credit (pct/100). Deal count = parent / New Deal rows (<code>!isRecurringLine</code>) — monthlies do not each count as a new deal. GM $ attributed via owners (same split helpers as GM boards). Demo density rows tagged EXAMPLE.
+          <strong>2026 Live · paid gate.</strong> Only rows with Soft cash SoT = Paid count. Thresholds: Rec Month ≥ 1.5 placements · BD Month ≥ 2 deals. Split owners get fractional placement credit (pct/100). Deal count = parent / New Deal rows (monthlies / recurring-off excluded). GM $ via owners. No EXAMPLE / Carri GM seeds.
         </div>
         <div class="awards-controls">
           <div>
@@ -52892,23 +52898,30 @@ function mktSendAmplified(searchKey) {
           </div>
           <label class="field">Month
             <select id="awards-month">
-              <option value="2026-09" selected>Sep 2026 (Live)</option>
-              <option value="2026-08">Aug 2026</option>
-              <option value="2026-07">Jul 2026</option>
-              <option value="2026-06">Jun 2026</option>
-              <option value="2026-05">May 2026</option>
+              <option value="2026-09" selected>Sep 2026 · Live</option>
+              <option value="2026-08">Aug 2026 · Live</option>
+              <option value="2026-07">Jul 2026 · Live</option>
+              <option value="2026-06">Jun 2026 · Live</option>
+              <option value="2026-05">May 2026 · Live</option>
+              <option value="2026-04">Apr 2026 · Live</option>
+              <option value="2026-03">Mar 2026 · Live</option>
+              <option value="2026-02">Feb 2026 · Live</option>
+              <option value="2026-01">Jan 2026 · Live</option>
+              <option value="2025-12">Dec 2025</option>
               <option value="2024-12">Dec 2024</option>
             </select>
           </label>
           <label class="field">Year
             <select id="awards-year">
-              <option value="2026" selected>2026 (mock)</option>
-              <option value="2024">2024 (Live window)</option>
+              <option value="2026" selected>2026 Live</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
             </select>
           </label>
         </div>
         <div class="awards-winners" id="awards-winners" aria-live="polite"></div>
         <div class="awards-standings" id="awards-standings"></div>
+        <p class="awards-reconcile" id="awards-reconcile"></p>
         <p class="awards-assumptions" id="awards-assumptions"></p>
       </div>
     </section>
@@ -55037,7 +55050,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-exec-rec-bd-matrix-20260920'; /* soft-exec-rec-bd-matrix-20260920; prior soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 · soft-overnight-cleanup-20260920 · soft-writeoff-request-20260920 */
+  var CHIP = 'soft-awards-paid-live-20260920'; /* soft-awards-paid-live-20260920; prior soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 · soft-overnight-cleanup-20260920 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -69848,6 +69861,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
   window.__softCloseDealDetail = closeDealDetail;
   window.__softExecSideProdBuildMatrix = execSideProdBuildMatrix; /* soft-exec-rec-bd-matrix-20260920 */
   window.__softRenderExecSideProdMatrix = renderExecSideProdMatrix;
+  window.__softAwardsComputeStats = awardsComputeStats;
+  window.__softRenderAwards = renderAwards;
 
   function spineStatusChip(st) {
     var s = (st || 'Booked').toLowerCase();
@@ -78296,7 +78311,7 @@ ownersDetailHtml(row) +
   }
 
 
-  /* ===== Exec Awards (Live) — Mike lock 2026-09-09 ~8:37 PM CT ===== */
+  /* ===== Exec Awards · soft-awards-paid-live-20260920 — Paid SoT gate · 2026 Live · no EXAMPLE ===== */
   function ensureAwardsUi() {
     if (!state.awardsUi || typeof state.awardsUi !== 'object') {
       state.awardsUi = { period: 'month', monthKey: '2026-09', year: '2026' };
@@ -78308,7 +78323,17 @@ ownersDetailHtml(row) +
   }
 
   function awardsRowAmount(row) {
-    return Number(row.accountingBilled != null ? row.accountingBilled : (row.fee != null ? row.fee : row.bookValueThisMonth)) || 0;
+    /* soft-awards-paid-live-20260920 — Placement fee SoT; Deal/Mkt accountingBilled */
+    if (!row) return 0;
+    if (row.bookType === 'Placement') {
+      return Number(row.fee != null && row.fee !== '' ? row.fee : row.accountingBilled) || 0;
+    }
+    if (row.bookType === 'Marketing') {
+      if (row.fee != null && row.fee !== '') return Number(row.fee) || 0;
+      return Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
+    }
+    if (row.accountingBilled != null && row.accountingBilled !== '') return Number(row.accountingBilled) || 0;
+    return (Number(row.initiation) || 0) + (Number(row.firstMonthRetainer) || 0) || Number(row.fee) || Number(row.bookValueThisMonth) || 0;
   }
 
   /** Attribute GM $ to named owners (House skipped). Reuses splitCommissionLines ownership shape. */
@@ -78363,7 +78388,9 @@ ownersDetailHtml(row) +
    */
   function awardsCreditDeal(row, poolSet, bucket) {
     if (row.bookType !== 'Deal') return;
-    if (row.isRecurringLine) return;
+    if (row.isRecurringLine || row.recurringMonthlySplit) return;
+    if (typeof prodBdIsMonthly === 'function' && prodBdIsMonthly(row)) return;
+    if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(row)) return;
     var owners = row.owners || {};
     function hit(name, frac) {
       if (!name || name === 'House') return;
@@ -78418,6 +78445,22 @@ ownersDetailHtml(row) +
     return b;
   }
 
+  /* soft-awards-paid-live-20260920 — Paid Soft cash SoT only; scrub EXAMPLE + Carri GM seeds */
+  function awardsRowIsPaid(row) {
+    if (!row) return false;
+    try {
+      if (typeof softGmIsPaidSoT === 'function') return softGmIsPaidSoT(row);
+      if (typeof softResolveCashFromSpine === 'function') return softResolveCashFromSpine(row) === 'paid';
+    } catch (ePaid) {}
+    return !!(row.paid || row.status === 'Paid' || row.gmCashState === 'paid');
+  }
+  function awardsRowEligible(row) {
+    if (!row) return false;
+    if (row.example) return false;
+    if (row.carriGmSeed || row.carriBdGmSeed) return false;
+    if (!awardsRowIsPaid(row)) return false;
+    return true;
+  }
   function awardsComputeStats(ui) {
     var recPool = {};
     REC_PEOPLE.forEach(function (p) { recPool[p] = true; });
@@ -78425,20 +78468,46 @@ ownersDetailHtml(row) +
     BD_PEOPLE.forEach(function (p) { bdPool[p] = true; });
     var rec = awardsEmptyBucket(REC_PEOPLE);
     var bd = awardsEmptyBucket(BD_PEOPLE);
+    var prod = { recLines: 0, recAmt: 0, bdDealLines: 0, bdDealAmt: 0, bdMktLines: 0, bdMktAmt: 0, skippedUnpaid: 0, skippedExample: 0 };
     (state.rows || []).forEach(function (row) {
       if (!row || !awardsInWindow(row, ui)) return;
+      if (row.example || row.carriGmSeed || row.carriBdGmSeed) { prod.skippedExample++; return; }
+      if (!awardsRowIsPaid(row)) { prod.skippedUnpaid++; return; }
       if (row.bookType === 'Placement') {
+        prod.recLines++;
+        prod.recAmt += awardsRowAmount(row);
         awardsCreditPlacement(row, recPool, rec);
         awardsCreditGm(row, recPool, rec);
       } else if (row.bookType === 'Deal') {
+        var dealAmt = awardsRowAmount(row);
+        if (!row.excludeFromBdGm) {
+          prod.bdDealLines++;
+          prod.bdDealAmt += dealAmt;
+          awardsCreditGm(row, bdPool, bd);
+        }
         awardsCreditDeal(row, bdPool, bd);
-        if (!row.excludeFromBdGm) awardsCreditGm(row, bdPool, bd);
       } else if (row.bookType === 'Marketing') {
         /* Marketing does not count as a "deal" for BD-of-Month; GM still credits BD owners for race GM $ */
-        if (!row.excludeFromBdGm) awardsCreditGm(row, bdPool, bd);
+        if (!row.excludeFromBdGm) {
+          prod.bdMktLines++;
+          prod.bdMktAmt += awardsRowAmount(row);
+          awardsCreditGm(row, bdPool, bd);
+        }
       }
     });
-    return { rec: rec, bd: bd };
+    var recAttr = 0, bdAttr = 0;
+    Object.keys(rec).forEach(function (k) { recAttr += Number(rec[k].gm) || 0; });
+    Object.keys(bd).forEach(function (k) { bdAttr += Number(bd[k].gm) || 0; });
+    return {
+      rec: rec,
+      bd: bd,
+      reconcile: {
+        prod: prod,
+        recAttrGm: recAttr,
+        bdAttrGm: bdAttr,
+        stamp: CHIP
+      }
+    };
   }
 
   function awardsSorted(bucket, primaryKey) {
@@ -78581,18 +78650,42 @@ ownersDetailHtml(row) +
     }
     if (winnersEl) winnersEl.innerHTML = cards.join('');
 
-    var standSub = 'Race window: ' + windowLabel + '';
+    var liveTag = (String(ui.year || '2026') === '2026') ? '2026 Live' : (String(ui.year) + ' Live');
+    var badge = document.getElementById('awards-live-badge');
+    if (badge) badge.textContent = liveTag;
+    var standSub = liveTag + ' · paid only · window ' + windowLabel;
     if (standingsEl) {
       standingsEl.innerHTML =
-        awardsStandingsTable('Recruiters — Year race board', standSub + ' · placements + GM', recList, 'placements', 'Placements') +
-        awardsStandingsTable('BD — Year race board', standSub + ' · deals + GM', bdList, 'deals', 'Deals');
+        awardsStandingsTable('Recruiters — race board', standSub + ' · placements + GM', recList, 'placements', 'Placements') +
+        awardsStandingsTable('BD — race board', standSub + ' · deals + GM', bdList, 'deals', 'Deals');
+    }
+    var reconEl = document.getElementById('awards-reconcile');
+    if (reconEl && stats.reconcile) {
+      var rc = stats.reconcile;
+      var p = rc.prod || {};
+      var okRec = Math.abs((rc.recAttrGm || 0) - (p.recAmt || 0)) < 0.02;
+      var okBd = Math.abs((rc.bdAttrGm || 0) - ((p.bdDealAmt || 0) + (p.bdMktAmt || 0))) < 0.02;
+      /* Attribution can be < Production when House / out-of-pool owners take a cut — flag only over-attribution */
+      var overRec = (rc.recAttrGm || 0) > (p.recAmt || 0) + 0.02;
+      var overBd = (rc.bdAttrGm || 0) > ((p.bdDealAmt || 0) + (p.bdMktAmt || 0)) + 0.02;
+      reconEl.innerHTML =
+        '<strong>Reconcile vs Paid Production</strong> · ' + escHtml(liveTag) + ' · ' + escHtml(windowLabel) +
+        '<br>Rec paid lines ' + (p.recLines || 0) + ' · Production $' + money(p.recAmt || 0) +
+        ' · Awards attributed GM $' + money(Math.round(rc.recAttrGm || 0)) +
+        (overRec ? ' <span class="badge draft">over Production</span>' : ' <span class="badge paid">OK</span>') +
+        '<br>BD paid Deal ' + (p.bdDealLines || 0) + ' + Marketing ' + (p.bdMktLines || 0) +
+        ' · Production $' + money((p.bdDealAmt || 0) + (p.bdMktAmt || 0)) +
+        ' · Awards attributed GM $' + money(Math.round(rc.bdAttrGm || 0)) +
+        (overBd ? ' <span class="badge draft">over Production</span>' : ' <span class="badge paid">OK</span>') +
+        '<br>Skipped unpaid ' + (p.skippedUnpaid || 0) + ' · skipped EXAMPLE/Carri seeds ' + (p.skippedExample || 0) +
+        ' · <code>' + escHtml(rc.stamp || CHIP) + '</code>';
     }
     if (assumptionsEl) {
       assumptionsEl.innerHTML =
-        '<strong>Assumptions (Live):</strong> Counts use all booked Production statuses (Draft / Invoiced / Paid). ' +
-        'Placement credit is fractional by owner %. Deal count = <code>bookType === Deal && !isRecurringLine</code> (monthlies excluded). ' +
-        'BD GM includes Deal + Marketing attributed $ (Marketing never increments deal count). Internet lines with excludeFromBdGm skipped for GM. ' +
-        'Pools: Rec Mike/Stephanie/Hadley/Nate/Amy · BD Zach/Aaron/Brenton/Kelley/Randy. Recurring HUD / locks untouched.';
+        '<strong>Assumptions (' + escHtml(liveTag) + ' · paid gate):</strong> Only Soft cash SoT = Paid counts (same as Production Status / GM Paid). ' +
+        'EXAMPLE and Carri GM month-lines excluded. Placement credit fractional by owner %. ' +
+        'Deal count = Deal && !monthly/recurring-off. BD GM includes Deal + Marketing attributed $ (Marketing never increments deal count). ' +
+        'Internet lines with excludeFromBdGm skipped for GM. Pools: Rec Mike/Stephanie/Hadley/Nate/Amy · BD Zach/Aaron/Brenton/Kelley/Randy.';
     }
   }
 
