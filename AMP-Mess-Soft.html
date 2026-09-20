@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+/* soft-scrub-flow-mock-20260919 — Soft live scrub: hide PARALLEL banner · remove Flow Mock production boards meta + top Book · clean Flow Mock header chrome; booking stays via .prod-book-deal. Soft only. Never Hub. America/Chicago 2026-09-19 CT */
 /* soft-prod-iv-harden-20260919 — Soft Production board + Invoice spine: strip source-attribution UI · light/dark contrast · save/delete integrity (tombstones + save verify + prodHidden persist). Soft only. Never Hub. America/Chicago 2026-09-19 12:06 PM CT */
 /* soft-exec-production-20260918 — LIVE Soft: Exec → Total GM → Exec Production sub-tab (BD/Mkt booked|recurring + Placements · Jan–Dec 2026 · Carri Production SoT) · panel #exec-panel-production · LS v62 · 2026-09-18 4:18 PM CT */
 /* soft-carri-packet-live-20260918 — LIVE Soft: Rec/BD GM from Carri Excels · spine/QB stamps · cash from invoice# scrubbed · 2026-09-18 3:20 PM CT */
@@ -8314,6 +8315,8 @@ table.data.gm-sheet td.num.gm-cell input.cell-num {
 
 /* soft-carri-packet-live-20260918 — LIVE Soft: hide leftover EXAMPLE badges/demo strips */
 .badge.example, span.badge.example, .demo-strip, .example-banner, .soft-example-chip, [data-example-badge] { display: none !important; }
+
+/* soft-scrub-flow-mock-20260919 — LIVE Soft: scrub Flow Mock chrome (PARALLEL banner, production boards label, top Book) */
 </style>
 
 <style id="th-phone-title-caret">
@@ -8927,15 +8930,23 @@ html[data-look="light"] body::before { opacity: 0.14; }
 <body data-theme="ocean">
 
 <style id="soft-mess-banner-css">
-  .soft-parallel-banner {
+  /* soft-scrub-flow-mock-20260919: Soft is live — no PARALLEL banner; discreet version chip only */
+  .soft-parallel-banner { display: none !important; }
+  .soft-ver-chip-bar {
     position: sticky; top: 0; z-index: 99999;
-    background: #0f766e; color: #ecfdf5;
-    font: 700 12px/1.35 ui-sans-serif, system-ui, sans-serif;
-    letter-spacing: .04em; text-transform: uppercase;
-    padding: 8px 14px; text-align: center;
-    border-bottom: 2px solid #99f6e4;
+    background: transparent; color: var(--muted, #64748b);
+    font: 600 11px/1.3 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .02em; text-transform: none;
+    padding: 4px 12px; text-align: right;
+    border-bottom: 1px solid color-mix(in srgb, var(--muted, #64748b) 25%, transparent);
+    opacity: .85;
   }
-  .soft-parallel-banner strong { color: #fff; }
+  .soft-ver-chip-bar #soft-ver-chip {
+    display: inline-block; margin-left: 0; padding: 2px 8px; border-radius: 999px;
+    background: color-mix(in srgb, var(--panel, #0f172a) 80%, #134e4a);
+    border: 1px solid color-mix(in srgb, #99f6e4 40%, transparent);
+    font-size: 10px; letter-spacing: .03em; font-weight: 700; color: #99f6e4;
+  }
   #soft-flow-port[hidden] { display: none !important; }
   .soft-flow-slot { min-height: 60vh; }
   #soft-prod-slot #soft-flow-port,
@@ -15291,7 +15302,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-parallel-banner" role="status"><strong>PARALLEL SOFT</strong> · off live Hub · soft storage only · prefix <code>amp_soft_mess_</code> · <span id="soft-ver-chip" style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#134e4a;border:1px solid #99f6e4;font-size:11px;letter-spacing:.03em;text-transform:none;font-weight:800">soft-prod-iv-harden-20260919</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-scrub-flow-mock-20260919</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -15382,7 +15393,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
   </div>
   <main id="view"></main>
   <footer class="app-foot">
-    Sources on this snapshot: Mike's Board Status and Updates.xlsx · Account Status and Updates - Amy.xlsx · Account Status and Updates - Hadley.xlsx · Account Status and Updates - Nate.xlsx · Account Status and Updates.xlsx · Weekly Numbers for Department.xlsx · 4_Day_Work_Week_Recruiters.xlsx · New Master GM Tracker and Total Commission - Mike Freeman.xlsx · New Master GM Tracker - Amy Myers.xlsx · New Master GM Tracker and Total Commission - Hadley Herrera.xlsx · New Master GM Tracker - Nate Smith.xlsx · New Master GM Tracker and Total Commission - Stephanie Youngblood.xlsx · Executive Meeting Items.xlsx · Interview Board Recruiting.xlsx · Stephanie pipeline from Account Status and Updates.xlsx · Bullhorn stays process notes · this hub does not write back to OneDrive · Hub build 4077 · SOFT PARALLEL (off GitHub, amp_soft_mess_)
+    Sources on this snapshot: Mike's Board Status and Updates.xlsx · Account Status and Updates - Amy.xlsx · Account Status and Updates - Hadley.xlsx · Account Status and Updates - Nate.xlsx · Account Status and Updates.xlsx · Weekly Numbers for Department.xlsx · 4_Day_Work_Week_Recruiters.xlsx · New Master GM Tracker and Total Commission - Mike Freeman.xlsx · New Master GM Tracker - Amy Myers.xlsx · New Master GM Tracker and Total Commission - Hadley Herrera.xlsx · New Master GM Tracker - Nate Smith.xlsx · New Master GM Tracker and Total Commission - Stephanie Youngblood.xlsx · Executive Meeting Items.xlsx · Interview Board Recruiting.xlsx · Stephanie pipeline from Account Status and Updates.xlsx · Bullhorn stays process notes · this hub does not write back to OneDrive · Hub build 4077 · Soft live
   </footer>
 <script>
 window.SNAP = {
@@ -37289,9 +37300,7 @@ window.SNAP = {
         html += "</div>";
       }
     } else if (STATE.pill === "production") {
-      /* Soft: Flow Mock Draft Production board — Book stays popup */
-      html += '<span class="meta" style="align-self:center;opacity:.8">Soft · Flow Mock production boards</span>';
-      html += '<button type="button" class="mini-btn" data-soft-book-open="1" title="Book forms (soft popup)">Book</button>';
+      /* soft-scrub-flow-mock-20260919: no Flow Mock meta / top Book — booking via .prod-book-deal on BD/Placement/Marketing */
     } else if (STATE.pill === "gm") {
       /* Soft: Flow Mock Rec GM / GM Money carry their own filters; native Recruiter/Year only for Projections fallback */
       if (STATE.gmSub === "projections") {
@@ -77592,8 +77601,8 @@ ownersDetailHtml(row) +
     host.innerHTML =
       '<div class="card" style="margin-bottom:10px">' +
       '<div class="card-head"><h2>Accounting</h2>' +
-      '<span class="meta">Soft · Spine · Invoice Check · Recurring · Fan-out · Flow overview</span></div>' +
-      '<p style="margin:8px 0 0;font-size:13px;opacity:.85">Native Mess panels (ported from Flow Mock views). No nested Team Hub / full Flow Mock topnav. Carri AR path lives here.</p>' +
+      '<span class="meta">Soft · Spine · Invoice Check · Recurring · Fan-out</span></div>' +
+      '<p style="margin:8px 0 0;font-size:13px;opacity:.85">Accounting panels · Carri AR path lives here.</p>' +
       "</div>" +
       '<div class="soft-acct-subpills" role="tablist" aria-label="Accounting panels">' + pills + "</div>" +
       '<div id="soft-acct-slot"></div>';
@@ -77607,7 +77616,7 @@ ownersDetailHtml(row) +
     host.classList.remove("soft-acct-active");
     host.innerHTML =
       '<div class="card" style="margin-bottom:10px"><div class="card-head"><h2>Recruiting GM</h2>' +
-      '<span class="meta">Soft · Flow Mock · Mess-dark · tiers / Paid+Booked / HUD</span></div></div>' +
+      '<span class="meta">Soft · tiers / Paid+Booked / HUD</span></div></div>' +
       '<div id="soft-recgm-slot"></div>';
     mountPort(document.getElementById("soft-recgm-slot"));
     flowGo("recgm");
@@ -77619,7 +77628,7 @@ ownersDetailHtml(row) +
     host.classList.remove("soft-acct-active");
     host.innerHTML =
       '<div class="card" style="margin-bottom:10px"><div class="card-head"><h2>GM Money</h2>' +
-      '<span class="meta">Soft port from Flow Mock</span></div></div>' +
+      '<span class="meta">Soft · GM Money</span></div></div>' +
       '<div id="soft-gmoney-slot"></div>';
     mountPort(document.getElementById("soft-gmoney-slot"));
     flowGo("gmoney");
@@ -77641,7 +77650,7 @@ ownersDetailHtml(row) +
     host.classList.remove("soft-acct-active");
     host.innerHTML =
       '<div class="card" style="margin-bottom:10px"><div class="card-head"><h2>' + (title || viewId) + '</h2>' +
-      '<span class="meta">Soft · Flow Mock · exec-only</span></div></div>' +
+      '<span class="meta">Soft · Exec</span></div></div>' +
       '<div id="soft-exec-flow-slot"></div>';
     mountPort(document.getElementById("soft-exec-flow-slot"));
     flowGo(viewId);
