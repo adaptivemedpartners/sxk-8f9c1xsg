@@ -10349,8 +10349,8 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   #view-production .prod-sec-box,
   #view-production .table-wrap { overflow-x: auto; }
   #view-production table.data.prod-table td.prod-actions .prod-act-row {
-    display: inline-flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 4px;
-    width: auto; max-width: 100%; box-sizing: border-box; white-space: nowrap;
+    display: inline-flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-end; gap: 4px;
+    width: max-content; max-width: 100%; margin-left: auto; box-sizing: border-box; white-space: nowrap;
   }
   #view-production table.data.prod-table td.prod-actions .mini-btn {
     display: inline-block; width: auto; flex: 0 0 auto; box-sizing: border-box; margin: 0; white-space: nowrap; line-height: 1.2;
@@ -10652,6 +10652,27 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
     white-space: nowrap !important;
     max-width: 16rem;
     overflow: visible;
+  }
+  /* soft-prod-actions-cluster-20260920 — uniform Actions col; tight right cluster (no float gap) */
+  #view-production table.data.prod-table th:last-child,
+  #view-production table.data.prod-table td.prod-actions {
+    text-align: right !important;
+  }
+  #view-production table.data.prod-table td.prod-actions .prod-act-row {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 4px !important;
+    width: max-content !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    box-sizing: border-box;
+  }
+  #view-production table.data.prod-table td.prod-actions .prod-act-row .mini-btn {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
   }
   #view-production table.data.prod-table td .mini-btn {
     border: 1px solid var(--border);
@@ -51905,7 +51926,7 @@ function mktSendAmplified(searchKey) {
         <!-- soft-prod-demo-cue-removed-20260915 Mike: bar gone; Soft real tidy -->
         <div class="toolbar">
           <span class="stat" id="prod-stat">0 rows</span>
-          <!-- soft-prod-remove-seed-sandbox-btns-20260920: Reset seed + Clear LS sandbox removed (live-source Soft Soft) -->
+          <!-- soft-prod-remove-seed-sandbox-btns-20260920 · soft-prod-actions-cluster-20260920: Reset seed + Clear LS sandbox removed (live-source Soft Soft) -->
           <label class="field" style="margin:0">Month filter <span style="opacity:.7;font-weight:400">(2024–2026)</span>
             <select id="prod-month" style="width:auto;min-width:140px">
               <option value="all">All months</option>
