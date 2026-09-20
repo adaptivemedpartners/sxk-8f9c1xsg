@@ -11960,7 +11960,7 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   #view-bdgm .gm-tiers-panel .meta,
   #view-recgm .gm-tiers-panel .lede,
   #view-bdgm .gm-tiers-panel .lede,
-  /* soft-overnight-cleanup-20260920: darker body copy on blue GM status/legend banner — non-strong labels readable light+dark */
+  /* soft-overnight-cleanup-20260920 · soft-prod-delete-in-modify-20260920: darker body copy on blue GM status/legend banner — non-strong labels readable light+dark */
   #view-recgm .hint.mess-hint,
   #view-bdgm .hint.mess-hint {
     color: #1e293b !important; /* dark slate body on blue-tint banner (light) */
@@ -70636,15 +70636,15 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       } else if (row.bookType === 'Marketing') {
         modifyBtn = ' <button type="button" class="mini-btn teal" data-act="modify" data-id="' + row.id + '" title="Exec only · edit booked truth · re-fan BH + GM">Modify marketing</button>';
       }
-      var delBtn = ' <button type="button" class="mini-btn" data-act="delete" data-id="' + row.id + '" title="Delete row · persists · will not reseed">Delete</button>';
+      /* soft-prod-delete-in-modify-20260920 — Delete lives in Modify shells only (exec-gated), not Actions */
       /* soft-writeoff-request-20260920 — Production-board-native Deal write-off (Placement / Marketing) */
       var woBtn = '';
       if (row.bookType === 'Placement' || row.bookType === 'Marketing') {
         woBtn = ' <button type="button" class="mini-btn" data-act="writeoff" data-id="' + row.id + '" title="Deal write-off · request Carri QB negative line">Deal write-off</button>';
       }
       var actions = detailBtn
-        ? '<span class="prod-act-row">' + detailBtn + modifyBtn + woBtn + delBtn + '</span>'
-        : '<span class="prod-act-row">' + woBtn + delBtn + '</span>';
+        ? '<span class="prod-act-row">' + detailBtn + modifyBtn + woBtn + '</span>'
+        : '<span class="prod-act-row">' + woBtn + '</span>';
       function decorate(tr) {
         tr.setAttribute('data-row-id', row.id);
         if (row.example) tr.classList.add('example');
@@ -71195,6 +71195,9 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="md-actions">' +
         '<button type="button" class="mini-btn" id="md-cancel">Cancel</button> ' +
         '<button type="button" class="mini-btn teal" id="md-save" data-row-id="' + escHtml(row.id) + '">Save &amp; re-fan (BH + GM)</button>' +
+        ((typeof isLeadership === 'function' && isLeadership() && typeof hasCap === 'function' && hasCap('hub.exec'))
+          ? (' <button type="button" class="mini-btn" id="md-delete" data-row-id="' + escHtml(row.id) + '" title="Exec only · permanent Soft delete">Delete</button>')
+          : '') +
       '</div>' +
       '<p class="md-foot" id="md-save-status">Exec Production only · same row id · updates Production + fan-out stubs. Not a new book.</p>';
     backdrop.hidden = false;
@@ -71202,6 +71205,28 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     try { mdWireGmModeToggle(); } catch (eGm) {}
     var cancel = document.getElementById('md-cancel');
     if (cancel) cancel.onclick = function () { closeDealDetail(); };
+    /* soft-prod-delete-in-modify-20260920 */
+    var mdDel = document.getElementById('md-delete');
+    if (mdDel) {
+      mdDel.onclick = function () {
+        if (!(typeof isLeadership === 'function' && isLeadership() && typeof hasCap === 'function' && hasCap('hub.exec'))) {
+          toast('Delete is exec-only.');
+          return;
+        }
+        var r = state.rows.find(function (x) { return x.id === row.id; });
+        if (!r) {
+          toast('<strong>Delete failed</strong><br>Row not found — refresh Soft Mess and try again.');
+          return;
+        }
+        var label = (r.client || r.physician || r.campaign || r.id || 'row');
+        if (!window.confirm('Delete this Production row?\n\n' + label + '\n\nPersists in Soft storage. Will not reappear on refresh.')) return;
+        softDeleteProdRow(r.id, { placementId: r.placementId || '', why: 'modify-shell-delete' });
+        closeDealDetail();
+        renderProduction();
+        try { renderSpine(); } catch (eSp) {}
+        try { renderBdGm(); renderRecGm(); renderExecGm(); } catch (eGm2) {}
+      };
+    }
     var save = document.getElementById('md-save');
     if (save) {
       save.onclick = function () {
