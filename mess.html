@@ -3,6 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
+/* soft-ihc-16972-mike-randy-5050-20260920 — Soft Soft: Indian Health Center of Santa Clara Valley / Indian Health of Santa Clara Valley QB 16972 Apr 2026 $10k Deal → Split Mike 50% / Randy 50% (bdA/bdB, no House); softGmSplitOverride+Manual; stamp qbInvoice 16972; durable after repeat GM. Soft only. Never Hub. */
 /* soft-chdi-apr-mkt-30302020-20260920 — Soft Soft: Apr CHDI mkt Mike30/Amy30/Aaron20/House20; Helen Newberry Apr mkt Mike30/Nate30/Randy20/House20; May Winn 2nd mkt Mike35/Nate35/House30 (no marketer); Cullman Jan $5k Brenton Whole; tombstone 16856 Unassigned xl_bd_2026-02_2; 16861/16943/16945 name-drift keep full-name + splits. Soft only. Never Hub. */
 /* soft-aging-exec-pre2026-ors8432-nate-20260920 — Soft Soft: (1) invoice aging strip on Production (outstanding + days unpaid · Soft Soft cash SoT Paid/Invoiced/Booked · spine/QB dates only); (2) Rec GM / commissions / Awards-adjacent payout path counts Mark paid / Paid SoT only (same gate as Awards Paid mode); (3) Exec PDF reports paid/unpaid/aging by recruiter · department · company (print-to-PDF · Soft Soft never calls QB). Soft only. Never Hub. */
 /* soft-comp-gm-tabs-20260920 — Soft Soft work pills Recruiting + BD Hub from Comp & GM splits xlsx (tiers L1–L5, all billable events + %, footnotes; Soft Soft repeat owner face BD60/Rec30/House10 remainder). Soft only. Never Hub. */
@@ -55439,7 +55440,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-chdi-apr-mkt-30302020-20260920'; /* soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-midland-17004-mkt-stephanie-7030-20260920'; /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
 
   /* soft-2026-unmapped-faces-panel-20260920 — static read-only embed; do not invent faces */
   var SOFT_UNMAPPED_2026_FACES = [
@@ -55566,8 +55567,8 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   {
     "invoice": "xl_bd_2026-04_8",
     "id": "xl_bd_2026-04_8",
-    "people": "Mike/Randy",
-    "gmBucket": "Whole · Mike/Randy 100%",
+    "people": "Mike, Randy",
+    "gmBucket": "Split · Mike 50% / Randy 50%",
     "amount": 10000,
     "client": "Indian Health of Santa Clara Valley",
     "date": "2026-04-30",
@@ -55612,26 +55613,26 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     "cash": "paid"
   },
   {
-    "invoice": "xl_mkt_2026-06_32",
+    "invoice": "17004",
     "id": "xl_mkt_2026-06_32",
-    "people": "Stephanie, Aaron/Randy",
-    "gmBucket": "Marketing · Stephanie 50% / House 25%",
+    "people": "Stephanie",
+    "gmBucket": "Marketing · Stephanie 70% / House 30%",
     "amount": 19800,
     "client": "Midland Health",
     "date": "2026-06-03",
-    "mapStatus": "compound_unmapped",
+    "mapStatus": "mapped",
     "mapKind": "compound",
     "cash": "unpaid"
   },
   {
-    "invoice": "xl_mkt_2026-06_33",
+    "invoice": "17004",
     "id": "xl_mkt_2026-06_33",
-    "people": "Stephanie, Aaron/Randy",
-    "gmBucket": "Marketing · Stephanie 50% / House 25%",
+    "people": "Stephanie",
+    "gmBucket": "Marketing · Stephanie 70% / House 30%",
     "amount": 17800,
     "client": "Midland Health",
     "date": "2026-06-03",
-    "mapStatus": "compound_unmapped",
+    "mapStatus": "mapped",
     "mapKind": "compound",
     "cash": "unpaid"
   },
@@ -58092,6 +58093,63 @@ function ensureCarriGmSeed(s) {
   }
   try { window.__softEnsureWinnMayMktSplit353530 = ensureWinnMayMktSplit353530; } catch (e3) {}
 
+  function ensureMidland17004MktStephanie7030(state) {
+    /* soft-midland-17004-mkt-stephanie-7030-20260920 — June Midland Health 2nd mkt packages QB 17004 Stephanie70/House30; no marketer share. Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-midland-17004-mkt-stephanie-7030-20260920";
+    var flipped = 0, ids = [];
+    function feeOf(row) {
+      return Number(row.accountingBilled != null ? row.accountingBilled : (row.bookValueThisMonth != null ? row.bookValueThisMonth : row.fee)) || 0;
+    }
+    function isMidland(row) {
+      return /Midland\s*(Health|County)|Midland\s*County\s*Hospital/i.test(String(row.client || ""));
+    }
+    function isJun(row) {
+      return String(row.month || "") === "2026-06" || String(row.date || "").indexOf("2026-06") === 0;
+    }
+    state.rows.forEach(function (row) {
+      if (!row || row.example || row.carriGmSeed || row.carriBdGmSeed) return;
+      var id = String(row.id || "");
+      var qb = String(row.qbInvoice || row.sampleId || row.qbNumber || "");
+      var spec = String(row.specialties || "");
+      var fee = feeOf(row);
+      var which = null;
+      if (id === "xl_mkt_2026-06_32") which = "uro";
+      else if (id === "xl_mkt_2026-06_33") which = "neuro";
+      else if (isMidland(row) && isJun(row) && String(row.bookType || "") === "Marketing") {
+        if (/Urology/i.test(spec) && Math.abs(fee - 19800) < 0.5) which = "uro";
+        else if (/Neurology/i.test(spec) && Math.abs(fee - 17800) < 0.5) which = "neuro";
+      } else if (qb === "17004" && isMidland(row) && String(row.bookType || "") === "Marketing") {
+        if (/Urology/i.test(spec) || Math.abs(fee - 19800) < 0.5) which = "uro";
+        else if (/Neurology/i.test(spec) || Math.abs(fee - 17800) < 0.5) which = "neuro";
+      }
+      if (!which) return;
+      var before = JSON.stringify(row.owners || {}) + "|" + String(row.marketer || "") + "|" + String(row.qbInvoice || "") + "|" + String(row.searchRefs || "");
+      row.gmMode = "Marketing";
+      row.gmLabel = "Marketing · Stephanie 70% / House 30%";
+      row.owners = { mode: "Marketing", housePct: 30, reps: [{ name: "Stephanie", pct: 70 }] };
+      row.rep = "Stephanie";
+      row.marketer = "";
+      row.qbInvoice = row.qbInvoice || "17004";
+      if (which === "uro") {
+        if (!row.searchRefs) row.searchRefs = "U8410";
+        else if (!/U8410/i.test(String(row.searchRefs))) row.searchRefs = String(row.searchRefs) + ", U8410";
+      } else if (which === "neuro") {
+        if (!row.searchRefs) row.searchRefs = "N8411";
+        else if (!/N8411/i.test(String(row.searchRefs))) row.searchRefs = String(row.searchRefs) + ", N8411";
+      }
+      row.softGmSplitOverride = true;
+      row.softGmSplitManual = true;
+      row.softMidland17004MktLock = stamp;
+      if (before !== JSON.stringify(row.owners) + "|" + String(row.marketer || "") + "|" + String(row.qbInvoice || "") + "|" + String(row.searchRefs || "")) {
+        flipped++; ids.push(String(row.id || which || ""));
+      }
+    });
+    state.softMidland17004MktStephanie7030 = { stamp: stamp, flipped: flipped, ids: ids, at: "2026-09-20" };
+    return state;
+  }
+  try { window.__softEnsureMidland17004MktStephanie7030 = ensureMidland17004MktStephanie7030; } catch (eMid17004) {}
+
   function ensureCullmanJan5kBrenton(state) {
     /* soft-cullman-jan-5k-brenton-20260920 — Cullman Jan $5k QB 16822 Brenton Whole 100%; clear New. Soft only. Never Hub. */
     if (!state || !Array.isArray(state.rows)) return state;
@@ -58126,6 +58184,50 @@ function ensureCarriGmSeed(s) {
     return state;
   }
   try { window.__softEnsureCullmanJan5kBrenton = ensureCullmanJan5kBrenton; } catch (e4) {}
+  function ensureIhc16972MikeRandy5050(state) {
+    /* soft-ihc-16972-mike-randy-5050-20260920 — IHC Santa Clara QB 16972 Apr $10k Split Mike50/Randy50 (bdA/bdB, no House). Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-ihc-16972-mike-randy-5050-20260920";
+    var flipped = 0, ids = [];
+    function feeOf(row) {
+      return Number(row.accountingBilled != null ? row.accountingBilled : (row.bookValueThisMonth != null ? row.bookValueThisMonth : row.fee)) || 0;
+    }
+    function isIhc(row) {
+      return /Indian\s*Hea?lth/i.test(String(row.client || "")) && /Santa\s*Clara/i.test(String(row.client || ""));
+    }
+    function isApr(row) {
+      return String(row.month || "") === "2026-04" || String(row.date || "").indexOf("2026-04") === 0;
+    }
+    function qbHit(row) {
+      return String(row.qbInvoice || row.sampleId || row.qbNumber || "") === "16972"
+        || String(row.id || "") === "xl_bd_2026-04_8";
+    }
+    state.rows.forEach(function (row) {
+      if (!row || row.example || row.carriGmSeed || row.carriBdGmSeed) return;
+      if (String(row.bookType || "") === "Marketing" || String(row.bookType || "") === "Placement") return;
+      var amtHit = Math.abs(feeOf(row) - 10000) < 0.5;
+      if (!(qbHit(row) || (isIhc(row) && isApr(row) && amtHit))) return;
+      var before = JSON.stringify(row.owners || {}) + "|" + String(row.gmLabel || "") + "|" + String(row.qbInvoice || "");
+      row.client = row.client || "Indian Health of Santa Clara Valley";
+      row.bookType = "Deal";
+      row.gmMode = "Split";
+      row.gmLabel = "Split · Mike 50% / Randy 50%";
+      row.owners = { mode: "Split", bdA: { name: "Mike", pct: 50 }, bdB: { name: "Randy", pct: 50 } };
+      row.rep = "Mike";
+      row.qbInvoice = row.qbInvoice || "16972";
+      row.softGmSplitOverride = true;
+      row.softGmSplitManual = true;
+      row.softIhc16972MikeRandy5050Lock = stamp;
+      if (before !== JSON.stringify(row.owners) + "|" + row.gmLabel + "|" + String(row.qbInvoice || "")) {
+        flipped++;
+        ids.push(String(row.id || ""));
+      }
+    });
+    state.softIhc16972MikeRandy5050 = { stamp: stamp, flipped: flipped, ids: ids, at: "2026-09-20" };
+    return state;
+  }
+  try { window.__softEnsureIhc16972MikeRandy5050 = ensureIhc16972MikeRandy5050; } catch (eIhc) {}
+
 
   function ensureChdi16856UnassignedDedupe(state) {
     /* soft-chdi-16856-unassigned-dedupe-20260920 — tombstone xl_bd_2026-02_2; keep Aaron xl_bd_2026-01_2. Soft only. Never Hub. */
@@ -58646,7 +58748,9 @@ function softIsoDate(v) {
     ensureChdiFebMkt16861Split30302020(s); /* soft-chdi-feb-mkt-16861-20260920 */
     ensureHelenNewberryAprMktSplit30302020(s); /* soft-helen-newberry-apr-mkt-30302020-20260920 */
     ensureWinnMayMktSplit353530(s); /* soft-winn-may-mkt-353530-20260920 */
+    ensureMidland17004MktStephanie7030(s); /* soft-midland-17004-mkt-stephanie-7030-20260920 — AFTER repeat GM */
     ensureCullmanJan5kBrenton(s); /* soft-cullman-jan-5k-brenton-20260920 */
+    ensureIhc16972MikeRandy5050(s); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
     return s;
   }
@@ -67460,7 +67564,7 @@ function softIsoDate(v) {
       side: "bd",
       date: "2026-04-30",
       month: "2026-04",
-      rep: "Mike/Randy",
+      rep: "Mike",
       repeatRep: "",
       client: "Indian Health of Santa Clara Valley",
       dealRef: "",
@@ -67473,9 +67577,13 @@ function softIsoDate(v) {
       internets: 0,
       accountingBilled: 10000,
       accountingBilledRaw: "YES",
-      gmMode: "Whole",
-      gmLabel: "Whole · Mike/Randy 100%",
-      owners: {"mode": "Whole", "primary": "Mike/Randy"},
+      gmMode: "Split",
+      gmLabel: "Split · Mike 50% / Randy 50%",
+      owners: {"mode": "Split", "bdA": {"name": "Mike", "pct": 50}, "bdB": {"name": "Randy", "pct": 50}},
+      qbInvoice: "16972",
+      softGmSplitOverride: true,
+      softGmSplitManual: true,
+      softIhc16972MikeRandy5050Lock: "soft-ihc-16972-mike-randy-5050-20260920",
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 10000,
@@ -68116,24 +68224,28 @@ function softIsoDate(v) {
       date: "2026-06-03",
       month: "2026-06",
       rep: "Stephanie",
-      marketer: "Aaron/Randy",
+      marketer: "",
       client: "Midland Health",
       campaign: "Standard Package",
       specialties: "Urology",
+      searchRefs: "U8410",
       initiation: 0,
       firstMonthRetainer: 0,
       internets: 0,
       accountingBilled: 19800,
       accountingBilledRaw: "YES",
       gmMode: "Marketing",
-      gmLabel: "Marketing · Excel board",
-      owners: {"mode": "Marketing", "housePct": 25, "reps": [{"name": "Stephanie", "pct": 50}]},
+      gmLabel: "Marketing · Stephanie 70% / House 30%",
+      owners: {"mode": "Marketing", "housePct": 30, "reps": [{"name": "Stephanie", "pct": 70}]},
+      softGmSplitOverride: true,
+      softGmSplitManual: true,
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 19800,
       sourceSheet: "June 2026",
       sourceRow: 32,
-      sourceYear: 2026
+      sourceYear: 2026,
+      qbInvoice: "17004"
     });
     rows.push({
       id: "xl_mkt_2026-06_33",
@@ -68144,24 +68256,28 @@ function softIsoDate(v) {
       date: "2026-06-03",
       month: "2026-06",
       rep: "Stephanie",
-      marketer: "Aaron/Randy",
+      marketer: "",
       client: "Midland Health",
       campaign: "Standard Package",
       specialties: "Neurology",
+      searchRefs: "N8411",
       initiation: 0,
       firstMonthRetainer: 0,
       internets: 0,
       accountingBilled: 17800,
       accountingBilledRaw: "YES",
       gmMode: "Marketing",
-      gmLabel: "Marketing · Excel board",
-      owners: {"mode": "Marketing", "housePct": 25, "reps": [{"name": "Stephanie", "pct": 50}]},
+      gmLabel: "Marketing · Stephanie 70% / House 30%",
+      owners: {"mode": "Marketing", "housePct": 30, "reps": [{"name": "Stephanie", "pct": 70}]},
+      softGmSplitOverride: true,
+      softGmSplitManual: true,
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 17800,
       sourceSheet: "June 2026",
       sourceRow: 33,
-      sourceYear: 2026
+      sourceYear: 2026,
+      qbInvoice: "17004"
     });
     rows.push({
       id: "xl_mkt_2026-06_34",
@@ -71527,6 +71643,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureMike2026FocusPaid(state);
     ensureSoftPre2026AgingPaid(state);
     ensureSoftProdPaidFromSpineSoT(state);
+    ensureIhc16972MikeRandy5050(state); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
+    ensureMidland17004MktStephanie7030(state); /* soft-midland-17004-mkt-stephanie-7030-20260920 — AFTER repeat GM */
     ensureOrs8432NateGm(state); /* soft-ors8432-spine-nate-20260920 — LAST before catch end */
   } catch (eSpineCashBoot) {}
 
