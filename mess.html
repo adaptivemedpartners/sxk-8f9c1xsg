@@ -10653,7 +10653,7 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
     max-width: 16rem;
     overflow: visible;
   }
-  /* soft-prod-actions-cluster-20260920 — uniform Actions col; tight right cluster (no float gap) */
+  /* soft-prod-actions-cluster-20260920 · soft-prod-modify-fixed-width-20260920 · soft-prod-modify-fixed-width-20260920 */
   #view-production table.data.prod-table th:last-child,
   #view-production table.data.prod-table td.prod-actions {
     text-align: right !important;
@@ -10673,6 +10673,16 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   #view-production table.data.prod-table td.prod-actions .prod-act-row .mini-btn {
     flex: 0 0 auto !important;
     margin: 0 !important;
+  }
+  /* Fixed Modify width = longest label (Modify marketing) so Deal/Placement/Marketing columns align */
+  #view-production table.data.prod-table td.prod-actions .prod-act-row .prod-modify-btn {
+    width: 9.25rem !important;
+    min-width: 9.25rem !important;
+    max-width: 9.25rem !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
   }
   #view-production table.data.prod-table td .mini-btn {
     border: 1px solid var(--border);
@@ -70692,11 +70702,11 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
          Re-fan BH+GM · not a new book. Mark paid still Invoice spine only. */
       var modifyBtn = '';
       if (row.bookType === 'Deal') {
-        modifyBtn = ' <button type="button" class="mini-btn teal" data-act="modify" data-id="' + row.id + '" title="Exec only · edit booked truth · re-fan BH + GM">Modify deal</button>';
+        modifyBtn = ' <button type="button" class="mini-btn teal prod-modify-btn" data-act="modify" data-id="' + row.id + '" title="Exec only · edit booked truth · re-fan BH + GM">Modify deal</button>';
       } else if (row.bookType === 'Placement') {
-        modifyBtn = ' <button type="button" class="mini-btn teal" data-act="modify" data-id="' + row.id + '" title="Exec only · edit booked truth · re-fan BH + GM">Modify placement</button>';
+        modifyBtn = ' <button type="button" class="mini-btn teal prod-modify-btn" data-act="modify" data-id="' + row.id + '" title="Exec only · edit booked truth · re-fan BH + GM">Modify placement</button>';
       } else if (row.bookType === 'Marketing') {
-        modifyBtn = ' <button type="button" class="mini-btn teal" data-act="modify" data-id="' + row.id + '" title="Exec only · edit booked truth · re-fan BH + GM">Modify marketing</button>';
+        modifyBtn = ' <button type="button" class="mini-btn teal prod-modify-btn" data-act="modify" data-id="' + row.id + '" title="Exec only · edit booked truth · re-fan BH + GM">Modify marketing</button>';
       }
       /* soft-prod-delete-in-modify-20260920 — Delete lives in Modify shells only (exec-gated), not Actions */
       /* soft-writeoff-request-20260920 — Production-board-native Deal write-off (Placement / Marketing) */
