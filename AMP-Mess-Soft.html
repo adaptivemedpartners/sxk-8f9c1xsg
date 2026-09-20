@@ -15579,7 +15579,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-overnight-cleanup-20260920</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-chd-aug-mkt-dedupe-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -36698,6 +36698,10 @@ window.SNAP = {
         return;
       }
       ov.hidden = false;
+      /* soft-boot-pills-unblock-20260920 — never block Hub boot / work-pill wiring on the modal.
+         Soft Soft stayed on static Board with dead tabs while this promise waited for Sign in.
+         Resolve now; successful sign-in still applies auth + hydrate + re-render. */
+      resolve();
       function onSubmit(e) {
         e.preventDefault();
         var email = emailEl ? emailEl.value : "";
@@ -36718,7 +36722,16 @@ window.SNAP = {
             AMP_SESSION_USER = signed;
             ampApplyAuth(signed);
           }
-          resolve();
+          try {
+            ampHydrateMessKeys(db).then(function () {
+              try { ampTeamStartRealtime(); } catch (eRt) {}
+              try { ampHydrateAllBackground(db); } catch (eBg) {}
+              try { if (typeof render === "function") render(); } catch (eR) {}
+            }).catch(function (eH) { console.error(eH); try { if (typeof render === "function") render(); } catch (eR2) {} });
+          } catch (eHyd) {
+            console.error(eHyd);
+            try { if (typeof render === "function") render(); } catch (eR3) {}
+          }
         }).catch(function (err) {
           if (errEl) {
             errEl.textContent = (err && err.message) || "Sign-in failed.";
@@ -36727,6 +36740,23 @@ window.SNAP = {
         });
       }
       form.addEventListener("submit", onSubmit);
+      /* Soft Soft: Skip — use local Soft data without Hub session */
+      try {
+        if (!ov.getAttribute("data-soft-skip-wired")) {
+          ov.setAttribute("data-soft-skip-wired", "1");
+          var skip = document.createElement("button");
+          skip.type = "button";
+          skip.id = "amp-auth-skip";
+          skip.textContent = "Continue without signing in (Soft Soft)";
+          skip.style.cssText = "margin-top:8px;font:650 12px/1.3 ui-sans-serif,system-ui,sans-serif;padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(148,163,184,.45);background:transparent;color:inherit;";
+          skip.addEventListener("click", function () {
+            ov.hidden = true;
+            try { ampApplyAuth(null); } catch (eA) {}
+            try { if (typeof render === "function") render(); } catch (eR) {}
+          });
+          if (form && form.parentNode) form.appendChild(skip);
+        }
+      } catch (eSkip) {}
     });
   }
   function ampWaitForStorage() {
@@ -36767,10 +36797,16 @@ window.SNAP = {
           AMP_SESSION_USER = sess && sess.user ? sess.user : null;
           ampApplyAuth(AMP_SESSION_USER);
           if (!AMP_SESSION_USER) return;
-          return ampHydrateMessKeys(db).then(function () {
-            ampTeamStartRealtime();
-            ampHydrateAllBackground(db);
+          /* soft-boot-pills-unblock-20260920 — hydrate in background so boot/pills never wait on Supabase */
+          ampHydrateMessKeys(db).then(function () {
+            try { ampTeamStartRealtime(); } catch (eRt) {}
+            try { ampHydrateAllBackground(db); } catch (eBg) {}
+            try { if (_ampBooted && typeof render === "function") render(); } catch (eR) {}
+          }).catch(function (eH) {
+            console.error(eH);
+            try { if (_ampBooted && typeof render === "function") render(); } catch (eR2) {}
           });
+          return;
         });
       });
     }).catch(function (err) {
@@ -50966,6 +51002,14 @@ function mktSendAmplified(searchKey) {
     }).then(function () {
       boot();
     });
+    /* soft-boot-pills-unblock-20260920 — watchdog: never leave static Board with dead work-pills */
+    setTimeout(function () {
+      if (_ampBooted) return;
+      try {
+        console.warn("[soft-mess] boot watchdog — wiring pills while auth/hydrate pending");
+        boot();
+      } catch (eW) { console.error(eW); }
+    }, 2000);
   }
   window.__ampOnStorageReady = function () { ampStartTeamHub(); };
   if (document.readyState === "loading") {
@@ -55067,7 +55111,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-awards-booked-paid-toggle-20260920'; /* soft-awards-booked-paid-toggle-20260920; prior soft-awards-paid-live-20260920 · soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 */
+  var CHIP = 'soft-chd-aug-mkt-dedupe-20260920'; /* soft-rep-owner-autofix-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-boot-pills-unblock-20260920; prior soft-boot-pills-unblock-20260920 · soft-awards-paid-live-20260920 · soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -55229,6 +55273,126 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   }
   function softIsBdDealRow(r) {
     return !!(r && (r.bookType === 'Deal' || (!r.bookType && r.side === 'bd')) && r.bookType !== 'Marketing' && r.bookType !== 'Placement');
+  }
+  /* soft-rep-owner-autofix-20260920 — owners SoT → rep; ALL deals + sampleId/ex_spine bridges */
+  function softIsDealLikeForRepAutofix(r) {
+    if (!r) return false;
+    if (softIsBdDealRow(r)) return true;
+    if (r.bookType === 'Placement' || r.bookType === 'Marketing') return false;
+    if (r.spineBridge || r.sampleId || /^ex_spine_/i.test(String(r.id || ''))) return true;
+    return false;
+  }
+  function softExpectedOwnerFromAssignment(row) {
+    if (!row) return '';
+    var ow = row.owners;
+    function short(n) { return softShortRepName(n); }
+    if (ow && ow.mode === 'Whole' && ow.primary != null && ow.primary !== '') {
+      var p = ow.primary;
+      return short(typeof p === 'string' ? p : (p && p.name) || '');
+    }
+    var cands = [];
+    function pushCand(name, pct) {
+      var n = short(name);
+      if (!n) return;
+      var pc = pct == null || pct === '' ? -1 : Number(pct);
+      if (!isFinite(pc)) pc = -1;
+      cands.push({ name: n, pct: pc });
+    }
+    if (ow) {
+      if (ow.mode === 'Split') {
+        if (ow.bdA) pushCand(ow.bdA.name, ow.bdA.pct);
+        if (ow.a) pushCand(ow.a.name, ow.a.pct);
+        if (ow.bdB) pushCand(ow.bdB.name, ow.bdB.pct);
+        if (ow.b) pushCand(ow.b.name, ow.b.pct);
+        if (ow.recruiter) pushCand(ow.recruiter.name, ow.recruiter.pct);
+      } else if (ow.mode === 'Repeat' && ow.primary) {
+        pushCand(ow.primary.name || ow.primary, ow.primary.pct);
+      } else if (ow.mode === 'Marketing' && ow.reps && ow.reps.length) {
+        ow.reps.forEach(function (x) { if (x) pushCand(x.name, x.pct); });
+      }
+      if (Array.isArray(ow.splits)) {
+        ow.splits.forEach(function (x) {
+          if (!x) return;
+          pushCand(x.name || x.rep || x.primary, x.pct);
+        });
+      }
+      if (Array.isArray(ow.list)) {
+        ow.list.forEach(function (x) {
+          if (x == null) return;
+          if (typeof x === 'string') pushCand(x, -1);
+          else pushCand(x.name || x.rep || x.primary, x.pct);
+        });
+      }
+      if (ow.primary != null && ow.primary !== '') {
+        if (typeof ow.primary === 'string') pushCand(ow.primary, 100);
+        else if (ow.primary.name) pushCand(ow.primary.name, ow.primary.pct != null ? ow.primary.pct : 100);
+      }
+      if (cands.length) {
+        cands.sort(function (a, b) { return b.pct - a.pct; });
+        return cands[0].name;
+      }
+      try {
+        if (typeof primaryRepFromOwners === 'function') {
+          var pr = primaryRepFromOwners(ow, '');
+          if (pr) return short(pr);
+        }
+      } catch (ePr) {}
+    }
+    var gl = String(row.gmLabel || '').trim();
+    var m = gl.match(/^Whole\s*[·•]\s*([A-Za-z][A-Za-z\-']*)\s+100\s*%/i);
+    if (m) return short(m[1]);
+    return '';
+  }
+  function softApplyRepOwnerAutofix(row) {
+    if (!softIsDealLikeForRepAutofix(row)) return false;
+    var expected = softExpectedOwnerFromAssignment(row);
+    if (!expected) return false;
+    var cur = softShortRepName(row.rep);
+    var changed = false;
+    if (cur !== expected) {
+      row.rep = expected;
+      changed = true;
+    }
+    var ow = row.owners;
+    if (ow && ow.mode === 'Whole') {
+      var gl = String(row.gmLabel || '');
+      if (!gl || /^Whole\s*[·•]/i.test(gl)) {
+        var wantGl = 'Whole · ' + expected + ' 100%';
+        if (gl !== wantGl) {
+          row.gmLabel = wantGl;
+          row.gmMode = 'Whole';
+          changed = true;
+        }
+      }
+    }
+    if (changed) row.softRepOwnerAutofix = 'soft-rep-owner-autofix-20260920';
+    return changed;
+  }
+  function softIsProductionVisibleRow(row) {
+    if (!row) return false;
+    if (row.carriGmSeed || row.carriBdGmSeed) return false;
+    if (row.example) return false;
+    if (row.bookType === 'Placement' && typeof softIsEcbPlacementLine === 'function' && softIsEcbPlacementLine(row)) return false;
+    if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(row)) return false;
+    if (row.excludeFromProductionBoard) return false;
+    return true;
+  }
+  function ensureSoftRepOwnerAutofix(s) {
+    /* soft-rep-owner-autofix-20260920 — catch-up: owners.primary wins over stale LS/prod rep */
+    if (!s || !Array.isArray(s.rows)) return s;
+    var stamp = 'soft-rep-owner-autofix-20260920';
+    var flipped = 0;
+    var ids = [];
+    s.rows.forEach(function (row) {
+      if (!softIsProductionVisibleRow(row)) return;
+      if (!softIsDealLikeForRepAutofix(row)) return;
+      if (softApplyRepOwnerAutofix(row)) {
+        flipped++;
+        ids.push(String(row.id || row.sampleId || ''));
+      }
+    });
+    s.softRepOwnerAutofix = { stamp: stamp, flipped: flipped, ids: ids, at: '2026-09-20' };
+    return s;
   }
   function softIsRecruiterRep(name) {
     var n = softShortRepName(name);
@@ -56719,6 +56883,76 @@ function ensureCarriGmSeed(s) {
     return s;
   }
 
+  
+  function ensureHendrickSepAaron(state) {
+    /* soft-hendrick-sep-aaron-lock-20260920 — ALWAYS force Sep Hendrick → Aaron (last step) */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-hendrick-sep-aaron-lock-20260920";
+    var flipped = 0;
+    state.rows.forEach(function (row) {
+      if (!row) return;
+      var client = String(row.client || "");
+      var mon = String(row.month || "");
+      var dt = String(row.date || "");
+      var isHit = (row.id === "ex_spine_17089" || String(row.sampleId || "") === "17089" || String(row.linkRowId || "") === "ex_spine_17089")
+        && /hendrick/i.test(client)
+        && (mon === "2026-09" || dt.indexOf("2026-09") === 0);
+      if (!isHit) return;
+      var before = String(row.rep || "") + "|" + String((row.owners && row.owners.primary) || "") + "|" + String(row.gmLabel || "");
+      row.rep = "Aaron";
+      row.gmMode = "Whole";
+      row.gmLabel = "Whole · Aaron 100%";
+      row.owners = { mode: "Whole", primary: "Aaron" };
+      if (before !== (row.rep + "|" + row.owners.primary + "|" + row.gmLabel)) flipped++;
+    });
+    state.hendrickSepAaronLock = { stamp: stamp, flipped: flipped, at: "2026-09-20" };
+    return state;
+  }
+  try { window.__softEnsureHendrickSepAaron = ensureHendrickSepAaron; } catch (eE) {}
+
+  function ensureChdAugMktDedupe(state) {
+    /* soft-chd-aug-mkt-dedupe-20260920 — CH&D Aug Marketing only:
+       excel xl_mkt_2026-08_35 ("Standard") duplicates spine ex_spine_17078
+       ("Standard marketing package" · QB/sample 17078). Keep spine; tombstone excel. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-chd-aug-mkt-dedupe-20260920";
+    var dropId = "xl_mkt_2026-08_35";
+    var keepId = "ex_spine_17078";
+    softEnsureTombstoneMaps(state);
+    var hadDrop = false;
+    var hadKeep = false;
+    for (var i = 0; i < state.rows.length; i++) {
+      var r = state.rows[i];
+      if (!r || !r.id) continue;
+      if (String(r.id) === dropId) hadDrop = true;
+      if (String(r.id) === keepId) hadKeep = true;
+    }
+    if (!state.deletedRowIds[dropId]) {
+      state.deletedRowIds[dropId] = {
+        at: "2026-09-20T13:20:00-05:00",
+        why: stamp,
+        keep: keepId,
+        note: "CH&D Aug Standard excel orphan; keep Standard marketing package spine/QB 17078"
+      };
+    }
+    var before = state.rows.length;
+    state.rows = state.rows.filter(function (r) {
+      return !(r && String(r.id) === dropId);
+    });
+    state.chdAugMktDedupe = {
+      stamp: stamp,
+      dropped: dropId,
+      kept: keepId,
+      hadDrop: hadDrop,
+      hadKeep: hadKeep,
+      removedNow: before - state.rows.length,
+      at: "2026-09-20"
+    };
+    return state;
+  }
+  try { window.__softEnsureChdAugMktDedupe = ensureChdAugMktDedupe; } catch (eChd) {}
+
+
   function ensureSoftProdPaidFromSpineSoT(s) {
     if (!s || !Array.isArray(s.rows)) return s;
     var idx = softBuildSpineCashIndex(s);
@@ -56870,6 +57104,9 @@ function softIsoDate(v) {
   window.__softIsoDate = softIsoDate;
   window.__softGetState = function () { return state; }; /* soft-spine-b-booked-invoiced-20260920 debug read */
   window.__softIsRecurringOffProductionBoard = softIsRecurringOffProductionBoard; /* soft-prod-recurring-off-board-20260920 */
+  window.__softExpectedOwnerFromAssignment = softExpectedOwnerFromAssignment; /* soft-rep-owner-autofix-20260920 */
+  window.__softApplyRepOwnerAutofix = softApplyRepOwnerAutofix;
+  window.__softEnsureRepOwnerAutofix = ensureSoftRepOwnerAutofix;
   window.__softProdDisplayStatus = softProdDisplayStatus;
   window.__softResolveCashFromSpine = softResolveCashFromSpine;
   window.__softBuildSpineCashIndex = softBuildSpineCashIndex;
@@ -56893,6 +57130,7 @@ function softIsoDate(v) {
     ensureSoftProdPaidFromSpineSoT(s);
     dedupeBdRepeatClones(s);
     tagMoHighlandsMonthlies(s);     tagSoftEcbSplitAndSecondBills(s);     tagSoftRecurringOffProductionBoard(s); /* soft-prod-recurring-off-board-20260920 */ /* soft-prod-ecb-secondbill-20260920 */
+    ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
     softApplyRowTombstones(s); /* soft-prod-iv-harden-20260919 — after ensure* so reseed cannot revive deletes */
     if (!Array.isArray(s.fanLog)) s.fanLog = [];
     if (!Array.isArray(s.commissionLines)) s.commissionLines = [];
@@ -56963,6 +57201,9 @@ function softIsoDate(v) {
       }
       if ((row.bookType === 'Placement' || row.bookType === 'Marketing') && row.marketer == null) row.marketer = '';
     });
+    ensureHendrickSepAaron(s);
+    ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
+    try { ensureSoftRepOwnerAutofix(s); } catch (eRepAf) {} /* soft-rep-owner-autofix-20260920 */
     return s;
   }
   function loadState() {
@@ -67935,12 +68176,12 @@ function softIsoDate(v) {
       id: 'ex_spine_17089', example: false, spineBridge: true, sampleId: '17089',
       bookType: 'Deal', side: 'bd',
       date: '2026-09-01', month: '2026-09',
-      rep: 'Zach', repeatRep: '', client: 'Hendrick Medical Center',
+      rep: 'Aaron', repeatRep: '', client: 'Hendrick Medical Center',
       dealRef: 'CSV8454', searchRefs: 'CSV8454, OBG8455, END8456, RHU8457, HO8458',
       repeatOrNew: 'New', searches: 5, specialties: 'CSV · OBG · END · RHU · HO (2nd+ monthly)',
       initiation: 0, firstMonthRetainer: 2000, internets: 0, accountingBilled: 2000,
-      gmMode: 'Whole', gmLabel: 'Whole · Zach 100%',
-      owners: { mode: 'Whole', primary: 'Zach' },
+      gmMode: 'Whole', gmLabel: 'Whole · Aaron 100%',
+      owners: { mode: 'Whole', primary: 'Aaron' },
       status: 'Booked', paid: false,
       billing: { name: 'Rachel Lee', email: 'rlee@hendrick.example', phone: '555-0901' },
       monthlyAmount: 2000, numberOfMonthlies: 4, bookValueThisMonth: 2000,
@@ -69785,7 +70026,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     { id: '17071', sampleId: '17071', client: 'Hendrick Medical Center', searchIds: ['s_hendrick'], searchRefs: 'CSV8454, OBG8455, END8456, RHU8457, HO8458', amount: 5000, date: '2026-08-05', status: 'Invoiced', qbNumber: '17071', paidDate: null, agreement: 'Partnership', linkRowId: 'ex_bd_sep_hendrick',
       owners: { mode: 'Whole', primary: 'Zach' } },
     { id: '17089', sampleId: '17089', client: 'Hendrick Medical Center', searchIds: ['s_hendrick'], searchRefs: 'CSV8454, OBG8455, END8456, RHU8457, HO8458', amount: 2000, date: '2026-09-01', status: 'Booked', qbNumber: '', paidDate: null, agreement: 'Partnership', linkRowId: 'ex_spine_17089',
-      owners: { mode: 'Whole', primary: 'Zach' } },
+      owners: { mode: 'Whole', primary: 'Aaron' } },
     { id: '17021', sampleId: '17021', client: 'Kittitas Valley Community Hospital', searchIds: ['s_kittitas'], searchRefs: 'FP8306, NP8229', amount: 790, date: '2026-07-01', status: 'Paid', qbNumber: '17021', paidDate: '2026-07-02', agreement: 'Internets', linkRowId: 'ex_spine_17021', excludeFromBdGm: true,
       owners: { mode: 'Whole', primary: 'Kelley' } },
     { id: '17078', sampleId: '17078', client: 'Community Health Development, INC', searchIds: ['s_chdi'], searchRefs: 'DDS-8419', amount: 19800, date: '2026-08-24', status: 'Invoiced', qbNumber: '17078', paidDate: null, agreement: 'Marketing', linkRowId: 'ex_spine_17078',
@@ -69811,6 +70052,9 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureSoftProdQbFromCarriSeeds(state);
     ensureSpineBookedFromCarriQb(state);
     ensureSpineBookedBuckets(state);
+    ensureHendrickSepAaron(state);
+    ensureChdAugMktDedupe(state); /* soft-chd-aug-mkt-dedupe-20260920 */
+    try { ensureSoftRepOwnerAutofix(state); } catch (eRepAf2) {}
     ensureMike2026FocusPaid(state);
     ensureSoftProdPaidFromSpineSoT(state);
   } catch (eSpineCashBoot) {}
@@ -71969,6 +72213,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
   }
 
   function mdAfterSave(r, label) {
+    try { softApplyRepOwnerAutofix(r); } catch (eMdAf) {} /* soft-rep-owner-autofix-20260920 · owners win */
     var entry = doRefanUpdate(r);
     flashRowId = r.id;
     var gmBits = (r.gmLabel || '') + (r.accountingBilled != null || r.fee != null
@@ -72274,6 +72519,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         r.accountingBilled = mdNum('md-acct');
         r.bookValueThisMonth = r.accountingBilled || r.initiation || r.firstMonthRetainer || r.bookValueThisMonth;
         mdApplyGmFromForm(r);
+        try { softApplyRepOwnerAutofix(r); } catch (eDealAf) {} /* soft-rep-owner-autofix-20260920 */
         r.lastModifyNote = note;
         if (r.monthlyAmount > 0 || r.numberOfMonthlies > 0 || r.internets > 0) {
           if (!r.recurringStreamId) r.recurringStreamId = 'stream_mod_' + r.id;
