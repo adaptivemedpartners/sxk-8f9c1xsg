@@ -3,6 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
+/* soft-aging-payout-execpdf-20260920 — Soft Soft: (1) invoice aging strip on Production (outstanding + days unpaid · Soft Soft cash SoT Paid/Invoiced/Booked · spine/QB dates only); (2) Rec GM / commissions / Awards-adjacent payout path counts Mark paid / Paid SoT only (same gate as Awards Paid mode); (3) Exec PDF reports paid/unpaid/aging by recruiter · department · company (print-to-PDF · Soft Soft never calls QB). Soft only. Never Hub. */
 /* soft-comp-gm-tabs-20260920 — Soft Soft work pills Recruiting + BD Hub from Comp & GM splits xlsx (tiers L1–L5, all billable events + %, footnotes; Soft Soft repeat owner face BD60/Rec30/House10 remainder). Soft only. Never Hub. */
 /* soft-comp-gm-splits-xlsx-20260920 — Comp SoT from AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx: BDR Repeat Up Front 60% + Recruiting Repeat Retainer 30%; House 10% = board-face remainder (100-60-30), NOT a spreadsheet line. Soft Soft standing rule + Bibb 17082 Nate. Soft only. Never Hub. */
 /* soft-repeat-gm-60-30-10-20260920 — standing Soft Soft rule: Repeat deals → 60% BD / 30% repeat recruiter / 10% House (skip softGmSplitOverride); Bibb QB 17082 Nate 30% lock. Soft only. Never Hub. */
@@ -10485,6 +10486,114 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
     color: var(--muted);
   }
   #view-production .prod-sec-h:first-of-type,
+
+  /* soft-aging-payout-execpdf-20260920 — Production aging strip + Exec invoice PDF panel */
+  #view-production .prod-aging-strip {
+    margin: 8px 0 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border, #334155);
+    background: var(--card, #0f172a);
+    color: var(--text, #e2e8f0);
+  }
+  html[data-look="light"] #view-production .prod-aging-strip,
+  html[data-theme="light"] #view-production .prod-aging-strip {
+    background: #fffbeb;
+    border-color: #f59e0b;
+    color: #78350f;
+  }
+  #view-production .prod-aging-head {
+    display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline;
+    margin-bottom: 8px;
+  }
+  #view-production .prod-aging-head strong { font-size: 0.92rem; }
+  #view-production .prod-aging-head .hint {
+    font-size: 0.72rem; opacity: 0.85; flex: 1 1 220px;
+  }
+  #view-production .prod-aging-buckets {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;
+  }
+  #view-production .prod-aging-bucket {
+    border-radius: 999px; padding: 4px 10px; font-size: 0.72rem; font-weight: 700;
+    border: 1px solid var(--border, #475569); background: rgba(148,163,184,0.12);
+    cursor: pointer; font-family: inherit; color: inherit;
+  }
+  #view-production .prod-aging-bucket.active {
+    background: #f59e0b; color: #0b1220; border-color: #d97706;
+  }
+  #view-production .prod-aging-bucket[data-bucket="b60"],
+  #view-production .prod-aging-bucket[data-bucket="b90"] {
+    border-color: #f97316;
+  }
+  #view-production .prod-aging-bucket[data-bucket="b90p"] {
+    border-color: #ef4444; background: rgba(239,68,68,0.15);
+  }
+  #view-production .prod-aging-table {
+    width: 100%; border-collapse: collapse; font-size: 0.78rem;
+  }
+  #view-production .prod-aging-table th,
+  #view-production .prod-aging-table td {
+    padding: 5px 8px; border-bottom: 1px solid var(--border, #334155);
+    text-align: left; vertical-align: top;
+  }
+  #view-production .prod-aging-table th.num,
+  #view-production .prod-aging-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  #view-production .prod-aging-days {
+    font-weight: 800; font-variant-numeric: tabular-nums;
+  }
+  #view-production .prod-aging-days.warn { color: #f59e0b; }
+  #view-production .prod-aging-days.hot { color: #ef4444; }
+  html[data-look="light"] #view-production .prod-aging-days.warn { color: #b45309; }
+  html[data-look="light"] #view-production .prod-aging-days.hot { color: #b91c1c; }
+  #view-production .prod-aging-empty {
+    font-size: 0.78rem; opacity: 0.8; padding: 4px 0;
+  }
+  #view-recgm .recgm-payout-collected-note,
+  #view-bdgm .recgm-payout-collected-note {
+    margin: 8px 0 10px; padding: 8px 12px; border-radius: 10px;
+    border: 1px solid #34d399; background: rgba(16,185,129,0.12);
+    font-size: 0.78rem; line-height: 1.45; color: inherit;
+  }
+  html[data-look="light"] #view-recgm .recgm-payout-collected-note,
+  html[data-look="light"] #view-bdgm .recgm-payout-collected-note {
+    background: #ecfdf5; border-color: #10b981; color: #065f46;
+  }
+  #view-execgm .exec-inv-pdf-card {
+    margin-top: 14px;
+  }
+  #view-execgm .exec-inv-pdf-card .eip-lede {
+    font-size: 0.82rem; line-height: 1.45; margin: 0 0 10px; color: var(--muted, #94a3b8);
+  }
+  #view-execgm .eip-toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; margin-bottom: 10px;
+  }
+  #view-execgm .eip-toolbar .field { margin: 0; font-size: 0.78rem; }
+  #view-execgm .eip-toolbar select,
+  #view-execgm .eip-toolbar input {
+    display: block; margin-top: 4px; min-width: 140px;
+    padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--card); color: inherit; font: inherit;
+  }
+  #view-execgm .eip-preview {
+    max-height: 320px; overflow: auto; border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px; font-size: 0.78rem;
+    background: var(--panel-2, rgba(15,23,42,0.4));
+  }
+  #view-execgm .eip-preview table { width: 100%; border-collapse: collapse; }
+  #view-execgm .eip-preview th, #view-execgm .eip-preview td {
+    padding: 4px 6px; border-bottom: 1px solid var(--border); text-align: left;
+  }
+  #view-execgm .eip-preview th.num, #view-execgm .eip-preview td.num { text-align: right; }
+  @media print {
+    body.soft-exec-inv-printing * { visibility: hidden !important; }
+    body.soft-exec-inv-printing #soft-exec-inv-print-root,
+    body.soft-exec-inv-printing #soft-exec-inv-print-root * { visibility: visible !important; }
+    body.soft-exec-inv-printing #soft-exec-inv-print-root {
+      position: absolute; left: 0; top: 0; width: 100%; background: #fff; color: #0f172a;
+      padding: 16px;
+    }
+  }
+
   #view-production .prod-top-metrics + .prod-sec-h { margin-top: 4px; }
   #view-production .prod-sec-h > span,
   #view-production .prod-sec-h h3 {
@@ -15663,7 +15772,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-comp-gm-tabs-20260920</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-aging-payout-execpdf-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -52239,6 +52348,25 @@ function mktSendAmplified(searchKey) {
           </label>
         </div>
         <div class="prod-top-metrics" id="prod-top-metrics" aria-label="Production month metrics"></div>
+
+        <div class="prod-aging-strip" id="prod-aging-strip" aria-label="Invoice aging early warning">
+          <div class="prod-aging-head">
+            <strong>Invoice aging</strong>
+            <span class="hint">Outstanding (Invoiced / unpaid Soft Soft cash SoT) · days unpaid from spine/QB invoice date · early warning before Deal write-off. Soft Soft never invents dates or calls QB.</span>
+            <label class="field" style="margin:0;font-size:0.72rem">Board filter
+              <select id="prod-aging-board-filter" style="width:auto;min-width:120px;margin-left:6px">
+                <option value="all" selected>All cash</option>
+                <option value="outstanding">Outstanding only</option>
+                <option value="aging30">Aging 30+</option>
+                <option value="aging60">Aging 60+</option>
+                <option value="aging90">Aging 90+</option>
+              </select>
+            </label>
+          </div>
+          <div class="prod-aging-buckets" id="prod-aging-buckets" role="group" aria-label="Aging buckets"></div>
+          <div id="prod-aging-body"><div class="prod-aging-empty">Loading aging…</div></div>
+        </div>
+
         <div class="prod-sec-h prod-sec-h-tools prod-board-h">
           <span>Business Development</span>
           <p class="lede">Search / retainer bookings. Search # blank at book. Rep = client owner. Whole/Split in Deal detail.</p>
@@ -52761,6 +52889,14 @@ function mktSendAmplified(searchKey) {
         <!-- soft-gm-tab-cleanup-20260920: removed TRACKER TEMPLATE / EXAMPLE explainer -->
         <div class="gm-summary-cards" id="recgm-summary-cards" aria-label="Recruiting GM summary cards"></div>
         <p class="gm-layers-hint" id="recgm-layers-hint">Carry-in is last year’s unpaid; it enters Paid tiers only when Mark paid this year. · Carri AR / Mark paid on Invoice spine.</p>
+
+        <div class="recgm-payout-collected-note" id="recgm-payout-collected-note" role="note">
+          <strong>Payout = collected only.</strong>
+          Rec GM Paid pot · commission / Awards Paid mode count <em>Mark paid / Paid Soft Soft cash SoT</em> only — not booked face.
+          Booked → collected flips when Invoice spine <strong>Mark paid</strong> (or spine/Carri Paid stamp) writes Paid SoT onto linked rows.
+          Unpaid (Invoiced) stays out of payout until collected. Same gate as Awards <strong>Paid</strong> mode.
+        </div>
+
         <div class="gm-stack">
           <div class="gm-card">
             <div class="card-head">
@@ -53038,7 +53174,46 @@ function mktSendAmplified(searchKey) {
         </div>
       </div>
 
-      <div class="card" id="exec-recurring-glance-card">
+      
+      <div class="card exec-inv-pdf-card" id="exec-inv-pdf-card">
+        <h3 style="margin:0 0 6px;font-size:1.05rem">Exec invoice PDFs</h3>
+        <p class="eip-lede">Leadership pull without Carri · Soft Soft board/spine SoT only (never calls QB). Paid / unpaid / aging · per recruiter · per department · company-wide. Browser print → Save as PDF.</p>
+        <div class="eip-toolbar">
+          <label class="field">Report
+            <select id="eip-report">
+              <option value="aging">Aging (outstanding + days unpaid)</option>
+              <option value="unpaid">Unpaid (Invoiced)</option>
+              <option value="paid">Paid (collected)</option>
+            </select>
+          </label>
+          <label class="field">Scope
+            <select id="eip-scope">
+              <option value="company">Company-wide</option>
+              <option value="department">Department</option>
+              <option value="recruiter">Per recruiter</option>
+            </select>
+          </label>
+          <label class="field" id="eip-dept-wrap" hidden>Department
+            <select id="eip-dept">
+              <option value="recruiting">Recruiting</option>
+              <option value="bd">BD</option>
+              <option value="marketing">Marketing</option>
+            </select>
+          </label>
+          <label class="field" id="eip-person-wrap" hidden>Recruiter / rep
+            <select id="eip-person"></select>
+          </label>
+          <label class="field">As-of
+            <input type="date" id="eip-asof" />
+          </label>
+          <button type="button" class="mini-btn teal" id="eip-preview-btn">Preview</button>
+          <button type="button" class="mini-btn" id="eip-print-btn">Print / PDF</button>
+        </div>
+        <div class="eip-preview" id="eip-preview"><div class="ecr-empty">Choose report + scope, then Preview. Print uses browser Save as PDF.</div></div>
+        <div id="soft-exec-inv-print-root" hidden></div>
+      </div>
+
+<div class="card" id="exec-recurring-glance-card">
         <div class="exec-rec-glance">
           <div>
             <h2 style="margin:0 0 4px;font-size:1.05rem">Exec Recurring <span class="badge draft">approve queue</span></h2>
@@ -53061,7 +53236,12 @@ function mktSendAmplified(searchKey) {
         <div class="awards-hint" id="awards-hint">
           <strong>2026 Live · Booked / Paid toggle.</strong> Default <em>Booked</em> (Production books). <em>Paid</em> uses Soft cash SoT = Paid only. Thresholds: Rec Month ≥ 1.5 placements · BD Month ≥ 2 deals. Split owners fractional. Deal count skips monthlies / recurring-off. No EXAMPLE / Carri GM seeds.
         </div>
-        <div class="awards-controls">
+        
+        <p class="lede" id="awards-collected-note" style="font-size:0.78rem;margin:0 0 8px">
+          <strong>Booked → collected:</strong> Awards <em>Paid</em> mode (and Rec GM payout) count Mark paid / Paid Soft Soft cash SoT only.
+          Flip happens on Invoice spine <strong>Mark paid</strong> (or spine/Carri Paid stamp) — booked face never pays out.
+        </p>
+<div class="awards-controls">
           <div>
             <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:650">GM basis</div>
             <div class="awards-cash-seg" id="awards-cash-seg" role="tablist" aria-label="Awards Booked or Paid">
@@ -55231,7 +55411,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-comp-gm-tabs-20260920'; /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-aging-payout-execpdf-20260920'; /* soft-aging-payout-execpdf-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
   
   /* soft-comp-gm-splits-xlsx-20260920 — ONLY SoT: docs/AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx
      Numbers below are copied from Recruiting + BDR tabs ("% of Billed Rev Allocated to GM").
@@ -55239,7 +55419,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
      House 10% on board face = remainder (100-60-30), not a spreadsheet line item. */
   var SOFT_COMP_GM_SPLITS = {
     sourceXlsx: 'AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx',
-    chip: 'soft-comp-gm-tabs-20260920',
+    chip: 'soft-aging-payout-execpdf-20260920',
     recruiting: {
       /* % of Billed Rev Allocated to GM — Recruiting sheet */
       placement: 1.00,
@@ -57755,6 +57935,8 @@ function softIsoDate(v) {
     if (!s.awardsUi.monthKey) s.awardsUi.monthKey = '2026-09';
     if (!s.awardsUi.year) s.awardsUi.year = '2026';
     if (s.awardsUi.cashMode !== 'paid' && s.awardsUi.cashMode !== 'booked') s.awardsUi.cashMode = 'booked'; /* soft-awards-booked-paid-toggle-20260920 */
+    if (!s.prodAgingUi || typeof s.prodAgingUi !== 'object') s.prodAgingUi = { bucket: 'all', boardFilter: 'all' }; /* soft-aging-payout-execpdf-20260920 */
+    if (!s.execInvPdfUi || typeof s.execInvPdfUi !== 'object') s.execInvPdfUi = { report: 'aging', scope: 'company', dept: 'recruiting', person: '', asof: '' };
     if (!s.execCommUi || typeof s.execCommUi !== 'object') s.execCommUi = { event: 'recruiting', payDate: '2026-09-15' };
     if (!s.execCommUi.event) s.execCommUi.event = 'recruiting';
     if (!s.execCommUi.payDate) s.execCommUi.payDate = s.execCommUi.event === 'bd' ? '2026-09-15' : '2026-09-15';
@@ -70714,6 +70896,22 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
   window.__softOpenDealDetail = openDealDetail;
   window.__softOpenMarketingDetail = openMarketingDetail;
   window.__softCHIP = function () { return CHIP; };
+  /* soft-aging-payout-execpdf-20260920 — expose for verify / Exec tooling */
+  try {
+    window.__softAgingPayoutExecPdf = {
+      chip: CHIP,
+      paintProdAgingStrip: paintProdAgingStrip,
+      softCollectInvoiceCashFaces: softCollectInvoiceCashFaces,
+      softPayoutIsCollected: softPayoutIsCollected,
+      softRenderExecInvPdfPreview: softRenderExecInvPdfPreview,
+      softPrintExecInvPdf: softPrintExecInvPdf,
+      paintExecInvPdfChrome: paintExecInvPdfChrome,
+      softFilterInvoiceFaces: softFilterInvoiceFaces,
+      softProdAgingUi: softProdAgingUi,
+      softExecInvPdfUi: softExecInvPdfUi
+    };
+  } catch (eExposeAging) {}
+
   window.__softRenderExecGm = renderExecGm;
   window.__softCloseDealDetail = closeDealDetail;
   window.__softExecSideProdBuildMatrix = execSideProdBuildMatrix; /* soft-exec-rec-bd-matrix-20260920 */
@@ -72385,6 +72583,12 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     var shown = 0;
     state.rows.forEach(function (row) {
       if (filter !== 'all' && row.month !== filter) return;
+      /* soft-aging-payout-execpdf-20260920 — optional outstanding/aging board filter */
+      try {
+        var _ageUi = softProdAgingUi();
+        if (_ageUi && _ageUi.boardFilter && _ageUi.boardFilter !== 'all' && !softRowMatchesAgingBoardFilter(row, _ageUi.boardFilter)) return;
+      } catch (eAgeF) {}
+
       /* soft-live-tidy-20260915b: Soft live Soft — hide Rec/BD GM seed month-lines from Production board (GM boards own them).
          Soft SoT / spine bridges / excelSeed stay visible. Never-shrink Soft rows. */
       if (row.carriGmSeed || row.carriBdGmSeed) return;
@@ -72500,6 +72704,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     /* KPI strip + foot totals from month-filtered rows (live seed OK) */
     var metrics = computeProdMetrics(filter);
     paintProdTopMetrics(metrics);
+    try { paintProdAgingStrip(); } catch (eAge) {}
     appendProdFoot(bdBody, 13, metrics, 'bd');
     appendProdFoot(plBody, 10, metrics, 'pl');
     appendProdFoot(mktBody, 9, metrics, 'mkt');
@@ -73588,8 +73793,8 @@ ownersDetailHtml(row) +
       g.campaign = head.campaign || '';
       g.gmLabel = head.gmLabel || '';
       g.kind = bdGmKindTag(g.rows);
-      g.paid = g.rows.filter(function (r) { return r.paid || r.status === 'Paid'; });
-      g.upcoming = g.rows.filter(function (r) { return !(r.paid || r.status === 'Paid'); });
+      g.paid = g.rows.filter(function (r) { return softPayoutIsCollected(r); });
+      g.upcoming = g.rows.filter(function (r) { return !softPayoutIsCollected(r); });
       g.paidAmt = g.paid.reduce(function (s, r) { return s + bdGmRowAmt(r); }, 0);
       g.openAmt = g.upcoming.reduce(function (s, r) { return s + bdGmRowAmt(r); }, 0);
       return g;
@@ -73626,14 +73831,14 @@ ownersDetailHtml(row) +
     var paidN = g.paid.length;
     var openN = g.upcoming.length;
     var recRows = g.rows.filter(function (r) { return r.isRecurringLine; });
-    var recPaid = recRows.filter(function (r) { return r.paid || r.status === 'Paid'; }).length;
+    var recPaid = recRows.filter(function (r) { return softPayoutIsCollected(r); }).length;
     var init = g.rows.filter(function (r) { return !r.isRecurringLine && r.bookType !== 'Marketing'; });
     var bits = [];
     if (g.kind === 'Marketing') {
       bits.push(openN ? '<strong>Marketing open</strong>' : '<strong>Marketing paid</strong>');
     } else if (recRows.length) {
       if (init.length) {
-        var initPaid = init.every(function (r) { return r.paid || r.status === 'Paid'; });
+        var initPaid = init.every(function (r) { return softPayoutIsCollected(r); });
         bits.push(initPaid ? 'Initiation paid' : 'Initiation open');
       }
       bits.push('<strong>' + recPaid + ' of ' + recRows.length + ' monthlies paid</strong>');
@@ -73745,6 +73950,458 @@ ownersDetailHtml(row) +
     /* soft-spine-sot-wire-20260915f — Unpaid from same spine cash SoT as Production Status. */
     return softResolveCashFromSpine(row) === 'unpaid';
   }
+
+  /* ========== soft-aging-payout-execpdf-20260920 — aging · payout-on-collected · Exec invoice PDFs ========== */
+  function softTodayIsoLocal() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function softAgingDaysBetween(invIso, asofIso) {
+    var a = null, b = null;
+    try {
+      if (typeof parseIsoDate === 'function') {
+        a = parseIsoDate(invIso);
+        b = parseIsoDate(asofIso);
+      }
+    } catch (e0) {}
+    if (!a || !b) {
+      var pa = String(invIso || '').slice(0, 10);
+      var pb = String(asofIso || '').slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(pa) || !/^\d{4}-\d{2}-\d{2}$/.test(pb)) return null;
+      a = new Date(pa + 'T12:00:00');
+      b = new Date(pb + 'T12:00:00');
+    }
+    if (!a || !b || isNaN(a.getTime()) || isNaN(b.getTime())) return null;
+    var days = Math.round((b.getTime() - a.getTime()) / 86400000);
+    return days < 0 ? 0 : days;
+  }
+  function softAgingBucket(days) {
+    if (days == null || days < 0) return 'unknown';
+    if (days <= 30) return 'b30';
+    if (days <= 60) return 'b60';
+    if (days <= 90) return 'b90';
+    return 'b90p';
+  }
+  function softAgingBucketLabel(key) {
+    return ({ b30: '0–30d', b60: '31–60d', b90: '61–90d', b90p: '90d+', unknown: 'No date', all: 'All open' })[key] || key;
+  }
+  /** Invoice face for aging — spine/QB dates only; cash SoT Paid|Invoiced|Booked; never invent. */
+  function softCollectInvoiceCashFaces(opts) {
+    opts = opts || {};
+    var asof = String(opts.asof || softTodayIsoLocal()).slice(0, 10);
+    var out = [];
+    var seen = {};
+    function pushFace(face) {
+      if (!face) return;
+      var key = String(face.qb || face.id || '') + '|' + String(face.client || '') + '|' + String(face.amount || 0);
+      if (seen[key]) return;
+      seen[key] = true;
+      out.push(face);
+    }
+    function cashFromStatus(st) {
+      st = String(st || '');
+      if (st === 'Paid') return 'paid';
+      if (st === 'Invoiced') return 'unpaid';
+      if (st === 'Booked') return 'booked';
+      return 'booked';
+    }
+    try {
+      if (typeof getSpineInvoice === 'function' && typeof SPINE_INVOICES !== 'undefined' && Array.isArray(SPINE_INVOICES)) {
+        SPINE_INVOICES.forEach(function (base) {
+          if (!base || !base.id) return;
+          var inv = getSpineInvoice(base.id);
+          if (!inv) return;
+          if (inv.example || inv.exampleInvoice) return;
+          var cash = cashFromStatus(inv.status);
+          var invDate = String(inv.date || base.date || '').slice(0, 10);
+          if (invDate && !/^\d{4}-\d{2}-\d{2}$/.test(invDate)) invDate = '';
+          var days = (cash === 'unpaid' && invDate) ? softAgingDaysBetween(invDate, asof) : null;
+          pushFace({
+            id: inv.id,
+            qb: String(inv.qbNumber || inv.qbInvoice || base.qbNumber || '').trim(),
+            client: inv.client || '',
+            searchRefs: inv.searchRefs || '',
+            amount: Number(inv.amount) || 0,
+            openBalance: Number(inv.openBalance != null ? inv.openBalance : (cash === 'paid' ? 0 : inv.amount)) || 0,
+            date: invDate,
+            paidDate: inv.paidDate ? String(inv.paidDate).slice(0, 10) : '',
+            status: inv.status,
+            cash: cash,
+            daysUnpaid: days,
+            bucket: softAgingBucket(days),
+            department: softInvoiceDepartment(inv),
+            people: softInvoicePeople(inv),
+            source: 'spine'
+          });
+        });
+      }
+    } catch (eSp) {}
+    /* Production rows with QB face — fill gaps; never invent dates */
+    try {
+      var idx = (typeof softBuildSpineCashIndex === 'function') ? softBuildSpineCashIndex(state) : {};
+      (state.rows || []).forEach(function (row) {
+        if (!row || row.example || row.carriGmSeed || row.carriBdGmSeed) return;
+        if (typeof softIsProdVisibleRow === 'function' && !softIsProdVisibleRow(row)) return;
+        var cash = (typeof softResolveCashFromSpine === 'function') ? softResolveCashFromSpine(row, idx) : 'booked';
+        var qb = String(row.qbInvoice || row.qbNumber || '').trim();
+        var invDate = '';
+        if (row.invoiceDate) invDate = String(row.invoiceDate).slice(0, 10);
+        else if (row.qbDate) invDate = String(row.qbDate).slice(0, 10);
+        else if (row.date && cash !== 'booked') invDate = String(row.date).slice(0, 10);
+        if (invDate && !/^\d{4}-\d{2}-\d{2}$/.test(invDate)) invDate = '';
+        /* Prefer spine face when QB already listed */
+        if (qb && seen[qb + '|' + String(row.client || '') + '|']) return;
+        var amt = 0;
+        try { amt = (typeof softProdRowAmt === 'function') ? softProdRowAmt(row) : (Number(row.fee || row.accountingBilled || 0) || 0); } catch (eA) { amt = Number(row.fee || row.accountingBilled || 0) || 0; }
+        var days = (cash === 'unpaid' && invDate) ? softAgingDaysBetween(invDate, asof) : null;
+        pushFace({
+          id: row.id,
+          qb: qb,
+          client: row.client || row.facility || '',
+          searchRefs: row.searchRefs || row.dealRef || row.searchNumber || '',
+          amount: amt,
+          openBalance: cash === 'paid' ? 0 : amt,
+          date: invDate,
+          paidDate: row.paidDate ? String(row.paidDate).slice(0, 10) : '',
+          status: cash === 'paid' ? 'Paid' : (cash === 'unpaid' ? 'Invoiced' : 'Booked'),
+          cash: cash,
+          daysUnpaid: days,
+          bucket: softAgingBucket(days),
+          department: softRowDepartment(row),
+          people: softRowPeople(row),
+          source: 'production'
+        });
+      });
+    } catch (ePr) {}
+    return out;
+  }
+  function softInvoiceDepartment(inv) {
+    var ag = String((inv && (inv.agreement || inv.kind || '')) || '').toLowerCase();
+    if (/market/.test(ag)) return 'marketing';
+    if (/place|recruit|fee/.test(ag)) return 'recruiting';
+    return 'bd';
+  }
+  function softRowDepartment(row) {
+    if (!row) return 'bd';
+    if (row.bookType === 'Placement') return 'recruiting';
+    if (row.bookType === 'Marketing') return 'marketing';
+    return 'bd';
+  }
+  function softInvoicePeople(inv) {
+    var names = [];
+    var o = (inv && inv.owners) || {};
+    function add(n) { n = String(n || '').trim(); if (n && names.indexOf(n) < 0) names.push(n); }
+    if (o.primary) add(typeof o.primary === 'string' ? o.primary : o.primary.name);
+    if (o.bdA) add(o.bdA.name); if (o.bdB) add(o.bdB.name);
+    if (o.a) add(o.a.name); if (o.b) add(o.b.name);
+    if (o.recruiter) add(o.recruiter.name);
+    if (o.repeatRecipient) add(o.repeatRecipient.name);
+    (o.reps || []).forEach(function (r) { add(r.name); });
+    return names;
+  }
+  function softRowPeople(row) {
+    var names = [];
+    function add(n) { n = String(n || '').trim(); if (n && names.indexOf(n) < 0) names.push(n); }
+    add(row.rep); add(row.recruiter); add(row.repeatRep); add(row.marketer); add(row.researchRep);
+    try {
+      if (typeof ensureOwners === 'function') ensureOwners(row);
+      var o = row.owners || {};
+      if (o.primary) add(typeof o.primary === 'string' ? o.primary : o.primary.name);
+      if (o.bdA) add(o.bdA.name); if (o.bdB) add(o.bdB.name);
+      if (o.a) add(o.a.name); if (o.b) add(o.b.name);
+      if (o.recruiter) add(o.recruiter.name);
+      if (o.repeatRecipient) add(o.repeatRecipient.name);
+      (o.reps || []).forEach(function (r) { add(r.name); });
+    } catch (eO) {}
+    return names;
+  }
+  function softPayoutIsCollected(row) {
+    /* soft-aging-payout-execpdf-20260920 — same Paid gate as Awards Paid mode */
+    try {
+      if (typeof awardsRowIsPaid === 'function') return awardsRowIsPaid(row);
+      if (typeof softGmIsPaidSoT === 'function') return softGmIsPaidSoT(row);
+      if (typeof softResolveCashFromSpine === 'function') return softResolveCashFromSpine(row) === 'paid';
+    } catch (e) {}
+    return !!(row && (row.paid || row.status === 'Paid' || row.gmCashState === 'paid'));
+  }
+  function softFilterInvoiceFaces(faces, opts) {
+    opts = opts || {};
+    var report = opts.report || 'aging';
+    var scope = opts.scope || 'company';
+    var dept = opts.dept || 'recruiting';
+    var person = opts.person || '';
+    return (faces || []).filter(function (f) {
+      if (!f) return false;
+      if (report === 'paid' && f.cash !== 'paid') return false;
+      if (report === 'unpaid' && f.cash !== 'unpaid') return false;
+      if (report === 'aging' && f.cash !== 'unpaid') return false;
+      if (scope === 'department' && f.department !== dept) return false;
+      if (scope === 'recruiter') {
+        if (!person) return false;
+        if ((f.people || []).indexOf(person) < 0) return false;
+      }
+      return true;
+    });
+  }
+  function softProdAgingUi() {
+    if (!state.prodAgingUi || typeof state.prodAgingUi !== 'object') {
+      state.prodAgingUi = { bucket: 'all', boardFilter: 'all' };
+    }
+    if (!state.prodAgingUi.bucket) state.prodAgingUi.bucket = 'all';
+    if (!state.prodAgingUi.boardFilter) state.prodAgingUi.boardFilter = 'all';
+    return state.prodAgingUi;
+  }
+  function softRowMatchesAgingBoardFilter(row, filter, asof) {
+    if (!filter || filter === 'all') return true;
+    var cash = (typeof softResolveCashFromSpine === 'function') ? softResolveCashFromSpine(row) : 'booked';
+    if (filter === 'outstanding') return cash === 'unpaid';
+    if (cash !== 'unpaid') return false;
+    var invDate = '';
+    if (row.invoiceDate) invDate = String(row.invoiceDate).slice(0, 10);
+    else if (row.qbDate) invDate = String(row.qbDate).slice(0, 10);
+    else if (row.date) invDate = String(row.date).slice(0, 10);
+    /* Prefer spine date when QB known */
+    try {
+      var qb = String(row.qbInvoice || row.qbNumber || '').trim();
+      if (qb && typeof getSpineInvoice === 'function' && typeof SPINE_INVOICES !== 'undefined') {
+        for (var i = 0; i < SPINE_INVOICES.length; i++) {
+          var base = SPINE_INVOICES[i];
+          if (!base) continue;
+          var q = String(base.qbNumber || base.id || '');
+          if (q === qb) {
+            var inv = getSpineInvoice(base.id);
+            if (inv && inv.date) invDate = String(inv.date).slice(0, 10);
+            break;
+          }
+        }
+      }
+    } catch (e) {}
+    var days = softAgingDaysBetween(invDate, asof || softTodayIsoLocal());
+    if (days == null) return filter === 'outstanding';
+    if (filter === 'aging30') return days >= 30;
+    if (filter === 'aging60') return days >= 60;
+    if (filter === 'aging90') return days >= 90;
+    return true;
+  }
+  function paintProdAgingStrip() {
+    var root = document.getElementById('prod-aging-strip');
+    if (!root) return;
+    var ui = softProdAgingUi();
+    var asof = softTodayIsoLocal();
+    var faces = softCollectInvoiceCashFaces({ asof: asof }).filter(function (f) { return f.cash === 'unpaid'; });
+    var counts = { all: faces.length, b30: 0, b60: 0, b90: 0, b90p: 0, unknown: 0 };
+    var openSum = 0;
+    faces.forEach(function (f) {
+      openSum += Number(f.openBalance || f.amount) || 0;
+      var b = f.bucket || 'unknown';
+      if (counts[b] == null) counts[b] = 0;
+      counts[b]++;
+    });
+    var bucketsEl = document.getElementById('prod-aging-buckets');
+    if (bucketsEl) {
+      bucketsEl.innerHTML = ['all', 'b30', 'b60', 'b90', 'b90p'].map(function (k) {
+        var n = counts[k] || 0;
+        return '<button type="button" class="prod-aging-bucket' + (ui.bucket === k ? ' active' : '') +
+          '" data-aging-bucket="' + k + '">' + softAgingBucketLabel(k) + ' · ' + n + '</button>';
+      }).join('');
+    }
+    var boardSel = document.getElementById('prod-aging-board-filter');
+    if (boardSel && document.activeElement !== boardSel) boardSel.value = ui.boardFilter || 'all';
+    var body = document.getElementById('prod-aging-body');
+    if (!body) return;
+    var list = faces.filter(function (f) {
+      if (ui.bucket === 'all') return true;
+      return f.bucket === ui.bucket;
+    }).sort(function (a, b) {
+      var da = a.daysUnpaid == null ? -1 : a.daysUnpaid;
+      var db = b.daysUnpaid == null ? -1 : b.daysUnpaid;
+      return db - da;
+    });
+    if (!list.length) {
+      body.innerHTML = '<div class="prod-aging-empty">No outstanding (Invoiced) invoices for this filter · Soft Soft cash SoT.</div>';
+      return;
+    }
+    var rows = list.slice(0, 40).map(function (f) {
+      var days = f.daysUnpaid;
+      var daysCls = 'prod-aging-days';
+      if (days != null && days >= 90) daysCls += ' hot';
+      else if (days != null && days >= 60) daysCls += ' warn';
+      var daysTxt = days == null ? '—' : (String(days) + 'd');
+      return '<tr>' +
+        '<td><strong>' + escHtml(f.qb || '—') + '</strong></td>' +
+        '<td>' + escHtml(f.client || '—') +
+          (f.searchRefs ? '<div style="font-size:11px;opacity:.75">' + escHtml(f.searchRefs) + '</div>' : '') + '</td>' +
+        '<td class="num">' + (typeof money === 'function' ? money(f.openBalance || f.amount) : String(f.openBalance || f.amount)) + '</td>' +
+        '<td>' + escHtml(f.date || '—') + '</td>' +
+        '<td class="' + daysCls + '">' + daysTxt + '</td>' +
+        '<td>' + escHtml(f.department || '') + '</td>' +
+        '</tr>';
+    }).join('');
+    body.innerHTML =
+      '<div style="font-size:0.72rem;margin-bottom:6px;opacity:.9">Open ' +
+      (typeof money === 'function' ? money(openSum) : String(openSum)) +
+      ' · ' + faces.length + ' outstanding · as-of ' + escHtml(asof) +
+      ' · early warning before Deal write-off</div>' +
+      '<table class="prod-aging-table"><thead><tr>' +
+      '<th>QB #</th><th>Client</th><th class="num">Open</th><th>Invoice date</th><th>Days unpaid</th><th>Dept</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>' +
+      (list.length > 40 ? '<div class="prod-aging-empty">Showing 40 of ' + list.length + ' — use Exec invoice PDFs for full pull.</div>' : '');
+  }
+  function softExecInvPdfUi() {
+    if (!state.execInvPdfUi || typeof state.execInvPdfUi !== 'object') {
+      state.execInvPdfUi = { report: 'aging', scope: 'company', dept: 'recruiting', person: '', asof: softTodayIsoLocal() };
+    }
+    if (!state.execInvPdfUi.asof) state.execInvPdfUi.asof = softTodayIsoLocal();
+    return state.execInvPdfUi;
+  }
+  function softExecInvPdfPeopleOptions() {
+    var set = {};
+    (typeof REC_PEOPLE !== 'undefined' ? REC_PEOPLE : []).forEach(function (p) { set[p] = true; });
+    (typeof BD_PEOPLE !== 'undefined' ? BD_PEOPLE : []).forEach(function (p) { set[p] = true; });
+    softCollectInvoiceCashFaces({}).forEach(function (f) {
+      (f.people || []).forEach(function (n) { if (n) set[n] = true; });
+    });
+    return Object.keys(set).sort();
+  }
+  function softBuildExecInvPdfReport() {
+    var ui = softExecInvPdfUi();
+    var faces = softFilterInvoiceFaces(softCollectInvoiceCashFaces({ asof: ui.asof }), ui);
+    faces.sort(function (a, b) {
+      if (ui.report === 'paid') return String(b.paidDate || b.date || '').localeCompare(String(a.paidDate || a.date || ''));
+      var da = a.daysUnpaid == null ? -1 : a.daysUnpaid;
+      var db = b.daysUnpaid == null ? -1 : b.daysUnpaid;
+      if (db !== da) return db - da;
+      return String(b.date || '').localeCompare(String(a.date || ''));
+    });
+    var total = faces.reduce(function (s, f) {
+      return s + (Number(ui.report === 'paid' ? f.amount : (f.openBalance || f.amount)) || 0);
+    }, 0);
+    return { ui: ui, faces: faces, total: total, stamp: CHIP, asof: ui.asof };
+  }
+  function softRenderExecInvPdfPreview() {
+    var report = softBuildExecInvPdfReport();
+    var host = document.getElementById('eip-preview');
+    if (!host) return report;
+    if (!report.faces.length) {
+      host.innerHTML = '<div class="ecr-empty">No lines for this report/scope · Soft Soft cash SoT only.</div>';
+      return report;
+    }
+    var headDays = report.ui.report === 'aging' || report.ui.report === 'unpaid';
+    var rows = report.faces.map(function (f) {
+      return '<tr>' +
+        '<td>' + escHtml(f.qb || '—') + '</td>' +
+        '<td>' + escHtml(f.client || '—') + '</td>' +
+        '<td>' + escHtml((f.people || []).join(', ') || '—') + '</td>' +
+        '<td>' + escHtml(f.department || '') + '</td>' +
+        '<td>' + escHtml(f.status || '') + '</td>' +
+        '<td>' + escHtml(f.date || '—') + '</td>' +
+        (headDays ? ('<td class="num">' + (f.daysUnpaid == null ? '—' : f.daysUnpaid) + '</td>') : ('<td>' + escHtml(f.paidDate || '—') + '</td>')) +
+        '<td class="num">' + (typeof money === 'function' ? money(report.ui.report === 'paid' ? f.amount : (f.openBalance || f.amount)) : '') + '</td>' +
+        '</tr>';
+    }).join('');
+    host.innerHTML =
+      '<div style="margin-bottom:8px"><strong>' + escHtml(report.ui.report) + '</strong> · ' +
+      escHtml(report.ui.scope) +
+      (report.ui.scope === 'department' ? (' · ' + escHtml(report.ui.dept)) : '') +
+      (report.ui.scope === 'recruiter' ? (' · ' + escHtml(report.ui.person)) : '') +
+      ' · ' + report.faces.length + ' lines · ' + (typeof money === 'function' ? money(report.total) : '') +
+      ' · as-of ' + escHtml(report.asof) + ' · CHIP ' + escHtml(report.stamp) + '</div>' +
+      '<table><thead><tr><th>QB</th><th>Client</th><th>People</th><th>Dept</th><th>Status</th><th>Inv date</th><th>' +
+      (headDays ? 'Days unpaid' : 'Paid date') + '</th><th class="num">$</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    return report;
+  }
+  function softPrintExecInvPdf() {
+    var report = softRenderExecInvPdfPreview();
+    var root = document.getElementById('soft-exec-inv-print-root');
+    if (!root) return;
+    var prev = document.getElementById('eip-preview');
+    root.hidden = false;
+    root.innerHTML =
+      '<h1 style="margin:0 0 8px;font-size:18px">AMP Soft Soft · Invoice report</h1>' +
+      '<p style="margin:0 0 12px;font-size:12px">Soft Soft cash SoT · never calls QB · ' + escHtml(new Date().toLocaleString()) + '</p>' +
+      (prev ? prev.innerHTML : '');
+    document.body.classList.add('soft-exec-inv-printing');
+    try { window.print(); } catch (eP) {}
+    setTimeout(function () {
+      document.body.classList.remove('soft-exec-inv-printing');
+      root.hidden = true;
+    }, 400);
+  }
+  function paintExecInvPdfChrome() {
+    var ui = softExecInvPdfUi();
+    var rep = document.getElementById('eip-report');
+    var scope = document.getElementById('eip-scope');
+    var dept = document.getElementById('eip-dept');
+    var person = document.getElementById('eip-person');
+    var asof = document.getElementById('eip-asof');
+    var deptWrap = document.getElementById('eip-dept-wrap');
+    var personWrap = document.getElementById('eip-person-wrap');
+    if (rep) rep.value = ui.report;
+    if (scope) scope.value = ui.scope;
+    if (dept) dept.value = ui.dept;
+    if (asof && asof.value !== ui.asof) {
+      try { asof.value = ui.asof; } catch (e) {}
+    }
+    if (deptWrap) deptWrap.hidden = ui.scope !== 'department';
+    if (personWrap) personWrap.hidden = ui.scope !== 'recruiter';
+    if (person) {
+      var opts = softExecInvPdfPeopleOptions();
+      person.innerHTML = opts.map(function (n) {
+        return '<option value="' + escHtml(n) + '"' + (ui.person === n ? ' selected' : '') + '>' + escHtml(n) + '</option>';
+      }).join('') || '<option value="">—</option>';
+      if (!ui.person && opts.length) ui.person = opts[0];
+      if (ui.person) person.value = ui.person;
+    }
+  }
+  (function wireProdAgingAndExecInvPdf() {
+    if (window.__softAgingExecPdfWired) return;
+    window.__softAgingExecPdfWired = true;
+    document.addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('[data-aging-bucket]') : null;
+      if (btn) {
+        var ui = softProdAgingUi();
+        ui.bucket = btn.getAttribute('data-aging-bucket') || 'all';
+        try { if (typeof saveState === 'function') saveState(); } catch (eS) {}
+        paintProdAgingStrip();
+        return;
+      }
+    });
+    var boardSel = document.getElementById('prod-aging-board-filter');
+    if (boardSel) boardSel.addEventListener('change', function () {
+      var ui = softProdAgingUi();
+      ui.boardFilter = boardSel.value || 'all';
+      try { if (typeof saveState === 'function') saveState(); } catch (eS) {}
+      try { if (typeof renderProduction === 'function') renderProduction(); } catch (eR) {}
+    });
+    ['eip-report', 'eip-scope', 'eip-dept', 'eip-person', 'eip-asof'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('change', function () {
+        var ui = softExecInvPdfUi();
+        if (id === 'eip-report') ui.report = el.value;
+        if (id === 'eip-scope') ui.scope = el.value;
+        if (id === 'eip-dept') ui.dept = el.value;
+        if (id === 'eip-person') ui.person = el.value;
+        if (id === 'eip-asof') ui.asof = (el.value || softTodayIsoLocal()).slice(0, 10);
+        try { if (typeof saveState === 'function') saveState(); } catch (eS) {}
+        paintExecInvPdfChrome();
+      });
+    });
+    var prevBtn = document.getElementById('eip-preview-btn');
+    var printBtn = document.getElementById('eip-print-btn');
+    if (prevBtn) prevBtn.addEventListener('click', function () {
+      paintExecInvPdfChrome();
+      softRenderExecInvPdfPreview();
+      try { toast('Exec invoice report preview'); } catch (eT) {}
+    });
+    if (printBtn) printBtn.addEventListener('click', function () {
+      paintExecInvPdfChrome();
+      softPrintExecInvPdf();
+    });
+    try { paintExecInvPdfChrome(); } catch (eC) {}
+  })();
+
+
   function bdGmIsBoardMoney(row) {
     if (!row) return false;
     if (softGmIsPaidSoT(row) || softGmIsUnpaidSoT(row)) return true;

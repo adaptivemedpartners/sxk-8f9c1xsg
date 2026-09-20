@@ -1,0 +1,20 @@
+{
+  "chip": "soft-aging-payout-execpdf-20260920",
+  "ver": "soft-aging-payout-execpdf-20260920",
+  "chipOk": true,
+  "wentProd": true,
+  "agingStrip": true,
+  "agingHasBuckets": true,
+  "faces": 571,
+  "unpaid": 355,
+  "wentRec": true,
+  "recNote": true,
+  "payoutFn": "function",
+  "wentExec": true,
+  "execPdfCard": true,
+  "previewLen": 62166,
+  "previewHasTable": true,
+  "locksInSource": true,
+  "ok": true,
+  "pageErrors": []
+}
