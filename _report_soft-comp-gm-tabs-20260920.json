@@ -1,0 +1,78 @@
+{
+  "out": {
+    "chip": "soft-comp-gm-tabs-20260920",
+    "ver": "soft-comp-gm-tabs-20260920",
+    "expect": "soft-comp-gm-tabs-20260920",
+    "chipOk": true,
+    "pills": [
+      {
+        "pill": "board",
+        "label": "Board",
+        "active": true
+      },
+      {
+        "pill": "gm",
+        "label": "GM",
+        "active": false
+      },
+      {
+        "pill": "recruiting-comp",
+        "label": "Recruiting",
+        "active": false
+      },
+      {
+        "pill": "bd-hub-comp",
+        "label": "BD Hub",
+        "active": false
+      }
+    ],
+    "recChecks": {
+      "clicked": true,
+      "hasWrap": true,
+      "hasAssociate": true,
+      "hasPrincipal": true,
+      "hasPlacement100": true,
+      "hasOffContract75": true,
+      "hasHqInterview": true,
+      "hasInitialDm60": true,
+      "hasSecondary70": true,
+      "hasRepeatRetainer30": true,
+      "hasPerfFirst50": true,
+      "hasExec30k": true,
+      "hasBonus4Net": true,
+      "hasFootnoteKicker": true,
+      "hasFootnoteCrm": true,
+      "hasOwnerNote": true,
+      "hasBd60": true,
+      "hasRec30": true,
+      "activePill": true
+    },
+    "bdChecks": {
+      "clicked": true,
+      "hasWrap": true,
+      "hasNonMarketing": true,
+      "hasCoordinator": true,
+      "hasBdr": true,
+      "hasSenior": true,
+      "hasNewUpfront100": true,
+      "hasHqInitial100": true,
+      "hasRepeat60": true,
+      "hasInitialDm20": true,
+      "hasOffContract25": true,
+      "hasAllied": true,
+      "hasPerfBonus10": true,
+      "hasFootnoteSdr": true,
+      "hasOwnerNote": true,
+      "activePill": true
+    },
+    "stampOk": true,
+    "eventCounts": {
+      "rec": 16,
+      "bdr": 15,
+      "recNotes": 11,
+      "bdrNotes": 12
+    },
+    "ok": true
+  },
+  "pageErrors": []
+}

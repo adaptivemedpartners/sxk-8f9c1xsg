@@ -3,6 +3,7 @@
 <head>
 <script>
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
+/* soft-comp-gm-tabs-20260920 — Soft Soft work pills Recruiting + BD Hub from Comp & GM splits xlsx (tiers L1–L5, all billable events + %, footnotes; Soft Soft repeat owner face BD60/Rec30/House10 remainder). Soft only. Never Hub. */
 /* soft-comp-gm-splits-xlsx-20260920 — Comp SoT from AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx: BDR Repeat Up Front 60% + Recruiting Repeat Retainer 30%; House 10% = board-face remainder (100-60-30), NOT a spreadsheet line. Soft Soft standing rule + Bibb 17082 Nate. Soft only. Never Hub. */
 /* soft-repeat-gm-60-30-10-20260920 — standing Soft Soft rule: Repeat deals → 60% BD / 30% repeat recruiter / 10% House (skip softGmSplitOverride); Bibb QB 17082 Nate 30% lock. Soft only. Never Hub. */
 /* soft-spine-b-booked-invoiced-20260920 — restore ensureSoftProdQbFromCarriSeeds (Booked→Invoiced QB stamp + Byrd/CHDI Invoiced→Paid); softProdClientsClose inheritance; deferred Booked lock kept. Soft only. Never Hub. */
@@ -15234,6 +15235,61 @@ body[data-theme="sunset"] {
   --look-theme-glow: rgba(245, 158, 11, 0.5);
 }
 
+/* soft-comp-gm-tabs-20260920 — Recruiting + BD Hub Comp reference tables */
+.soft-comp-wrap { max-width: 1100px; margin: 0 auto; padding: 4px 0 28px; }
+.soft-comp-wrap .card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px 16px; margin-bottom: 12px; color: var(--text);
+}
+.soft-comp-wrap .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.soft-comp-wrap .card-head h2 { margin: 0; font-size: 1.15rem; font-weight: 750; color: var(--text); letter-spacing: -0.02em; }
+.soft-comp-wrap .card-head .meta { font-size: 12px; color: var(--muted); }
+.soft-comp-wrap .lede { margin: 0 0 12px; font-size: 13px; color: var(--muted); line-height: 1.45; }
+.soft-comp-wrap .soft-comp-note {
+  font-size: 12.5px; line-height: 1.45; color: var(--text);
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel-2, var(--panel)));
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: 10px; padding: 10px 12px; margin: 0 0 14px;
+}
+.soft-comp-wrap .soft-comp-note strong { color: var(--accent-2, var(--accent)); }
+.soft-comp-wrap .sec-h {
+  font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--muted); margin: 14px 0 8px;
+}
+.soft-comp-wrap .table-wrap {
+  overflow-x: auto; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--panel-2, var(--panel));
+}
+.soft-comp-wrap table.soft-comp-table {
+  width: 100%; border-collapse: collapse; font-size: 13px; color: var(--text);
+}
+.soft-comp-wrap table.soft-comp-table th,
+.soft-comp-wrap table.soft-comp-table td {
+  padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top;
+}
+.soft-comp-wrap table.soft-comp-table thead th {
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+  font-weight: 700; font-size: 12px; color: var(--text); white-space: nowrap;
+}
+.soft-comp-wrap table.soft-comp-table td.num,
+.soft-comp-wrap table.soft-comp-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.soft-comp-wrap table.soft-comp-table tr.soft-comp-hi td {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.soft-comp-wrap table.soft-comp-table tr:last-child td { border-bottom: none; }
+.soft-comp-wrap .soft-comp-agree { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.soft-comp-wrap ul.soft-comp-notes {
+  margin: 0; padding: 0 0 0 18px; font-size: 12.5px; color: var(--text); line-height: 1.5;
+}
+.soft-comp-wrap ul.soft-comp-notes li { margin: 0 0 6px; }
+.soft-comp-wrap .soft-comp-src { font-size: 11.5px; color: var(--muted); margin-top: 10px; }
+html[data-look="light"] .soft-comp-wrap .soft-comp-note {
+  background: #ecfdf5; border-color: #99f6e4; color: #0f172a;
+}
+html[data-look="light"] .soft-comp-wrap .soft-comp-note strong { color: #0f766e; }
+html[data-look="dark"] .soft-comp-wrap .table-wrap {
+  background: color-mix(in srgb, var(--panel) 92%, #000);
+}
 /* Soft GM work-pill + soft-flow acct pills: Look glow/border like other Soft tabs */
 .work-pill.active {
   background: color-mix(in srgb, var(--look-accent, var(--accent)) 22%, var(--panel)) !important;
@@ -15607,7 +15663,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-comp-gm-splits-xlsx-20260920</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-comp-gm-tabs-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -15688,6 +15744,8 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
       <button type="button" class="work-pill" data-pill="pipeline">Pipeline</button>
       <button type="button" class="work-pill active" data-pill="board">Board</button>
       <button type="button" class="work-pill" data-pill="gm">GM</button>
+      <button type="button" class="work-pill" data-pill="recruiting-comp">Recruiting</button>
+      <button type="button" class="work-pill" data-pill="bd-hub-comp">BD Hub</button>
       <button type="button" class="work-pill" data-pill="interviews">Interviews</button>
       <button type="button" class="work-pill" data-pill="responses">Responses</button>
       <button type="button" class="work-pill" data-pill="weekly">Weekly</button>
@@ -37413,8 +37471,9 @@ window.SNAP = {
     if (pill === "weekly") return true;
     if (pill === "basecamp") return true;
     if (pill === "accounting") return true;
+    if (pill === "recruiting-comp" || pill === "bd-hub-comp") return true;
     if (pill === "exec") return hasCap("hub.exec");
-    return pill === "board" || pill === "interviews" || pill === "weekend" || pill === "gm" || pill === "pipeline" || pill === "production" || pill === "basecamp" || pill === "responses" || pill === "accounting";
+    return pill === "board" || pill === "interviews" || pill === "weekend" || pill === "gm" || pill === "pipeline" || pill === "production" || pill === "basecamp" || pill === "responses" || pill === "accounting" || pill === "recruiting-comp" || pill === "bd-hub-comp";
   }
   function hideMoneyCols() {
     return !hasCap("hub.money");
@@ -37443,7 +37502,7 @@ window.SNAP = {
   }
   function isEditableCol(h) { return !!EDITABLE_COLS[h]; }
   function allowedPills() {
-    var pills = [["weekend", "Weekend"], ["pipeline", "Pipeline"], ["board", "Board"], ["gm", "GM"], ["interviews", "Interviews"], ["responses", "Responses"]];
+    var pills = [["weekend", "Weekend"], ["pipeline", "Pipeline"], ["board", "Board"], ["gm", "GM"], ["recruiting-comp", "Recruiting"], ["bd-hub-comp", "BD Hub"], ["interviews", "Interviews"], ["responses", "Responses"]];
     if (hasCap("hub.weekly") || isRecruiterIdentity()) pills.push(["weekly", "Projections"]);
     pills.push(["production", "Production"]);
     pills.push(["accounting", "Accounting"]);
@@ -37506,6 +37565,8 @@ window.SNAP = {
       togglePillClass("production", pPill === "production");
       togglePillClass("board", pPill === "board");
       togglePillClass("gm", pPill === "gm");
+      togglePillClass("recruiting-comp", pPill === "recruiting-comp");
+      togglePillClass("bd-hub-comp", pPill === "bd-hub-comp");
       togglePillClass("accounting", pPill === "accounting");
       togglePillClass("basecamp", pPill === "basecamp");
       togglePillClass("exec", pPill === "exec");
@@ -49062,6 +49123,14 @@ function mktSendAmplified(searchKey) {
     else if (STATE.pill === "weekend") renderWeekend();
     else if (STATE.pill === "production") renderProduction();
     else if (STATE.pill === "gm") renderGM();
+    else if (STATE.pill === "recruiting-comp") {
+      if (typeof window.__softMessRenderRecruitingComp === "function") window.__softMessRenderRecruitingComp($("view"));
+      else $("view").innerHTML = '<div class="card"><div class="empty"><strong>Recruiting</strong>Soft Comp bridge missing.</div></div>';
+    }
+    else if (STATE.pill === "bd-hub-comp") {
+      if (typeof window.__softMessRenderBdHubComp === "function") window.__softMessRenderBdHubComp($("view"));
+      else $("view").innerHTML = '<div class="card"><div class="empty"><strong>BD Hub</strong>Soft Comp bridge missing.</div></div>';
+    }
     else if (STATE.pill === "accounting") {
       if (typeof window.__softMessRenderAccounting === "function") window.__softMessRenderAccounting(STATE, $("view"));
       else $("view").innerHTML = '<div class="card"><div class="empty"><strong>Accounting</strong>Soft bridge missing.</div></div>';
@@ -55162,7 +55231,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-comp-gm-splits-xlsx-20260920'; /* soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-comp-gm-tabs-20260920'; /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
   
   /* soft-comp-gm-splits-xlsx-20260920 — ONLY SoT: docs/AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx
      Numbers below are copied from Recruiting + BDR tabs ("% of Billed Rev Allocated to GM").
@@ -55170,9 +55239,9 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
      House 10% on board face = remainder (100-60-30), not a spreadsheet line item. */
   var SOFT_COMP_GM_SPLITS = {
     sourceXlsx: 'AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx',
-    chip: 'soft-comp-gm-splits-xlsx-20260920',
+    chip: 'soft-comp-gm-tabs-20260920',
     recruiting: {
-      /* % of Billed Rev Allocated to GM */
+      /* % of Billed Rev Allocated to GM — Recruiting sheet */
       placement: 1.00,
       offContractContingentPlacement: 0.75,
       hqInterview: 1.00,
@@ -55198,23 +55267,114 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
       houseRemainderPct: 10,  /* face remainder 100-60-30 — NOT an xlsx line item */
       houseRemainderNote: 'Board-face remainder (100-60-30); spreadsheet has no House 10% line'
     },
-    /* Paid-of-collected GM tiers L1–L5 (Rec + BDR) */
+    /* Paid-of-collected GM tiers L1–L5 (Rec + BDR) — verbatim level headers from xlsx */
     paidOfCollectedTiers: {
+      levelHeaders: [
+        'Level 1: $0 to $100k',
+        'Level 2: $100k to $175k',
+        'Level 3: $175k to 250k',
+        'Level 4: $250k -300k',
+        'Level 5: $300k + '
+      ],
       levels: ['L1 $0-100k', 'L2 $100k-175k', 'L3 $175k-250k', 'L4 $250k-300k', 'L5 $300k+'],
       recruiting: {
+        rows: [
+          { level: 'Associate Recruiter', pcts: [0.08, 0.12, 0.16, 0.20, 0.24] },
+          { level: 'Recruiting Specialist', pcts: [0.10, 0.14, 0.18, 0.22, 0.26] },
+          { level: 'Senior Recruiting Specialist/Manager', pcts: [0.12, 0.16, 0.20, 0.24, 0.28] },
+          { level: 'Principal & Managing Director', pcts: [0.14, 0.18, 0.22, 0.26, 0.30] }
+        ],
         associateRecruiter: [0.08, 0.12, 0.16, 0.20, 0.24],
         recruitingSpecialist: [0.10, 0.14, 0.18, 0.22, 0.26],
         seniorRecruitingSpecialistManager: [0.12, 0.16, 0.20, 0.24, 0.28],
         principalManagingDirector: [0.14, 0.18, 0.22, 0.26, 0.30]
       },
       bdr: {
+        nonMarketingLabel: 'Non-Marketing GM',
+        rows: [
+          { level: 'Business Development Coordinator', pcts: [0.08, 0.12, 0.16, 0.20, 0.24] },
+          { level: 'Business Development Representative', pcts: [0.10, 0.14, 0.18, 0.22, 0.26] },
+          { level: 'Senior Business Development Representative', pcts: [0.12, 0.16, 0.20, 0.24, 0.28] },
+          { level: 'Principal & Managing Director', pcts: [0.14, 0.18, 0.22, 0.26, 0.30] }
+        ],
         businessDevelopmentCoordinator: [0.08, 0.12, 0.16, 0.20, 0.24],
         businessDevelopmentRepresentative: [0.10, 0.14, 0.18, 0.22, 0.26],
         seniorBusinessDevelopmentRepresentative: [0.12, 0.16, 0.20, 0.24, 0.28],
         principalManagingDirector: [0.14, 0.18, 0.22, 0.26, 0.30]
       }
-    }
+    },
+    /* Billable events — full sheet order; pct null + amountPaid for bonus lines */
+    billableEvents: {
+      recruiting: [
+        { agreement: '', event: 'Placement', pct: 1.00 },
+        { agreement: '', event: 'Off Contract/Contingent Placement', pct: 0.75 },
+        { agreement: 'Standard & HQ', event: 'HQ Interview', pct: 1.00 },
+        { agreement: '', event: 'Initial Direct Marketing Sold Per Search', pct: 0.60 },
+        { agreement: '', event: 'Secondary Marketing Campaigns', pct: 0.70 },
+        { agreement: '', event: 'Repeat Retainer', pct: 0.30, softRepeatNote: true },
+        { agreement: 'Performance', event: 'Placement', pct: 1.00 },
+        { agreement: '', event: '1st Interview', pct: 0.50 },
+        { agreement: '', event: 'Repeat Business Up Front Fees', pct: 0.30 },
+        { agreement: 'Executive', event: 'Placement fee up to $30,000', pct: 1.00 },
+        { agreement: '', event: 'Placement fee after $30,000', pct: 0.50 },
+        { agreement: '', event: 'Interview Fee', pct: 0.50 },
+        { agreement: '', event: 'Performance Bonuses', pct: null, amountPaidLabel: 'Amount Paid' },
+        { agreement: '', event: '4 Net Placements in a Quarter', pct: null, amountPaid: 1000 },
+        { agreement: '', event: '5+ Conducted Interviews in a Single Month', pct: null, amountPaid: 250 },
+        { agreement: '', event: 'Exceed Monthly Points Target - 105', pct: null, amountPaid: 250 }
+      ],
+      bdr: [
+        { agreement: '', event: 'New Business Up Front Fees', pct: 1.00 },
+        { agreement: '', event: 'HQ Initial Upfront Fees', pct: 1.00 },
+        { agreement: 'Standard & HQ', event: 'Repeat Business Up Front Fees', pct: 0.60, softRepeatNote: true },
+        { agreement: '', event: 'Initial Direct Marketing Sold Per Search', pct: 0.20 },
+        { agreement: '', event: 'Off-Contract/Contingent Placements', pct: 0.25 },
+        { agreement: 'Allied', event: 'New Business Up Front Fees', pct: 1.00 },
+        { agreement: '', event: 'Repeat Business Up Front Fees', pct: 0.60 },
+        { agreement: '', event: 'New Business Up Front Fees', pct: 1.00 },
+        { agreement: 'Performance', event: 'Initial Direct Marketing Sold Per Search', pct: 0.20 },
+        { agreement: '', event: '1st Interview', pct: 0.50 },
+        { agreement: '', event: 'Repeat Business Up Front Fees', pct: 0.60 },
+        { agreement: '', event: 'Performance Bonuses', pct: null, amountPaidLabel: 'Amount Paid' },
+        { agreement: '', event: '10 Billed Search Units In a Quarter', pct: null, amountPaid: 1000 },
+        { agreement: '', event: 'Exceed 100% of Monthly Activity Point Target - 123', pct: null, amountPaid: 250 },
+        { agreement: '', event: '3+ New Clients in a Single Month', pct: null, amountPaid: 500 }
+      ]
+    },
+    /* Footnotes — meaning preserved from sheet (typos in source kept: conslutants, Parners, ect...) */
+    footnotes: {
+      recruiting: [
+        'Commissions are not considered earned until payment is received by AMP. Any outstanding invoices not already paid must be collected by the 15th of each month to be paid at the end of the month. Example, all invoices collected before April 15th will be on the April 30th Payroll.',
+        'Placements from recruiter referrals will be split 80/20',
+        'Placements from research leads will be split 75/25',
+        'Searches added by a previous client with no active searches for 5 calendar months will be considered new business',
+        'For Clients with assigned MD and Allied Recruiters - MD Repeats will go to MD Recruiter and Allied Repeats will go to Allied Recruiter',
+        'Collected GM Kicker: Recruiters who collect $330,000+ in annual GM will start at level 2 of GM percentages the following year.',
+        'Half placement will be a 50/50 GM split of recruiter portion of placement fee',
+        'If you inherit a search that requires a replacement from a previous recruiter, you will receive $15,000 in GM Credit and a flat $1,500 commission once fully executed contract is complete',
+        'AMP reserves the right to reduce GM on "New" or "Repeat" searches if contracts are brought in with concessions such as reduced placement fees, lower direct marketing prices, paying for profile travel, or no marketing authorized by client, ect...',
+        "CRM/BULLHORN OBLIGATION: All conslutants are expected to comply with AMP's CRM policy, any commissions are contingent upon each consultant's compliance",
+        'Disclaimer: All information contained within is confidential and not to be shared with any entity or organization not associated with Adaptive Medical Parners.'
+      ],
+      bdr: [
+        'Commissions are not considered earned until full contract payment is received by AMP.',
+        'Advanced commissions paid on uncollected fees may require a pay back against future commissions.',
+        'Any outstanding invoices must be collected before the last day of any month to be paid on the 15th of the following the month. Example: Invoices collected before March 31st will be paid to BD on April 15th Payroll.',
+        'Physician & Executive searches will equal one (1) unit of production',
+        'Allied and HQ searches will equal one half (.5) unit of production',
+        'Searches added by a previous client with no active searches for 5 calendar months will be considered new business',
+        'Collected GM Kicker: BDRs who collect $330,000+ in total GM will start at level 2 of GM percentages the following year.',
+        'Unless otherwise agreed to by BDRs, a 50/50 GM split between BD Reps for searches where the location of "signing" entity is in a different territory than actual search location',
+        'Any new business sourced by a SDR will be a 60/40 GM split between the BDR and SDR.',
+        'AMP reserves the right to reduce GM on "New" or "Repeat" searches if contracts are brought in with concessions such as reduced placement or off contract fees, reduced direct marketing rates, paying for profile travel, or no marketing authorized by client, ect...',
+        "CRM/BULLHORN OBLIGATION: All conslutants are expected to comply with AMP's CRM policy, any commissions are contingent upon each consultant's compliance",
+        'Disclaimer: All information contained within is confidential and not to be shared with any entity or organization not associated with Adaptive Medical Parners.'
+      ]
+    },
+    softRepeatOwnerDisplayNote:
+      'Soft Soft repeat-placement owner display: BD 60% (BDR Repeat Business Up Front Fees) / repeat recruiter 30% (Recruiting Repeat Retainer) / Soft Soft board remainder 10% = 100−60−30 face close only. Excel does not name House as a line — labeled here as Soft Soft board remainder.'
   };
+
   try { window.__softCompGmSplits = SOFT_COMP_GM_SPLITS; } catch (eComp) {}
 
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
@@ -80288,7 +80448,103 @@ ownersDetailHtml(row) +
     flowGo(sub);
   };
 
-  window.__softMessRenderRecGm = function (host) {
+  /* soft-comp-gm-tabs-20260920 — Recruiting + BD Hub Comp reference surfaces */
+  function softCompEsc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function softCompPct(p) {
+    if (p == null || p === '') return '—';
+    var n = Number(p);
+    if (isNaN(n)) return softCompEsc(p);
+    return (Math.round(n * 1000) / 10) + '%';
+  }
+  function softCompMoney(n) {
+    return '$' + Number(n).toLocaleString('en-US');
+  }
+  function softCompBuildHtml(side) {
+    var S = window.__softCompGmSplits || {};
+    var tiers = S.paidOfCollectedTiers || {};
+    var levelHeaders = tiers.levelHeaders || tiers.levels || [];
+    var sideTiers = (side === 'bdr') ? (tiers.bdr || {}) : (tiers.recruiting || {});
+    var rows = sideTiers.rows || [];
+    var events = ((S.billableEvents || {})[side === 'bdr' ? 'bdr' : 'recruiting']) || [];
+    var notes = ((S.footnotes || {})[side === 'bdr' ? 'bdr' : 'recruiting']) || [];
+    var title = side === 'bdr' ? 'BD Hub · Comp & GM splits' : 'Recruiting · Comp & GM splits';
+    var meta = side === 'bdr'
+      ? 'BDR sheet · Non-Marketing GM paid-of-collected'
+      : 'Recruiting sheet · Paid-of-collected GM';
+    var face = S.softRepeatOwnerFace || {};
+    var faceNote = S.softRepeatOwnerDisplayNote ||
+      ('Soft Soft repeat-placement owner display: BD ' + (face.bdPct || 60) +
+       '% (BDR Repeat Up Front) / repeat recruiter ' + (face.repeatRecruiterPct || 30) +
+       '% (Recruiting Repeat Retainer) / Soft Soft board remainder ' + (face.houseRemainderPct || 10) +
+       '% = 100−60−30 face close. Excel does not name House as a line.');
+
+    var thTiers = '<th>Level</th>' + levelHeaders.map(function (h) {
+      return '<th class="num">' + softCompEsc(h) + '</th>';
+    }).join('');
+    var tbTiers = rows.map(function (r) {
+      return '<tr><td>' + softCompEsc(r.level) + '</td>' +
+        (r.pcts || []).map(function (p) { return '<td class="num">' + softCompPct(p) + '</td>'; }).join('') +
+        '</tr>';
+    }).join('');
+
+    var tbEv = events.map(function (e) {
+      var hi = e.softRepeatNote ? ' class="soft-comp-hi"' : '';
+      var pctCell;
+      if (e.amountPaidLabel) pctCell = softCompEsc(e.amountPaidLabel);
+      else if (e.amountPaid != null) pctCell = softCompMoney(e.amountPaid);
+      else pctCell = softCompPct(e.pct);
+      return '<tr' + hi + '><td class="soft-comp-agree">' + softCompEsc(e.agreement || '') +
+        '</td><td>' + softCompEsc(e.event) +
+        (e.softRepeatNote ? ' <strong>· Soft Soft repeat face</strong>' : '') +
+        '</td><td class="num">' + pctCell + '</td></tr>';
+    }).join('');
+
+    var notesHtml = notes.map(function (n) {
+      return '<li>' + softCompEsc(n) + '</li>';
+    }).join('');
+
+    var nonMkt = (side === 'bdr' && sideTiers.nonMarketingLabel)
+      ? '<p class="lede" style="margin-top:-4px">Tier band: <strong>' + softCompEsc(sideTiers.nonMarketingLabel) + '</strong> · % Paid of Collected GM</p>'
+      : '<p class="lede" style="margin-top:-4px">% Paid of Collected GM by level (Associate → Principal, L1–L5)</p>';
+
+    return '<div class="soft-comp-wrap" data-soft-comp="' + side + '">' +
+      '<div class="card">' +
+      '<div class="card-head"><h2>' + softCompEsc(title) + '</h2>' +
+      '<span class="meta">' + softCompEsc(meta) + '</span></div>' +
+      '<p class="lede">SoT: <code>' + softCompEsc(S.sourceXlsx || 'AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx') +
+      '</code> · percentages copied from file — nothing invented. Allied Recruiting / SDR sheets are secondary reference only (not this Soft Soft primary lens).</p>' +
+      '<div class="soft-comp-note"><strong>Soft Soft repeat owner display</strong> — ' + softCompEsc(faceNote) + '</div>' +
+      '<div class="sec-h">Paid-of-collected GM tiers</div>' +
+      nonMkt +
+      '<div class="table-wrap"><table class="soft-comp-table" aria-label="Paid of collected GM tiers">' +
+      '<thead><tr>' + thTiers + '</tr></thead><tbody>' + tbTiers + '</tbody></table></div>' +
+      '<div class="sec-h">Billable events · % of Billed Rev Allocated to GM</div>' +
+      '<div class="table-wrap"><table class="soft-comp-table" aria-label="Billable events">' +
+      '<thead><tr><th>Agreement Type</th><th>Billable Event</th><th class="num">% / Amount</th></tr></thead>' +
+      '<tbody>' + tbEv + '</tbody></table></div>' +
+      '<div class="sec-h">Footnotes / rules</div>' +
+      '<ul class="soft-comp-notes">' + notesHtml + '</ul>' +
+      '<p class="soft-comp-src">CHIP soft-comp-gm-tabs-20260920 · Soft Soft only · never Hub</p>' +
+      '</div></div>';
+  }
+  window.__softMessRenderRecruitingComp = function (host) {
+    if (!host) return;
+    try { if (typeof holdPort === 'function') holdPort(); } catch (eH) {}
+    host.classList.remove('soft-acct-active');
+    host.innerHTML = softCompBuildHtml('recruiting');
+  };
+  window.__softMessRenderBdHubComp = function (host) {
+    if (!host) return;
+    try { if (typeof holdPort === 'function') holdPort(); } catch (eH) {}
+    host.classList.remove('soft-acct-active');
+    host.innerHTML = softCompBuildHtml('bdr');
+  };
+
+    window.__softMessRenderRecGm = function (host) {
     if (!host) return;
     holdPort();
     host.classList.remove("soft-acct-active");
