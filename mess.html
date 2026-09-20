@@ -18,6 +18,7 @@
 /* soft-ar-open-paid-all-kinds-20260912 — Soft Rec GM Carri Paid: no open AR + arSoftAmt>0 → paid/green for ALL carriKinds (Placement/Marketing/Repeat/New Search); componentHit uses billed>0. Soft only. LS v47. */
 /* soft-gm-shimmer-animate-v2-20260912 — NEUTRALIZED: shimmer removed; booked-cyan cell paint kept. Soft only. */
 /* soft-placement-count-unique-20260912 — Total Placements = unique placements (excl ECB; split halves once). Soft only. */
+/* soft-prod-recurring-off-board-20260920 — Producer Production: exclude later-month recurring (Nk/N, 1/2, mkt installments); Exec recurring / Rolling GM keep them. Soft only. */
 /* soft-book-placement-split-schedule-20260912 — Book Placement Full|Split payment schedule. Soft only. */
 /* soft-invoice-spine-strip-example-20260912 — Invoice spine strip EXAMPLE chrome for Carri audit. Soft only. */
 /* soft-gm-shimmer-live-twin-20260912 — REMOVED (failed gray-blue/static-.v reinterpretation). Soft only. */
@@ -55303,6 +55304,61 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     return s;
   }
 
+  /* soft-prod-recurring-off-board-20260920 — Producer Production: that-month books only.
+     Later Nk/N monthlies, marketing 2nd+/presold, and 1/2 follow-ons → Exec recurring / Rolling GM.
+     First board month of a package (date Y-M === month) stays on Production as the book. Soft only. */
+  function softNkOverNClient(client) {
+    return /\(\s*\d+\s*k\s*\/\s*\d+\s*\)/i.test(String(client || ''));
+  }
+  function softHalfBillingClient(client) {
+    return /\b1\s*\/\s*2\s*billing\b|\b2nd\s*1\s*\/\s*2\b|\b1st\s*1\s*\/\s*2\b|\b2nd\s*half\b|\b1st\s*half\b|\(1st\s*half\)|\(2nd\s*half\)/i.test(String(client || ''));
+  }
+  function softBookMonthKey(row) {
+    return String((row && row.date) || '').slice(0, 7);
+  }
+  function softBoardMonthKey(row) {
+    return String((row && row.month) || '');
+  }
+  function softIsLaterBoardInstallment(row) {
+    if (!row) return false;
+    var d = softBookMonthKey(row);
+    var m = softBoardMonthKey(row);
+    return !!(d && m && d !== m);
+  }
+  function softIsRecurringOffProductionBoard(row) {
+    if (!row) return false;
+    if (row.excludeFromProductionBoard) return true;
+    if (row.bookType === 'Marketing' && row.isRecurringLine && row.marketingInstallment) return true;
+    if (typeof softIsMarketingFollowOnBill === 'function' && softIsMarketingFollowOnBill(row)) return true;
+    if (!softIsLaterBoardInstallment(row)) return false;
+    if (softNkOverNClient(row.client)) return true;
+    if (softHalfBillingClient(row.client)) return true;
+    if (row.isRecurringLine || row.recurringMonthlySplit || row.lineKind === 'recurring-monthly') return true;
+    if (row.bookType === 'Marketing' && /pre\s*sold/i.test(String(row.campaign || '')) && /\d+\s*invoices?/i.test(String(row.campaign || ''))) return true;
+    return false;
+  }
+  function tagSoftRecurringOffProductionBoard(s) {
+    if (!s || !Array.isArray(s.rows)) return s;
+    var n = 0;
+    s.rows.forEach(function (r) {
+      if (!r || r.example) return;
+      if (!softIsRecurringOffProductionBoard(r)) return;
+      r.isRecurringLine = true;
+      r.excludeFromProductionBoard = true;
+      if (softNkOverNClient(r.client) || softHalfBillingClient(r.client)) r.recurringMonthlySplit = true;
+      if (!r.lineKind) {
+        if (softHalfBillingClient(r.client)) r.lineKind = 'half-billing-installment';
+        else if (softNkOverNClient(r.client)) r.lineKind = 'recurring-monthly';
+        else if (r.bookType === 'Marketing') r.lineKind = 'marketing-installment';
+        else r.lineKind = 'recurring-monthly';
+      }
+      n++;
+    });
+    s.prodRecurringOffTagged = n;
+    s.prodRecurringOffStamp = 'soft-prod-recurring-off-board-20260920';
+    return s;
+  }
+
   /* soft-prod-ecb-secondbill-20260920 — shared ECB detector (Rec GM + Production) */
   function softIsEcbPlacementLine(row) {
     if (!row) return false;
@@ -56724,6 +56780,7 @@ function softIsoDate(v) {
   }
   window.__softIsoDate = softIsoDate;
   window.__softGetState = function () { return state; }; /* soft-spine-b-booked-invoiced-20260920 debug read */
+  window.__softIsRecurringOffProductionBoard = softIsRecurringOffProductionBoard; /* soft-prod-recurring-off-board-20260920 */
   window.__softProdDisplayStatus = softProdDisplayStatus;
   window.__softResolveCashFromSpine = softResolveCashFromSpine;
   window.__softBuildSpineCashIndex = softBuildSpineCashIndex;
@@ -56746,8 +56803,7 @@ function softIsoDate(v) {
     ensureMike2026FocusPaid(s);
     ensureSoftProdPaidFromSpineSoT(s);
     dedupeBdRepeatClones(s);
-    tagMoHighlandsMonthlies(s);
-    tagSoftEcbSplitAndSecondBills(s); /* soft-prod-ecb-secondbill-20260920 */
+    tagMoHighlandsMonthlies(s);     tagSoftEcbSplitAndSecondBills(s);     tagSoftRecurringOffProductionBoard(s); /* soft-prod-recurring-off-board-20260920 */ /* soft-prod-ecb-secondbill-20260920 */
     softApplyRowTombstones(s); /* soft-prod-iv-harden-20260919 — after ensure* so reseed cannot revive deletes */
     if (!Array.isArray(s.fanLog)) s.fanLog = [];
     if (!Array.isArray(s.commissionLines)) s.commissionLines = [];
@@ -67908,6 +67964,8 @@ function softIsoDate(v) {
     var seeded = { rows: rows, fanLog: [], commissionLines: [], execMode: 'combined', deletedRowIds: {}, deletedInvoiceIds: {}, gmMoneySeed: buildGmMoneySeed(), gmMoneyUi: { side: 'both', person: 'Mike', asof: '2024-12-15', year: '2024', tab: 'unpaid' }, spineOverrides: {}, spineUi: { selectedSearchId: null, selectedClient: null, selectedInvoiceId: null, showAllInvoices: true, statusFilter: 'all', invSort: 'date-desc' }, recurringOverrides: {}, recurringActivity: [], recurringRequests: [], writeOffRequests: [], writeOffActivity: [], recurringUi: { mode: 'exec', person: 'Zach', simulateMonthClose: false, monthCloseConfirmedFor: '', asOfDate: '2026-09-09' }, awardsUi: { period: 'month', monthKey: '2026-09', year: '2026' }, execArUi: { year: '2026', quarter: 3 }, execProdUi: { year: '2026', month: 'all' }, execArCash: {}, execArExpenses: {}, execCommUi: { event: 'recruiting', payDate: '2026-09-15' }, excelProdSeedMeta: { source: '2024+2025+2026 Production Board.xlsx', seededAtCt: '2026-09-11 10:15 PM CT', rowCount: 369, years: [2024,2025,2026] } };
     ensureExecArExampleStubs(seeded);
     tagMoHighlandsMonthlies(seeded);
+    tagSoftEcbSplitAndSecondBills(seeded);
+    tagSoftRecurringOffProductionBoard(seeded); /* soft-prod-recurring-off-board-20260920 */
     ensureCarriTrackerBackfill(seeded);
     ensureCarriGmSeed(seeded);
     ensureCarriBdGmSeed(seeded);
@@ -71349,7 +71407,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       if (row.example) return; /* leftover accounting Lives only */
       /* soft-prod-ecb-secondbill-20260920 — ECB not a Placement row; Marketing 2nd+ bills → Recurring Exec */
       if (row.bookType === 'Placement' && softIsEcbPlacementLine(row)) return;
-      if (row.excludeFromProductionBoard || (row.bookType === 'Marketing' && row.isRecurringLine && row.marketingInstallment)) return;
+      if (typeof softIsRecurringOffProductionBoard === 'function' ? softIsRecurringOffProductionBoard(row) : (row.excludeFromProductionBoard || (row.bookType === 'Marketing' && row.isRecurringLine && row.marketingInstallment))) return; /* soft-prod-recurring-off-board-20260920 */
       shown++;
       var detailBtn =
         (row.bookType === 'Deal'
@@ -71498,6 +71556,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       if (filter !== 'all' && row.month !== filter) return;
       if (row.carriGmSeed || row.carriBdGmSeed) return;
       if (row.example) return; /* soft-live-tidy-20260915b metrics */
+      /* soft-prod-recurring-off-board-20260920 — recurring installments not Production metrics */
+      if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(row)) return;
       if (row.previouslyDeferred != null && row.previouslyDeferred !== '') {
         prevDeferred += Number(row.previouslyDeferred) || 0;
       }
@@ -71512,7 +71572,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         if (!softIsEcbPlacementLine(row)) placements++;
         plRev += prodRowAmt(row); /* ECB $ still placement revenue */
       } else if (row.bookType === 'Marketing') {
-        if (!(row.excludeFromProductionBoard || (row.isRecurringLine && row.marketingInstallment))) mktDeals++;
+        mktDeals++;
         mktRev += prodRowAmt(row);
       } else if (row.bookType === 'Deal' || !row.bookType) {
         contracts++;
@@ -74234,6 +74294,8 @@ ownersDetailHtml(row) +
 
     state.rows.forEach(function (row) {
       if (!row || row.bookType !== 'Placement') return;
+      /* soft-prod-recurring-off-board-20260920 — 1/2 follow-ons & rolling installments → Rolling GM, not Placement stack */
+      if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(row)) return;
       if (!recGmIncludeRow(row, year)) return;
       if (!recGmIsBooked(row)) return;
       var mi = monthIndex(row.month);
@@ -74331,7 +74393,9 @@ ownersDetailHtml(row) +
       var owners = row.owners || {};
       var mi = monthIndex(row.month);
       if (mi < 0) return;
-      var base = Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
+      var base = row.bookType === 'Placement'
+        ? (Number(row.fee) || Number(row.accountingBilled) || Number(row.bookValueThisMonth) || 0)
+        : (Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0);
       var paid = recGmIsPaid(row);
       var onBoard = recGmIsBoardMoney(row);
       var stackId = row.gmLineKey || row.id;
@@ -74346,10 +74410,15 @@ ownersDetailHtml(row) +
           credit = base;
         } else if (row.carriGmSeed && row.rep === p && (!owners.mode || owners.mode === 'Whole')) {
           credit = base;
+        } else if (!row.carriGmSeed && owners.mode === 'Whole' && owners.primary === p) {
+          /* soft-prod-recurring-off-board-20260920 — excel 1/2 + rolling installments on Rolling GM */
+          credit = base;
+        } else if (!row.carriGmSeed && row.rep === p && (!owners.mode || owners.mode === 'Whole')) {
+          credit = base;
         }
         if (!(credit > 0)) return;
         if (onBoard) {
-          rollStacks[mi].push({ amt: credit, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: 'Deal', label: recGmDealLineLabel(row), month: row.month });
+          rollStacks[mi].push({ amt: credit, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: row.bookType === 'Placement' ? 'Placement' : 'Deal', label: recGmDealLineLabel(row), month: row.month });
         }
         recGmAddToPots(pots, mi, credit, row);
       });
@@ -75267,6 +75336,13 @@ ownersDetailHtml(row) +
     if (!row || row.example) return null;
     /* GM seed month-lines stay on Rec/BD GM boards — not Exec Production board */
     if (row.carriGmSeed || row.carriBdGmSeed) return null;
+    /* soft-prod-recurring-off-board-20260920 — later 1/2 / Nk/N installments → exec recurring buckets */
+    if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(row)) {
+      if (row.bookType === 'Marketing') return 'mkt-recurring';
+      if (row.bookType === 'Deal') return 'bd-recurring';
+      /* Placement second-half / rolling fee piece — park with BD recurring so Exec still sees it */
+      if (row.bookType === 'Placement') return 'bd-recurring';
+    }
     if (row.bookType === 'Placement') return 'placements';
     if (row.bookType === 'Marketing') {
       return execProdIsMktRecurring(row) ? 'mkt-recurring' : 'mkt-booked';
