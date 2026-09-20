@@ -19,6 +19,7 @@
 /* soft-gm-shimmer-animate-v2-20260912 — NEUTRALIZED: shimmer removed; booked-cyan cell paint kept. Soft only. */
 /* soft-placement-count-unique-20260912 — Total Placements = unique placements (excl ECB; split halves once). Soft only. */
 /* soft-prod-recurring-off-board-20260920 — Producer Production: exclude later-month recurring (Nk/N, 1/2, mkt installments); Exec recurring / Rolling GM keep them. Soft only. */
+/* soft-jan-booked-only-20260920 — Mike rule: January Production = actually booked in January only; carriBackfill day-15/month-stamps + rolling tracker → exec bd-recurring / Rolling GM (isRecurringLine+excludeFromProductionBoard). Keep excel Midland Jan 26. Soft only. Never Hub. */
 /* soft-book-placement-split-schedule-20260912 — Book Placement Full|Split payment schedule. Soft only. */
 /* soft-invoice-spine-strip-example-20260912 — Invoice spine strip EXAMPLE chrome for Carri audit. Soft only. */
 /* soft-gm-shimmer-live-twin-20260912 — REMOVED (failed gray-blue/static-.v reinterpretation). Soft only. */
@@ -15579,7 +15580,7 @@ html[data-look="light"] #view-bdgm .gm-tiers-card table.data.gm-sheet th {
 }
 </style>
 
-<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-rep-owner-autofix-20260920</span></div>
+<div class="soft-ver-chip-bar" role="status" aria-label="Soft version"><span id="soft-ver-chip">soft-jan-booked-only-20260920</span></div>
 
   <div id="amp-auth-overlay" hidden>
     <form id="amp-auth-form" class="amp-auth-card" autocomplete="on">
@@ -55111,7 +55112,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-rep-owner-autofix-20260920'; /* soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-rep-owner-autofix-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-boot-pills-unblock-20260920; prior soft-boot-pills-unblock-20260920 · soft-awards-paid-live-20260920 · soft-exec-rec-bd-matrix-20260920 · soft-exec-ar-live-20260920 · soft-invoice-qb-roundtrip-20260920 · soft-spine-b-booked-invoiced-20260920 */
+  var CHIP = 'soft-jan-booked-only-20260920'; /* soft-writeoff-in-modify-20260920 · soft-jan-booked-only-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -55537,6 +55538,8 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   function softIsRecurringOffProductionBoard(row) {
     if (!row) return false;
     if (row.excludeFromProductionBoard) return true;
+    /* soft-jan-booked-only-20260920 — carriBackfill month-stamps / rolling tracker not Production books */
+    if (typeof softIsCarriBackfillOffProductionBoard === 'function' && softIsCarriBackfillOffProductionBoard(row)) return true;
     if (row.bookType === 'Marketing' && row.isRecurringLine && row.marketingInstallment) return true;
     if (typeof softIsMarketingFollowOnBill === 'function' && softIsMarketingFollowOnBill(row)) return true;
     if (!softIsLaterBoardInstallment(row)) return false;
@@ -55565,6 +55568,85 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     });
     s.prodRecurringOffTagged = n;
     s.prodRecurringOffStamp = 'soft-prod-recurring-off-board-20260920';
+    return s;
+  }
+
+  /* soft-jan-booked-only-20260920 — Mike: only business actually booked in a month stays on that month's Production board.
+     Carri Master tracker backfill (carriBackfill) is verify/spine/rolling — day-15 month stamps + garbage dates +
+     monthlies/internets with no initiation/firstMonth are NOT real month books. Tag like soft-prod-recurring-off-board
+     → excludeFromProductionBoard + isRecurringLine → Exec bd-recurring / Rolling GM. Excel Production SoT stays. */
+  function softCarriBackfillMoney(row) {
+    if (!row) return 0;
+    return (Number(row.initiation) || 0) + (Number(row.firstMonthRetainer) || 0) +
+      (Number(row.internets) || 0) + (Number(row.accountingBilled) || 0) +
+      (Number(row.bookValueThisMonth) || 0) + (Number(row.fee) || 0);
+  }
+  function softIsIsoYmd(s) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(String(s || '').trim());
+  }
+  function softIsCarriBackfillMonthStamp(row) {
+    if (!row || !row.carriBackfill || row.excelSeed) return false;
+    var d = String(row.date || '').trim();
+    var mo = String(row.month || '').trim();
+    /* Classic tracker park: YYYY-MM-15 */
+    if (/^\d{4}-\d{2}-15$/.test(d)) return true;
+    /* Garbage / non-ISO date or month (e.g. carri_CCM8412 "1/26/26 RE" / "1/26/26") */
+    if (d && !softIsIsoYmd(d)) return true;
+    if (mo && !/^\d{4}-\d{2}$/.test(mo)) return true;
+    /* Rolling tracker fill: no initiation / first-month book, but monthlies/internets/acct */
+    var init = Number(row.initiation) || 0;
+    var fm = Number(row.firstMonthRetainer) || 0;
+    if (init === 0 && fm === 0) {
+      if ((Number(row.numberOfMonthlies) || 0) > 0) return true;
+      if ((Number(row.monthlyAmount) || 0) > 0) return true;
+      if ((Number(row.internets) || 0) > 0) return true;
+      if (softCarriBackfillMoney(row) === 0) return true; /* $0 park shells */
+      if ((Number(row.accountingBilled) || 0) > 0 || (Number(row.bookValueThisMonth) || 0) > 0) return true;
+    }
+    return false;
+  }
+  function softIsCarriBackfillOffProductionBoard(row) {
+    return softIsCarriBackfillMonthStamp(row);
+  }
+  function tagSoftJanBookedOnly(s) {
+    if (!s || !Array.isArray(s.rows)) return s;
+    var stamp = 'soft-jan-booked-only-20260920';
+    var moved = [];
+    var keptExcelJan = [];
+    s.rows.forEach(function (r) {
+      if (!r || r.example) return;
+      if (r.excelSeed && String(r.month || '') === '2026-01') {
+        keptExcelJan.push(String(r.id || ''));
+      }
+      if (!softIsCarriBackfillOffProductionBoard(r)) return;
+      r.isRecurringLine = true;
+      r.excludeFromProductionBoard = true;
+      r.softJanBookedOnly = stamp;
+      if (!r.lineKind || r.lineKind === 'initiation+current') {
+        if (softCarriBackfillMoney(r) === 0) r.lineKind = 'carri-backfill-zero-shell';
+        else if ((Number(r.internets) || 0) > 0 && !(Number(r.numberOfMonthlies) || 0)) r.lineKind = 'carri-backfill-internets';
+        else r.lineKind = 'carri-backfill-rolling';
+      }
+      if ((Number(r.numberOfMonthlies) || 0) > 0 || (Number(r.monthlyAmount) || 0) > 0) {
+        r.recurringMonthlySplit = true;
+      }
+      moved.push({
+        id: String(r.id || ''),
+        date: String(r.date || ''),
+        month: String(r.month || ''),
+        client: String(r.client || ''),
+        lineKind: r.lineKind,
+        money: softCarriBackfillMoney(r)
+      });
+    });
+    s.softJanBookedOnly = {
+      stamp: stamp,
+      movedCount: moved.length,
+      movedIds: moved.map(function (x) { return x.id; }),
+      moved: moved,
+      keptExcelJanIds: keptExcelJan,
+      at: '2026-09-20'
+    };
     return s;
   }
 
@@ -56952,6 +57034,51 @@ function ensureCarriGmSeed(s) {
   }
   try { window.__softEnsureChdAugMktDedupe = ensureChdAugMktDedupe; } catch (eChd) {}
 
+  function ensureHadleyAugEcbDedupe(state) {
+    /* soft-hadley-aug-ecb-dedupe-20260920 — Hadley Aug Placement only:
+       excel xl_pl_2026-08_3 ("Janice Moore ECB" · $5k) is ECB second-bill leftover
+       beside real placement xl_pl_2026-08_2 ("Janice Moore" · $19k). softIsEcbPlacementLine
+       already hides ECB from Production; tombstone the orphan excel ECB so it is cleared.
+       Scope: Hadley 2026-08 only — do not touch other accounts/months. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-hadley-aug-ecb-dedupe-20260920";
+    var dropId = "xl_pl_2026-08_3";
+    var keepId = "xl_pl_2026-08_2";
+    softEnsureTombstoneMaps(state);
+    var hadDrop = false;
+    var hadKeep = false;
+    for (var i = 0; i < state.rows.length; i++) {
+      var r = state.rows[i];
+      if (!r || !r.id) continue;
+      if (String(r.id) === dropId) hadDrop = true;
+      if (String(r.id) === keepId) hadKeep = true;
+    }
+    if (!state.deletedRowIds[dropId]) {
+      state.deletedRowIds[dropId] = {
+        at: "2026-09-20T13:55:00-05:00",
+        why: stamp,
+        keep: keepId,
+        note: "Hadley Aug Janice Moore ECB excel orphan; keep real placement xl_pl_2026-08_2"
+      };
+    }
+    var before = state.rows.length;
+    state.rows = state.rows.filter(function (r) {
+      return !(r && String(r.id) === dropId);
+    });
+    state.hadleyAugEcbDedupe = {
+      stamp: stamp,
+      dropped: dropId,
+      kept: keepId,
+      hadDrop: hadDrop,
+      hadKeep: hadKeep,
+      removedNow: before - state.rows.length,
+      at: "2026-09-20"
+    };
+    return state;
+  }
+  try { window.__softEnsureHadleyAugEcbDedupe = ensureHadleyAugEcbDedupe; } catch (eHad) {}
+
+
 
   function ensureSoftProdPaidFromSpineSoT(s) {
     if (!s || !Array.isArray(s.rows)) return s;
@@ -57104,6 +57231,8 @@ function softIsoDate(v) {
   window.__softIsoDate = softIsoDate;
   window.__softGetState = function () { return state; }; /* soft-spine-b-booked-invoiced-20260920 debug read */
   window.__softIsRecurringOffProductionBoard = softIsRecurringOffProductionBoard; /* soft-prod-recurring-off-board-20260920 */
+  window.__softIsCarriBackfillOffProductionBoard = softIsCarriBackfillOffProductionBoard; /* soft-jan-booked-only-20260920 */
+  window.__softTagJanBookedOnly = tagSoftJanBookedOnly;
   window.__softExpectedOwnerFromAssignment = softExpectedOwnerFromAssignment; /* soft-rep-owner-autofix-20260920 */
   window.__softApplyRepOwnerAutofix = softApplyRepOwnerAutofix;
   window.__softEnsureRepOwnerAutofix = ensureSoftRepOwnerAutofix;
@@ -57130,7 +57259,9 @@ function softIsoDate(v) {
     ensureSoftProdPaidFromSpineSoT(s);
     dedupeBdRepeatClones(s);
     tagMoHighlandsMonthlies(s);     tagSoftEcbSplitAndSecondBills(s);     tagSoftRecurringOffProductionBoard(s); /* soft-prod-recurring-off-board-20260920 */ /* soft-prod-ecb-secondbill-20260920 */
+    tagSoftJanBookedOnly(s); /* soft-jan-booked-only-20260920 */
     ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
+    ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
     softApplyRowTombstones(s); /* soft-prod-iv-harden-20260919 — after ensure* so reseed cannot revive deletes */
     if (!Array.isArray(s.fanLog)) s.fanLog = [];
     if (!Array.isArray(s.commissionLines)) s.commissionLines = [];
@@ -57203,6 +57334,7 @@ function softIsoDate(v) {
     });
     ensureHendrickSepAaron(s);
     ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
+    ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
     try { ensureSoftRepOwnerAutofix(s); } catch (eRepAf) {} /* soft-rep-owner-autofix-20260920 */
     return s;
   }
@@ -68298,6 +68430,7 @@ function softIsoDate(v) {
     tagSoftEcbSplitAndSecondBills(seeded);
     tagSoftRecurringOffProductionBoard(seeded); /* soft-prod-recurring-off-board-20260920 */
     ensureCarriTrackerBackfill(seeded);
+    tagSoftJanBookedOnly(seeded); /* soft-jan-booked-only-20260920 — after backfill seed */
     ensureCarriGmSeed(seeded);
     ensureCarriBdGmSeed(seeded);
     ensureArOpenPaidInvert(seeded);
@@ -70054,6 +70187,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureSpineBookedBuckets(state);
     ensureHendrickSepAaron(state);
     ensureChdAugMktDedupe(state); /* soft-chd-aug-mkt-dedupe-20260920 */
+    ensureHadleyAugEcbDedupe(state); /* soft-hadley-aug-ecb-dedupe-20260920 */
     try { ensureSoftRepOwnerAutofix(state); } catch (eRepAf2) {}
     ensureMike2026FocusPaid(state);
     ensureSoftProdPaidFromSpineSoT(state);
@@ -71817,14 +71951,10 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         modifyBtn = ' <button type="button" class="mini-btn teal prod-modify-btn" data-act="modify" data-id="' + row.id + '" title="Exec only · edit booked truth · re-fan BH + GM">Modify marketing</button>';
       }
       /* soft-prod-delete-in-modify-20260920 — Delete lives in Modify shells only (exec-gated), not Actions */
-      /* soft-writeoff-request-20260920 — Production-board-native Deal write-off (Placement / Marketing) */
-      var woBtn = '';
-      if (row.bookType === 'Placement' || row.bookType === 'Marketing') {
-        woBtn = ' <button type="button" class="mini-btn" data-act="writeoff" data-id="' + row.id + '" title="Deal write-off · request Carri QB negative line">Deal write-off</button>';
-      }
+      /* soft-writeoff-in-modify-20260920 — Deal write-off lives in Modify Placement / Modify Marketing only (not Production Actions) */
       var actions = detailBtn
-        ? '<span class="prod-act-row">' + detailBtn + modifyBtn + woBtn + '</span>'
-        : '<span class="prod-act-row">' + woBtn + '</span>';
+        ? '<span class="prod-act-row">' + detailBtn + modifyBtn + '</span>'
+        : '<span class="prod-act-row"></span>';
       function decorate(tr) {
         tr.setAttribute('data-row-id', row.id);
         if (row.example) tr.classList.add('example');
@@ -72126,10 +72256,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
           : '<span style="color:#94a3b8;font-weight:500">— blank until spine / Carri match</span>') + '</div>' +
       '<div class="dd-k">Amount</div><div class="dd-v">' + money(row.fee) + '</div>' +
       ownersDetailHtml(row) +
-      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>' +
-      '<div class="dd-k">Deal write-off</div><div class="dd-v">' +
-        '<button type="button" class="mini-btn" data-act="writeoff" data-id="' + escHtml(row.id) + '">Deal write-off</button>' +
-        '<div style="font-size:11.5px;color:#64748b;margin-top:6px">Request → Carri writes off in QuickBooks as a negative line item · hits discovery month (not original book month)</div></div>';
+      '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + '</div>';
+    /* soft-writeoff-in-modify-20260920 — write-off control moved to Modify Placement */
     backdrop.hidden = false;
     backdrop.classList.add('show');
   }
@@ -72162,10 +72290,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="dd-k">QB invoice #</div><div class="dd-v" style="font-variant-numeric:tabular-nums;font-weight:750">' +
         (String(row.qbInvoice || row.qbNumber || '').trim()
           ? escHtml(String(row.qbInvoice || row.qbNumber).trim())
-          : '<span style="color:#94a3b8;font-weight:500">— blank until spine / Carri match</span>') + '</div>' +
-      '<div class="dd-k">Deal write-off</div><div class="dd-v">' +
-        '<button type="button" class="mini-btn" data-act="writeoff" data-id="' + escHtml(row.id) + '">Deal write-off</button>' +
-        '<div style="font-size:11.5px;color:#64748b;margin-top:6px">Request → Carri writes off in QuickBooks as a negative line item · hits discovery month (not original book month)</div></div>';
+          : '<span style="color:#94a3b8;font-weight:500">— blank until spine / Carri match</span>') + '</div>';
+    /* soft-writeoff-in-modify-20260920 — write-off control moved to Modify Marketing */
     backdrop.hidden = false;
     backdrop.classList.add('show');
   }
@@ -72412,6 +72538,11 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="md-actions md-actions-bar" role="group" aria-label="Modify actions">' +
         '<button type="button" class="mini-btn" id="md-cancel">Cancel</button>' +
         '<button type="button" class="mini-btn teal" id="md-save" data-row-id="' + escHtml(row.id) + '">Save &amp; re-fan (BH + GM)</button>' +
+        /* soft-writeoff-in-modify-20260920 — Placement / Marketing only (same Carri QB path); not Deal */
+        ((row.bookType === 'Placement' || row.bookType === 'Marketing')
+          ? ('<button type="button" class="mini-btn" id="md-writeoff" data-act="writeoff" data-id="' + escHtml(row.id) +
+             '" title="Deal write-off · request Carri QB negative line">Deal write-off</button>')
+          : '') +
         '<button type="button" class="mini-btn md-delete-btn" id="md-delete" data-row-id="' + escHtml(row.id) + '" title="Exec only · permanent Soft delete"' +
           (softIsExec() ? '' : ' hidden') + '>Delete</button>' +
       '</div>' +
@@ -72421,6 +72552,14 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     try { mdWireGmModeToggle(); } catch (eGm) {}
     var cancel = document.getElementById('md-cancel');
     if (cancel) cancel.onclick = function () { closeDealDetail(); };
+    /* soft-writeoff-in-modify-20260920 — open existing write-off request modal from Modify shell */
+    var mdWo = document.getElementById('md-writeoff');
+    if (mdWo) {
+      mdWo.onclick = function () {
+        var r = state.rows.find(function (x) { return x.id === row.id; }) || row;
+        openWriteOffRequestModal(r, 'modify');
+      };
+    }
     /* soft-prod-delete-in-modify-20260920 · soft-modify-delete-beside-save-20260920 */
     var mdDel = document.getElementById('md-delete');
     if (mdDel) {
@@ -78225,7 +78364,7 @@ ownersDetailHtml(row) +
     var bd = document.getElementById('wo-req-backdrop');
     var rowId = (document.getElementById('wo-req-row-id') || {}).value || (bd && bd.dataset.rowId) || '';
     var row = (state.rows || []).filter(function (r) { return r.id === rowId; })[0];
-    if (!row) { toast('Production row missing — open Deal write-off from the board'); return; }
+    if (!row) { toast('Production row missing — open Deal write-off from Modify Placement / Marketing'); return; }
     var bookTypeEl = document.getElementById('wo-req-book-type');
     var personEl = document.getElementById('wo-req-person');
     var amtEl = document.getElementById('wo-req-amount');
@@ -78436,7 +78575,7 @@ ownersDetailHtml(row) +
     }
     var html = '';
     if (!pending.length) {
-      html += '<div class="erq-empty">No pending write-off requests — open a Placement or Marketing row → Deal write-off.</div>';
+      html += '<div class="erq-empty">No pending write-off requests — Modify Placement / Modify Marketing → Deal write-off.</div>';
     } else {
       html += pending.map(function (r) { return rowHtml(r, true); }).join('');
     }
@@ -78489,12 +78628,12 @@ ownersDetailHtml(row) +
         decideWriteOffRequest(rid, decision === 'deny' ? 'deny' : 'done');
         return;
       }
-      /* Deal write-off from deal-detail modal (tables already use onProdClick) */
+      /* soft-writeoff-in-modify-20260920 — fallback if write-off btn in deal-detail/modify shell (md-writeoff wires directly) */
       var woBtn = e.target && e.target.closest ? e.target.closest('#deal-detail-backdrop button[data-act="writeoff"]') : null;
       if (woBtn) {
         var id = woBtn.getAttribute('data-id');
         var row = (state.rows || []).filter(function (r) { return r.id === id; })[0];
-        if (row) openWriteOffRequestModal(row, 'deal-detail');
+        if (row) openWriteOffRequestModal(row, 'modify');
       }
     });
   })();
