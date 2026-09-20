@@ -55415,7 +55415,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-ors8432-spine-nate-20260920'; /* soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-spine-prod-owners-first-20260920'; /* soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
   
   /* soft-comp-gm-splits-xlsx-20260920 — ONLY SoT: docs/AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx
      Numbers below are copied from Recruiting + BDR tabs ("% of Billed Rev Allocated to GM").
@@ -57816,8 +57816,9 @@ function ensureCarriGmSeed(s) {
   /* Book/modify hook — apply standing rule when both parties known; Bibb 17082 hard-lock */
   function softApplyStandingRepeatGm601030(row) {
     if (!row) return false;
-    if (row.softGmSplitOverride || row.softGmSplitManual) return false;
+    /* soft-spine-prod-owners-first-20260920 — Bib lock before override skip */
     if (softRowTiedToQb17082(row)) return softApplyBib17082NateLock(row);
+    if (row.softGmSplitOverride || row.softGmSplitManual) return false;
     /* Skip Carri amount-sliced GM seeds (already $plit) unless 17082 */
     if (row.carriGmSeed || row.carriBdGmSeed) return false;
     if (!softRowLooksRepeatForGm(row)) return false;
@@ -57847,7 +57848,12 @@ function ensureCarriGmSeed(s) {
     if (row.repeatOrNew != null) row.repeatOrNew = 'Repeat';
     if (row.repeatOrNew != null) row.repeatOrNew = 'Repeat';
     if (row.repeatOrNew == null && row.repeatOrNew == null) row.repeatOrNew = 'Repeat';
-    return softApplyRepeatGm601030ToRow(row, bd, rec, 'soft-bib-17082-nate-30-20260920');
+    var changed = softApplyRepeatGm601030ToRow(row, bd, rec, 'soft-bib-17082-nate-30-20260920');
+    /* soft-spine-prod-owners-first-20260920 — lock so standing repeat never overwrites Bib 60/30/10 */
+    row.softGmSplitOverride = true;
+    row.softGmSplitManual = true;
+    row.softBib17082Lock = 'soft-bib-17082-nate-30-20260920';
+    return changed || true;
   }
   function ensureSoftRepeatGm601030(state) {
     /* soft-comp-gm-splits-xlsx-20260920 — xlsx SoT: BDR Repeat Up Front 60% + Recruiting Repeat Retainer 30%; House 10% = face remainder (100-60-30), not an xlsx line.
@@ -57860,10 +57866,13 @@ function ensureCarriGmSeed(s) {
     var skipped = 0;
     state.rows.forEach(function (row) {
       if (!row) return;
-      if (row.softGmSplitOverride || row.softGmSplitManual) { skipped++; return; }
       var changed = false;
+      /* soft-spine-prod-owners-first-20260920 — Bib lock always re-applied; other overrides skip standing repeat */
       if (softRowTiedToQb17082(row)) {
         changed = softApplyBib17082NateLock(row);
+      } else if (row.softGmSplitOverride || row.softGmSplitManual) {
+        skipped++;
+        return;
       } else if (softIsProductionVisibleRow(row) || softIsDealLikeForRepAutofix(row)) {
         changed = softApplyStandingRepeatGm601030(row);
       }
@@ -58172,11 +58181,11 @@ function softIsoDate(v) {
       }
       if ((row.bookType === 'Placement' || row.bookType === 'Marketing') && row.marketer == null) row.marketer = '';
     });
-    ensureHendrickSepAaron(s);
     ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
     ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
-    ensureSoftRepeatGm601030(s); /* soft-repeat-gm-60-30-10-20260920 */
+    ensureSoftRepeatGm601030(s); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
     try { ensureSoftRepOwnerAutofix(s); } catch (eRepAf) {} /* soft-rep-owner-autofix-20260920 */
+    ensureHendrickSepAaron(s); /* soft-hendrick-sep-aaron-lock-20260920 — one-off AFTER repeat */
     ensureOrs8432NateGm(s); /* soft-ors8432-spine-nate-20260920 — LAST so repeat 60/30/10 cannot rewrite */
     return s;
   }
@@ -71031,11 +71040,11 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureSoftProdQbFromCarriSeeds(state);
     ensureSpineBookedFromCarriQb(state);
     ensureSpineBookedBuckets(state);
-    ensureHendrickSepAaron(state);
     ensureChdAugMktDedupe(state); /* soft-chd-aug-mkt-dedupe-20260920 */
     ensureHadleyAugEcbDedupe(state); /* soft-hadley-aug-ecb-dedupe-20260920 */
-    ensureSoftRepeatGm601030(state); /* soft-repeat-gm-60-30-10-20260920 */
+    ensureSoftRepeatGm601030(state); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
     try { ensureSoftRepOwnerAutofix(state); } catch (eRepAf2) {}
+    ensureHendrickSepAaron(state); /* soft-hendrick-sep-aaron-lock-20260920 — one-off AFTER repeat */
     ensureMike2026FocusPaid(state);
     ensureSoftPre2026AgingPaid(state);
     ensureSoftProdPaidFromSpineSoT(state);
@@ -71138,10 +71147,37 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       row = state.rows.find(function (r) { return r.id === inv.linkRowId; });
       if (row) return row;
     }
-    row = state.rows.find(function (r) { return r.sampleId === inv.sampleId; });
-    if (row) return row;
+    /* soft-spine-prod-owners-first-20260920 — only match sampleId when both sides are truthy (avoid undefined===undefined → first seed row) */
+    var sid = inv.sampleId != null && String(inv.sampleId).trim() !== '' ? String(inv.sampleId) : '';
+    if (sid) {
+      row = state.rows.find(function (r) { return r && String(r.sampleId || '') === sid; });
+      if (row) return row;
+    }
+    /* Prefer QB # match when present */
+    var qb = String(inv.qbNumber || '').trim();
+    if (/^\d+$/.test(qb)) {
+      row = state.rows.find(function (r) {
+        if (!r) return false;
+        var rqb = String(r.qbInvoice || r.qbNumber || '').trim();
+        return rqb === qb;
+      });
+      if (row) return row;
+    }
     var amt = Number(inv.amount) || 0;
     var refs = String(inv.searchRefs || '').toLowerCase();
+    var primaryRef = refs.split(',')[0].trim();
+    var clientLc = String(inv.client || '').toLowerCase();
+    /* Unique client + primary search ref (covers carri_inv_EM8446 → carri_EM8446 without inventing splits) */
+    if (primaryRef && clientLc) {
+      var hits = state.rows.filter(function (r) {
+        if (!r) return false;
+        if (String(r.client || '').toLowerCase() !== clientLc) return false;
+        var rrefs = String(r.searchRefs || r.dealRef || '').toLowerCase();
+        if (!rrefs) return false;
+        return rrefs.indexOf(primaryRef) >= 0 || (r.dealRef && primaryRef.indexOf(String(r.dealRef).toLowerCase()) >= 0);
+      });
+      if (hits.length === 1) return hits[0];
+    }
     row = state.rows.find(function (r) {
       var rrefs = String(r.searchRefs || r.dealRef || '').toLowerCase();
       var ram = Number(r.accountingBilled != null ? r.accountingBilled : (r.fee || 0)) || 0;
@@ -71203,9 +71239,63 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     return row;
   }
 
+
+  /* soft-spine-prod-owners-first-20260920 — copy Production owners onto SPINE_INVOICES + spineOverrides when linked */
+  function ensureSpineOwnersFromProduction(state) {
+    if (!state) return state;
+    if (typeof SPINE_INVOICES === 'undefined' || !Array.isArray(SPINE_INVOICES)) return state;
+    if (!state.spineOverrides || typeof state.spineOverrides !== 'object') state.spineOverrides = {};
+    var copied = 0;
+    SPINE_INVOICES.forEach(function (inv) {
+      if (!inv || !inv.id) return;
+      /* Low-risk only: strong link (linkRowId / sampleId / QB #) — not fuzzy amount/ref */
+      var row = null;
+      if (inv.linkRowId) {
+        row = state.rows.find(function (r) { return r && r.id === inv.linkRowId; }) || null;
+      }
+      if (!row) {
+        var sid = inv.sampleId != null && String(inv.sampleId).trim() !== '' ? String(inv.sampleId) : '';
+        if (sid) row = state.rows.find(function (r) { return r && String(r.sampleId || '') === sid; }) || null;
+      }
+      if (!row) {
+        var qb = String(inv.qbNumber || '').trim();
+        if (/^\d+$/.test(qb)) {
+          row = state.rows.find(function (r) {
+            if (!r) return false;
+            return String(r.qbInvoice || r.qbNumber || '').trim() === qb;
+          }) || null;
+        }
+      }
+      if (!row) return;
+      try { if (typeof ensureOwners === 'function') ensureOwners(row); } catch (eE) {}
+      if (!row.owners || !row.owners.mode) return;
+      var own = null;
+      try { own = JSON.parse(JSON.stringify(row.owners)); } catch (eJ) { own = row.owners; }
+      inv.owners = own;
+      var ov = state.spineOverrides[inv.id] || {};
+      ov.owners = own;
+      state.spineOverrides[inv.id] = ov;
+      copied++;
+    });
+    state.softSpineOwnersFromProduction = { stamp: 'soft-spine-prod-owners-first-20260920', copied: copied, at: '2026-09-20' };
+    return state;
+  }
+  try { window.__softEnsureSpineOwnersFromProduction = ensureSpineOwnersFromProduction; } catch (eEsp) {}
+  try { ensureSpineOwnersFromProduction(state); } catch (eSpineOwnBoot) {}
+
   function spineBucketLines(inv) {
     var amt = Number(inv.amount) || 0;
     var owners = inv && inv.owners;
+    /* soft-spine-prod-owners-first-20260920 — GM buckets prefer linked Production row owners when present */
+    (function preferProductionOwners() {
+      if (!inv) return;
+      try {
+        var row = findRowForSpineInvoice(inv);
+        if (!row) return;
+        if (typeof ensureOwners === 'function') ensureOwners(row);
+        if (row.owners && row.owners.mode) owners = row.owners;
+      } catch (eProdOwn) {}
+    })();
     /* soft-ors8432-spine-nate-20260920 — belt+suspenders: 17040 / ORS-8432 NMC placement = Nate Whole 100% only */
     (function forceOrs8432NateSpineBuckets() {
       if (!inv) return;
@@ -71222,6 +71312,10 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     var pseudo = { id: inv.linkRowId || ('spine_' + inv.id), client: inv.client, bookType: inv.agreement === 'Placement' ? 'Placement' : (inv.agreement === 'Marketing' ? 'Marketing' : 'Deal'), owners: owners, example: false };
     return splitCommissionLines(pseudo, amt);
   }
+
+  try { window.__softSpineBucketLines = spineBucketLines; } catch (eSbl) {}
+  try { window.__softFindRowForSpineInvoice = findRowForSpineInvoice; } catch (eFr) {}
+  try { window.__softEnsureSpineOwnersFromProduction = ensureSpineOwnersFromProduction; } catch (eEsp2) {}
 
   function paintSpineGmBuckets(inv) {
     var el = document.getElementById('spine-gm-buckets');

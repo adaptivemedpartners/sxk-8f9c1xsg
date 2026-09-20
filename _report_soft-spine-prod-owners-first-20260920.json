@@ -1,0 +1,215 @@
+{
+  "expectChip": "soft-spine-prod-owners-first-20260920",
+  "out": {
+    "chip": "soft-spine-prod-owners-first-20260920",
+    "catchup": {
+      "stamp": "soft-spine-prod-owners-first-20260920",
+      "copied": 139,
+      "at": "2026-09-20"
+    },
+    "cases": {
+      "ors8432": {
+        "id": "17040",
+        "sampleId": "17040",
+        "qb": "17040",
+        "linkRowId": "ex_spine_17040",
+        "invOwners": {
+          "mode": "Whole",
+          "primary": "Nate"
+        },
+        "prodRowId": "ex_spine_17040",
+        "prodOwners": {
+          "mode": "Whole",
+          "primary": "Nate"
+        },
+        "prodRep": "Nate",
+        "softGmSplitOverride": true,
+        "softOrs": "soft-ors8432-spine-nate-20260920",
+        "lines": [
+          {
+            "owner": "Nate",
+            "pct": 100,
+            "amount": 28000
+          }
+        ]
+      },
+      "hendrick17071": {
+        "id": "17071",
+        "sampleId": "17071",
+        "qb": "17071",
+        "linkRowId": "ex_bd_sep_hendrick",
+        "invOwners": {
+          "mode": "Split",
+          "bdA": {
+            "name": "Randy",
+            "pct": 60
+          },
+          "recruiter": {
+            "name": "Nate",
+            "pct": 30
+          },
+          "housePct": 10
+        },
+        "prodRowId": "xl_bd_2026-08_5",
+        "prodOwners": {
+          "mode": "Split",
+          "bdA": {
+            "name": "Randy",
+            "pct": 60
+          },
+          "recruiter": {
+            "name": "Nate",
+            "pct": 30
+          },
+          "housePct": 10
+        },
+        "prodRep": "Randy",
+        "softGmSplitOverride": false,
+        "softRepeat": "soft-comp-gm-splits-xlsx-20260920",
+        "lines": [
+          {
+            "owner": "Randy",
+            "pct": 60,
+            "amount": 3000
+          },
+          {
+            "owner": "Nate",
+            "pct": 30,
+            "amount": 1500
+          },
+          {
+            "owner": "House",
+            "pct": 10,
+            "amount": 500
+          }
+        ]
+      },
+      "bib17082": {
+        "id": "carri_qb_17082",
+        "sampleId": "carri_qb_17082",
+        "qb": "17082",
+        "linkRowId": null,
+        "invOwners": {
+          "mode": "Split",
+          "bdA": {
+            "name": "Brenton",
+            "pct": 60
+          },
+          "recruiter": {
+            "name": "Nate",
+            "pct": 30
+          },
+          "housePct": 10
+        },
+        "prodRowId": "carri_bd_brenton_r19_new_search_new_search_monthly_bibb_m_m09",
+        "prodOwners": {
+          "mode": "Split",
+          "bdA": {
+            "name": "Brenton",
+            "pct": 60
+          },
+          "recruiter": {
+            "name": "Nate",
+            "pct": 30
+          },
+          "housePct": 10
+        },
+        "prodRep": "Brenton",
+        "softGmSplitOverride": true,
+        "softBib": "soft-bib-17082-nate-30-20260920",
+        "softRepeat": "soft-bib-17082-nate-30-20260920",
+        "lines": [
+          {
+            "owner": "Brenton",
+            "pct": 60,
+            "amount": 1197
+          },
+          {
+            "owner": "Nate",
+            "pct": 30,
+            "amount": 598.5
+          },
+          {
+            "owner": "House",
+            "pct": 10,
+            "amount": 199.5
+          }
+        ]
+      },
+      "em8446": {
+        "id": "carri_inv_EM8446",
+        "qb": "17010",
+        "invOwners": {
+          "mode": "Split",
+          "bdA": {
+            "name": "Brenton",
+            "pct": 60
+          },
+          "recruiter": {
+            "name": "Nate",
+            "pct": 30
+          },
+          "housePct": 10
+        },
+        "prodRowId": "xl_bd_2026-06_2",
+        "prodOwners": {
+          "mode": "Split",
+          "bdA": {
+            "name": "Brenton",
+            "pct": 60
+          },
+          "recruiter": {
+            "name": "Nate",
+            "pct": 30
+          },
+          "housePct": 10
+        },
+        "prodRep": "Brenton",
+        "softGmSplitOverride": false,
+        "softRepeat": "soft-comp-gm-splits-xlsx-20260920",
+        "lines": [
+          {
+            "owner": "Brenton",
+            "pct": 60,
+            "amount": 1197
+          },
+          {
+            "owner": "Nate",
+            "pct": 30,
+            "amount": 598.5
+          },
+          {
+            "owner": "House",
+            "pct": 10,
+            "amount": 199.5
+          }
+        ]
+      }
+    },
+    "mktCheck": {
+      "id": "17078",
+      "invOwners": {
+        "mode": "Marketing",
+        "housePct": 25
+      },
+      "lines": [
+        {
+          "owner": "House",
+          "pct": 25,
+          "amount": 4950
+        },
+        {
+          "owner": "Aaron",
+          "pct": 50,
+          "amount": 9900
+        },
+        {
+          "owner": "Randy",
+          "pct": 25,
+          "amount": 4950
+        }
+      ]
+    }
+  },
+  "pageErrors": []
+}
