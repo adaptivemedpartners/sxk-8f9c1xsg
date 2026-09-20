@@ -9110,6 +9110,26 @@ html[data-look="light"] body::before { opacity: 0.14; }
   grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px;
   margin-top: 10px; align-items: center;
 }
+/* soft-modify-delete-beside-save-20260920 — keep Cancel / Save&re-fan / Delete visible together */
+.dd-modify .md-actions.md-actions-bar {
+  position: sticky; bottom: 0; z-index: 3;
+  padding: 10px 0 2px; margin-top: 14px;
+  background: linear-gradient(180deg, transparent, var(--card, #fff) 28%);
+  border-top: 1px solid var(--border, #e2e8f0);
+}
+.dd-modify .md-actions .md-delete-btn {
+  border-color: #dc2626; color: #b91c1c; font-weight: 700;
+}
+.dd-modify .md-actions .md-delete-btn:hover {
+  background: #fef2f2; border-color: #b91c1c; color: #991b1b;
+}
+html[data-look="dark"] .dd-modify .md-actions.md-actions-bar {
+  background: linear-gradient(180deg, transparent, var(--panel, #111827) 28%);
+  border-top-color: var(--border, #2a3648);
+}
+html[data-look="dark"] .dd-modify .md-actions .md-delete-btn {
+  border-color: #f87171; color: #fca5a5;
+}
 .dd-modify .md-foot { grid-column: 1 / -1; font-size: 11.5px; color: #64748b; margin: 8px 0 0; }
 
 /* Light Look — white Flow Mock card (Mike lock) */
@@ -37152,7 +37172,18 @@ window.SNAP = {
     window.isLeadership = isLeadership;
     window.isRecruiterIdentity = isRecruiterIdentity;
     window.isMike = isMike;
-  } catch (eExposeAuth) {}
+    Object.defineProperty(window, 'AMP_AUTH', {
+      configurable: true,
+      get: function () { return AMP_AUTH; }
+    });
+  } catch (eExposeAuth) {
+    try {
+      window.hasCap = hasCap;
+      window.isLeadership = isLeadership;
+      window.isMike = isMike;
+      window.AMP_AUTH = AMP_AUTH;
+    } catch (e2) {}
+  }
   function weeklyCanEditName(name) {
     if (isMike()) return true;
     if (!isRecruiterIdentity()) return false;
@@ -71186,20 +71217,26 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     } catch (eComm) {}
   }
 
-  /* soft-modify-delete-exec-gate-fix-20260920 */
+  /* soft-modify-delete-exec-gate-fix-20260920 · soft-modify-delete-beside-save-20260920 */
   function softIsExec() {
     try {
-      if (typeof window.isLeadership === 'function' && typeof window.hasCap === 'function') {
-        if (window.isLeadership() && window.hasCap('hub.exec')) return true;
+      if (typeof window.isMike === 'function' && window.isMike()) return true;
+    } catch (e0) {}
+    try {
+      if (typeof window.isLeadership === 'function' && window.isLeadership()) {
+        if (typeof window.hasCap !== 'function' || window.hasCap('hub.exec')) return true;
       }
     } catch (e1) {}
     try {
-      if (typeof window.isMike === 'function' && window.isMike()) return true;
+      var a = window.AMP_AUTH;
+      if (a && a.signedIn) {
+        if (a.role === 'leadership') return true;
+        if (a.caps && (a.caps['hub.exec'] || a.caps['hub.weekly'])) return true;
+      }
     } catch (e2) {}
     try {
-      /* Hub may also mirror AMP_AUTH later; keep local fallbacks */
-      if (typeof isLeadership === 'function' && typeof hasCap === 'function') {
-        if (isLeadership() && hasCap('hub.exec')) return true;
+      if (typeof isLeadership === 'function' && isLeadership()) {
+        if (typeof hasCap !== 'function' || hasCap('hub.exec')) return true;
       }
     } catch (e3) {}
     return false;
@@ -71222,12 +71259,11 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     body.innerHTML = fieldsHtml +
       '<div class="dd-k">Why / note</div><div class="dd-v"><textarea id="md-note" rows="2" placeholder="Optional — what was wrong / what changed">' + escHtml(row.lastModifyNote || '') + '</textarea></div>' +
       '<div class="dd-k">Status</div><div class="dd-v">' + statusBadge(softProdDisplayStatus(row)) + ' <span class="md-hint">unchanged by modify</span></div>' +
-      '<div class="md-actions">' +
-        '<button type="button" class="mini-btn" id="md-cancel">Cancel</button> ' +
+      '<div class="md-actions md-actions-bar" role="group" aria-label="Modify actions">' +
+        '<button type="button" class="mini-btn" id="md-cancel">Cancel</button>' +
         '<button type="button" class="mini-btn teal" id="md-save" data-row-id="' + escHtml(row.id) + '">Save &amp; re-fan (BH + GM)</button>' +
-        (softIsExec()
-          ? (' <button type="button" class="mini-btn" id="md-delete" data-row-id="' + escHtml(row.id) + '" title="Exec only · permanent Soft delete">Delete</button>')
-          : '') +
+        '<button type="button" class="mini-btn md-delete-btn" id="md-delete" data-row-id="' + escHtml(row.id) + '" title="Exec only · permanent Soft delete"' +
+          (softIsExec() ? '' : ' hidden') + '>Delete</button>' +
       '</div>' +
       '<p class="md-foot" id="md-save-status">Exec Production only · same row id · updates Production + fan-out stubs. Not a new book.</p>';
     backdrop.hidden = false;
@@ -71235,9 +71271,11 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     try { mdWireGmModeToggle(); } catch (eGm) {}
     var cancel = document.getElementById('md-cancel');
     if (cancel) cancel.onclick = function () { closeDealDetail(); };
-    /* soft-prod-delete-in-modify-20260920 */
+    /* soft-prod-delete-in-modify-20260920 · soft-modify-delete-beside-save-20260920 */
     var mdDel = document.getElementById('md-delete');
     if (mdDel) {
+      if (softIsExec()) mdDel.hidden = false;
+      else mdDel.hidden = true;
       mdDel.onclick = function () {
         if (!softIsExec()) {
           toast('Delete is exec-only.');
