@@ -10653,7 +10653,7 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
     max-width: 16rem;
     overflow: visible;
   }
-  /* soft-prod-actions-cluster-20260920 · soft-prod-modify-fixed-width-20260920 · soft-prod-jump-month-row-fix-20260920 · soft-prod-modify-fixed-width-20260920 */
+  /* soft-prod-actions-cluster-20260920 · soft-prod-modify-fixed-width-20260920 · soft-prod-jump-month-row-fix-20260920 · soft-writeoff-modal-opaque-20260920 · soft-prod-modify-fixed-width-20260920 */
   #view-production table.data.prod-table th:last-child,
   #view-production table.data.prod-table td.prod-actions {
     text-align: right !important;
@@ -13435,14 +13435,30 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
 
   /* soft-writeoff-request-20260920 — Deal write-off (Production → Carri QB) */
   .wo-req-backdrop {
-    position: fixed; inset: 0; background: rgba(15, 23, 42, .45); z-index: 82;
+    /* soft-writeoff-modal-opaque-20260920 — solid scrim + panel (var(--card) was unset → transparent) */
+    position: fixed; inset: 0; background: rgba(10, 16, 24, .72); z-index: 100210;
     display: flex; align-items: center; justify-content: center; padding: 16px;
   }
   .wo-req-backdrop[hidden] { display: none !important; }
   .wo-req-modal {
-    width: min(560px, 100%); background: var(--card); border-radius: 14px;
-    border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(15,23,42,.25);
+    width: min(560px, 100%);
+    background: #ffffff;
+    background: var(--panel, var(--card, #ffffff));
+    color: var(--text, #0f172a);
+    border-radius: 14px;
+    border: 1px solid var(--border, #cfd7e3);
+    box-shadow: 0 20px 50px rgba(15,23,42,.35);
     padding: 16px 18px; max-height: min(90vh, 720px); overflow: auto;
+  }
+  html[data-look="light"] .wo-req-modal {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #cfd7e3;
+  }
+  html[data-look="dark"] .wo-req-modal {
+    background: var(--panel, #111827);
+    color: var(--text, #eef3f8);
+    border-color: var(--border, #2a3648);
   }
   .wo-req-modal h3 { margin: 0 0 4px; font-size: 1.05rem; }
   .wo-req-modal .rr-sub { color: #64748b; font-size: 12.5px; margin: 0 0 12px; line-height: 1.4; }
@@ -13454,7 +13470,7 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   .wo-req-modal .rr-field input[type="month"] {
     display: block; width: 100%; margin-top: 4px; padding: 7px 10px;
     border: 1px solid #94A3B8; border-radius: 8px; font: inherit; font-size: 13px;
-    box-sizing: border-box; background: var(--card); color: #0f172a;
+    box-sizing: border-box; background: #ffffff; background: var(--panel-2, var(--card, #ffffff)); color: #0f172a;
   }
   .wo-req-modal .rr-field textarea { min-height: 64px; resize: vertical; }
   .wo-req-modal .rr-ro { font-weight: 550; color: #0f172a; margin-top: 4px; font-size: 13px; }
@@ -13480,7 +13496,7 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   html[data-look="dark"] .wo-req-modal .rr-field select,
   html[data-look="dark"] .wo-req-modal .rr-field textarea,
   html[data-look="dark"] .wo-req-modal .rr-field input {
-    background: var(--card); color: var(--text); border-color: var(--border);
+    background: var(--panel-2, #1a2436); color: var(--text, #eef3f8); border-color: var(--border, #2a3648);
   }
   .gm-rec-actions select { max-width: min(420px, 100%); }
 
