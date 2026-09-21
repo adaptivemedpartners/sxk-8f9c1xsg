@@ -58017,6 +58017,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-recgm-carri-repeat-row-20260921 — Soft Soft: Carri REPEAT → Rec GM Repeat row (Winn PD8448 Nate $600). Soft only. Never Hub. */
 /* soft-winn-jul21-nate-repeat-30-20260921 — Soft Soft: Winn Jul 21 Repeat Brenton60/Nate30/House10 → Nate Rec GM. Soft only. Never Hub. */
 /* soft-jul-kittitas-internet-exec-recurring-20260921 — Soft Soft: Kittitas Jul 1 Internets $790 off BD → exec recurring. Soft only. Never Hub. */
 /* soft-stephanie-cullman-feb-mkt-6020-20260921 — Soft Soft: Feb Cullman Premium Stephanie 60 / Brenton 20 / House 20. Soft only. Never Hub. */
@@ -77370,6 +77371,14 @@ ownersDetailHtml(row) +
       booked: true
     });
   }
+
+  function softRecGmIsCarriRepeatKind(row) {
+    /* soft-recgm-carri-repeat-row-20260921 — Carri REPEAT lines belong on Rec GM Repeat row, not Rolling. */
+    if (!row) return false;
+    if (String(row.carriKind || '').toUpperCase() === 'REPEAT') return true;
+    if (/^\s*REPEAT\s*:/i.test(String(row.gmLabel || ''))) return true;
+    return false;
+  }
   function collectRecGmCreditLines(filter, year) {
     var out = [];
     var y = String(year || '2026');
@@ -77445,7 +77454,11 @@ ownersDetailHtml(row) +
           credit = base;
         }
         if (!(credit > 0)) return;
-        pushGmCreditLine(out, row, credit, 'Rolling');
+        /* soft-recgm-carri-repeat-row-20260921 — Carri REPEAT → Repeat kind (not Rolling) */
+        var lineKind = (typeof softRecGmIsCarriRepeatKind === 'function' && softRecGmIsCarriRepeatKind(row))
+          ? 'Repeat'
+          : 'Rolling';
+        pushGmCreditLine(out, row, credit, lineKind);
       });
     });
     return out;
@@ -78805,7 +78818,17 @@ ownersDetailHtml(row) +
         }
         if (!(credit > 0)) return;
         if (onBoard) {
-          rollStacks[mi].push({ amt: credit, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: row.bookType === 'Placement' ? 'Placement' : 'Deal', label: recGmDealLineLabel(row), month: row.month });
+          /* soft-recgm-carri-repeat-row-20260921 — Carri REPEAT on Repeat row (Nate Winn PD8448 $600 = 30% of $2k FM) */
+          if (typeof softRecGmIsCarriRepeatKind === 'function' && softRecGmIsCarriRepeatKind(row)) {
+            if (!repeatEntries[mi]) {
+              repeatEntries[mi] = { amt: 0, paid: paid, status: row.status || 'Invoiced', gmCashState: row.gmCashState || '', unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: 'Repeat', label: recGmDealLineLabel(row), month: row.month };
+            }
+            repeatEntries[mi].amt += credit;
+            if (!paid) repeatEntries[mi].paid = false;
+            if (softGmIsUnpaidSoT(row)) repeatEntries[mi].unpaid = true;
+          } else {
+            rollStacks[mi].push({ amt: credit, paid: paid, status: row.status, gmCashState: row.gmCashState || "", unpaid: softGmIsUnpaidSoT(row), rowId: stackId, kind: row.bookType === 'Placement' ? 'Placement' : 'Deal', label: recGmDealLineLabel(row), month: row.month });
+          }
         }
         recGmAddToPots(pots, mi, credit, row);
       });
