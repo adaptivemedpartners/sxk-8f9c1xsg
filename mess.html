@@ -5,6 +5,7 @@
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
 /* soft-bd-year-fractions-tentative-20260920 — Soft Soft: Provisional YTD BD deal fractions (Mike) — Brenton 6.6 · Zach 4.4 — TENTATIVE / PROVISIONAL only; split-weighted deal credit (not whole books); unconfirmed pending Randy; read-only annotation strip on Exec BD Yearly + Awards + BD Hub Comp; does NOT mutate Production/BD row SoT. Soft only. Never Hub. */
 /* soft-ihc-16972-mike-randy-5050-20260920 — Soft Soft: Indian Health Center of Santa Clara Valley / Indian Health of Santa Clara Valley QB 16972 Apr 2026 $10k Deal → Split Mike 50% / Randy 50% (bdA/bdB, no House); softGmSplitOverride+Manual; stamp qbInvoice 16972; durable after repeat GM. Soft only. Never Hub. */
+/* soft-2026-rep-labels-from-prod-20260921 — Soft Soft: 2026 recruiter/rep People labels → locked Production owners (clear compounds; AMP House→House; skip Concord 16942 Carrie-pending). Soft only. Never Hub. */
 /* soft-chdi-apr-mkt-30302020-20260920 — Soft Soft: Apr CHDI mkt Mike30/Amy30/Aaron20/House20; Helen Newberry Apr mkt Mike30/Nate30/Randy20/House20; May Winn 2nd mkt Mike35/Nate35/House30 (no marketer); Cullman Jan $5k Brenton Whole; tombstone 16856 Unassigned xl_bd_2026-02_2; 16861/16943/16945 name-drift keep full-name + splits. Soft only. Never Hub. */
 /* soft-aging-exec-pre2026-ors8432-nate-20260920 — Soft Soft: (1) invoice aging strip on Production (outstanding + days unpaid · Soft Soft cash SoT Paid/Invoiced/Booked · spine/QB dates only); (2) Rec GM / commissions / Awards-adjacent payout path counts Mark paid / Paid SoT only (same gate as Awards Paid mode); (3) Exec PDF reports paid/unpaid/aging by recruiter · department · company (print-to-PDF · Soft Soft never calls QB). Soft only. Never Hub. */
 /* soft-comp-gm-tabs-20260920 — Soft Soft work pills Recruiting + BD Hub from Comp & GM splits xlsx (tiers L1–L5, all billable events + %, footnotes; Soft Soft repeat owner face BD60/Rec30/House10 remainder). Soft only. Never Hub. */
@@ -55530,19 +55531,19 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-kalyani-jul-excel-dedupe-20260920'; /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-2026-rep-labels-from-prod-20260921'; /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
 
   /* soft-2026-unmapped-faces-panel-20260920 — static read-only embed; do not invent faces */
   var SOFT_UNMAPPED_2026_FACES = [
   {
     "invoice": "16786",
     "id": "carri_inv_FPOB8385",
-    "people": "AMP House",
-    "gmBucket": "Whole · AMP House 100%",
+    "people": "House",
+    "gmBucket": "Whole · House 100%",
     "amount": 2000,
     "client": "Blue Mountain Hospital",
     "date": "2026-01-15",
-    "mapStatus": "unmapped",
+    "mapStatus": "mapped",
     "mapKind": "plain",
     "cash": "paid"
   },
@@ -55662,7 +55663,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     "amount": 10000,
     "client": "Indian Health of Santa Clara Valley",
     "date": "2026-04-30",
-    "mapStatus": "compound_unmapped",
+    "mapStatus": "mapped",
     "mapKind": "compound",
     "cash": "unpaid"
   },
@@ -55988,6 +55989,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   function softShortRepName(name) {
     var s = String(name == null ? '' : name).trim();
     if (!s) return '';
+    if (/^(amp\s*)?house$/i.test(s)) return 'House'; /* soft-2026-rep-labels-from-prod-20260921 */
     if (/^nate(\s|$)/i.test(s)) return 'Nate';
     if (/^stephanie(\s|$)/i.test(s)) return 'Stephanie';
     if (/^hadley(\s|$)/i.test(s)) return 'Hadley';
@@ -58384,6 +58386,248 @@ function ensureCarriGmSeed(s) {
   }
   try { window.__softEnsureCopperQueen17037RandyKelley5050 = ensureCopperQueen17037RandyKelley5050; } catch (eCq17037) {}
 
+  function softIsAmpHouseLiteral(name) {
+    return /^amp\s*house$/i.test(String(name == null ? '' : name).trim());
+  }
+  function softIsHouseName(name) {
+    return /^(amp\s*)?house$/i.test(String(name == null ? '' : name).trim());
+  }
+  function softIsAmpHouseName(name) { /* back-compat alias: AMP House literal only */
+    return softIsAmpHouseLiteral(name);
+  }
+  function softOwnerRawIsCompound(name) {
+    return /[\/|]/.test(String(name == null ? '' : name));
+  }
+  function softCanonicalRepLabelName(name) {
+    var s = String(name == null ? '' : name).trim();
+    if (!s) return '';
+    if (softIsHouseName(s)) return 'House';
+    return (typeof softShortRepName === 'function') ? softShortRepName(s) : s.split(/[\s,/]+/)[0];
+  }
+  function softCollectLockedOwnerEntries(owners) {
+    /* Return [{name,pct}] when Production owners are locked & unambiguous (no slash compounds). */
+    if (!owners || typeof owners !== 'object') return null;
+    var out = [];
+    var compound = false;
+    function add(name, pct) {
+      var raw = String(name == null ? '' : name).trim();
+      if (!raw) return;
+      if (softOwnerRawIsCompound(raw) && !softIsAmpHouseName(raw)) { compound = true; return; }
+      var n = softCanonicalRepLabelName(raw);
+      if (!n) return;
+      var p = (pct != null && pct !== '') ? Number(pct) : null;
+      if (p != null && !isFinite(p)) p = null;
+      for (var i = 0; i < out.length; i++) {
+        if (out[i].name === n) {
+          if (p != null && (out[i].pct == null || out[i].pct === '')) out[i].pct = p;
+          return;
+        }
+      }
+      out.push({ name: n, pct: p });
+    }
+    var prim = owners.primary;
+    if (prim != null) {
+      if (typeof prim === 'string') add(prim, 100);
+      else if (prim && typeof prim === 'object') add(prim.name, prim.pct != null ? prim.pct : 100);
+    }
+    if (owners.bdA) add(owners.bdA.name, owners.bdA.pct);
+    if (owners.bdB) add(owners.bdB.name, owners.bdB.pct);
+    if (owners.a) add(owners.a.name, owners.a.pct);
+    if (owners.b) add(owners.b.name, owners.b.pct);
+    if (owners.recruiter) add(owners.recruiter.name || owners.recruiter, owners.recruiter.pct);
+    if (owners.repeatRecipient) add(owners.repeatRecipient.name, owners.repeatRecipient.pct);
+    (owners.reps || []).forEach(function (r) { if (r) add(r.name, r.pct); });
+    if (owners.housePct != null && Number(owners.housePct) > 0) add('House', Number(owners.housePct));
+    if (compound) return null;
+    if (!out.length) return null;
+    return out;
+  }
+  function softRowIs2026ForRepLabels(row) {
+    if (!row) return false;
+    if (/^2026/.test(String(row.month || ''))) return true;
+    if (/^2026/.test(String(row.date || ''))) return true;
+    return false;
+  }
+  function softSkip2026RepLabelRow(row) {
+    /* Concord 16942 + Carrie-pending — do not touch */
+    if (!row) return true;
+    var qb = String(row.qbInvoice || row.qbNumber || row.sampleId || '').trim();
+    var id = String(row.id || '');
+    if (qb === '16942' || id === 'xl_mkt_2026-04_33' || id === 'carri_qb_16942') return true;
+    if (/Concord/i.test(String(row.client || '')) && /Zach\s*\/\s*Aaron\s*\/\s*Brenton/i.test(
+      String(row.marketer || '') + ' ' + String(row.people || '') + ' ' + String(row.peopleRaw || '')
+    )) return true;
+    return false;
+  }
+  function softNormalizeAmpHouseInOwners(row) {
+    if (!row || !row.owners) return false;
+    var ow = row.owners;
+    var changed = false;
+    function norm(v) {
+      if (typeof v === 'string' && softIsAmpHouseLiteral(v)) return 'House';
+      if (v && typeof v === 'object' && softIsAmpHouseLiteral(v.name)) {
+        v.name = 'House';
+        return v;
+      }
+      return v;
+    }
+    if (ow.primary != null) {
+      var np = norm(ow.primary);
+      if (np !== ow.primary || (typeof np === 'object')) {
+        if (typeof ow.primary === 'string' && softIsAmpHouseLiteral(ow.primary)) {
+          ow.primary = 'House';
+          changed = true;
+        } else if (ow.primary && typeof ow.primary === 'object' && softIsAmpHouseLiteral(ow.primary.name)) {
+          ow.primary.name = 'House';
+          changed = true;
+        }
+      }
+    }
+    ['bdA','bdB','a','b','recruiter','repeatRecipient'].forEach(function (k) {
+      if (ow[k] && softIsAmpHouseLiteral(ow[k].name || ow[k])) {
+        if (typeof ow[k] === 'string') ow[k] = 'House';
+        else ow[k].name = 'House';
+        changed = true;
+      }
+    });
+    (ow.reps || []).forEach(function (r) {
+      if (r && softIsAmpHouseLiteral(r.name)) { r.name = 'House'; changed = true; }
+    });
+    if (changed) {
+      if (ow.mode === 'Whole' || !ow.mode) {
+        row.gmMode = row.gmMode || 'Whole';
+        row.gmLabel = 'Whole · House 100%';
+      }
+      row.softGmSplitManual = true;
+    }
+    return changed;
+  }
+  function softRepLabelFieldsNeedAlign(row, entries) {
+    var ownerSet = {};
+    entries.forEach(function (e) { ownerSet[e.name] = true; });
+    function dirtyVal(val) {
+      var s = String(val == null ? '' : val).trim();
+      if (!s) return false;
+      if (softIsAmpHouseLiteral(s)) return true; /* AMP House → House */
+      if (softOwnerRawIsCompound(s)) return true;
+      var parts = s.split(/\s*,\s*/);
+      for (var i = 0; i < parts.length; i++) {
+        var n = softCanonicalRepLabelName(parts[i]);
+        if (!n) continue;
+        if (!ownerSet[n]) return true;
+      }
+      return false;
+    }
+    if (dirtyVal(row.rep) || dirtyVal(row.marketer) || dirtyVal(row.repeatRep) ||
+        dirtyVal(row.people) || dirtyVal(row.peopleRaw) || dirtyVal(row.recruiter) || dirtyVal(row.researchRep)) {
+      return true;
+    }
+    /* marketer / repeatRep present but not in locked owners → softRowPeople jumbles People */
+    var mk = softCanonicalRepLabelName(row.marketer);
+    if (mk && !ownerSet[mk]) return true;
+    var rr = softCanonicalRepLabelName(row.repeatRep);
+    if (rr && !ownerSet[rr]) return true;
+    var rc = softCanonicalRepLabelName(row.recruiter);
+    if (rc && !ownerSet[rc]) return true;
+    return false;
+  }
+  function softApply2026RepLabelsFromOwners(row, entries) {
+    var stamp = 'soft-2026-rep-labels-from-prod-20260921';
+    var ownerSet = {};
+    entries.forEach(function (e) { ownerSet[e.name] = true; });
+    var display = entries.map(function (e) { return e.name; }).filter(function (n) { return n !== 'House'; });
+    if (!display.length && ownerSet.House) display = ['House'];
+    var peopleStr = display.join(', ');
+    var before = JSON.stringify({
+      rep: row.rep, marketer: row.marketer, repeatRep: row.repeatRep, recruiter: row.recruiter,
+      people: row.people, peopleRaw: row.peopleRaw, gm: row.gmLabel
+    });
+    softNormalizeAmpHouseInOwners(row);
+    row.rep = display[0] || 'House';
+    if (row.marketer != null && String(row.marketer).trim() !== '') {
+      var mk = softCanonicalRepLabelName(row.marketer);
+      row.marketer = (mk && ownerSet[mk]) ? mk : '';
+    }
+    if (row.repeatRep != null && String(row.repeatRep).trim() !== '') {
+      var rp = softCanonicalRepLabelName(row.repeatRep);
+      row.repeatRep = (rp && ownerSet[rp]) ? rp : '';
+    }
+    if (row.recruiter != null && String(row.recruiter).trim() !== '') {
+      var rc = softCanonicalRepLabelName(row.recruiter);
+      row.recruiter = (rc && ownerSet[rc]) ? rc : '';
+    }
+    if (row.researchRep != null && String(row.researchRep).trim() !== '') {
+      var rs = softCanonicalRepLabelName(row.researchRep);
+      if (rs && !ownerSet[rs]) row.researchRep = '';
+    }
+    row.people = peopleStr;
+    row.peopleRaw = peopleStr;
+    var after = JSON.stringify({
+      rep: row.rep, marketer: row.marketer, repeatRep: row.repeatRep, recruiter: row.recruiter,
+      people: row.people, peopleRaw: row.peopleRaw, gm: row.gmLabel
+    });
+    if (before === after) return false;
+    row.soft2026RepLabelsFromProd = stamp;
+    return true;
+  }
+  function ensureSoft2026RepLabelsFromProduction(state) {
+    /* soft-2026-rep-labels-from-prod-20260921 — align 2026 people/rep/marketer display to locked Production owners.
+       Does NOT invent owner %s. Skips Concord 16942 Carrie-pending. Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = 'soft-2026-rep-labels-from-prod-20260921';
+    var flipped = 0;
+    var ids = [];
+    var changes = [];
+    var skipped = [];
+    state.rows.forEach(function (row) {
+      if (!row || row.example) return;
+      if (!softRowIs2026ForRepLabels(row)) return;
+      if (softSkip2026RepLabelRow(row)) {
+        skipped.push(String(row.id || row.sampleId || ''));
+        return;
+      }
+      /* AMP House rename even on Carri BD GM seeds (name canonicalize only) */
+      var ampHit = softIsAmpHouseLiteral(row.rep) || softIsAmpHouseLiteral(row.people) || softIsAmpHouseLiteral(row.peopleRaw) ||
+        (row.owners && softIsAmpHouseLiteral(typeof row.owners.primary === 'string' ? row.owners.primary : (row.owners.primary && row.owners.primary.name)));
+      if (row.carriGmSeed || row.carriBdGmSeed) {
+        if (!ampHit) return;
+      }
+      try { if (typeof ensureOwners === 'function') ensureOwners(row); } catch (eEns) {}
+      var houseTouched = softNormalizeAmpHouseInOwners(row);
+      var entries = softCollectLockedOwnerEntries(row.owners);
+      if (!entries) {
+        if (houseTouched) {
+          flipped++;
+          ids.push(String(row.id || ''));
+          changes.push({ id: String(row.id || ''), before: 'AMP House', after: 'House', note: 'owners-primary-only' });
+        }
+        return;
+      }
+      if (!softRepLabelFieldsNeedAlign(row, entries) && !houseTouched) return;
+      var beforePeople = String(row.peopleRaw || row.people || row.rep || '');
+      var beforeMarketer = String(row.marketer || '');
+      if (softApply2026RepLabelsFromOwners(row, entries) || houseTouched) {
+        flipped++;
+        ids.push(String(row.id || ''));
+        changes.push({
+          id: String(row.id || ''),
+          qb: String(row.qbInvoice || row.qbNumber || ''),
+          client: String(row.client || '').slice(0, 60),
+          before: beforePeople + (beforeMarketer ? (' | marketer=' + beforeMarketer) : ''),
+          after: String(row.peopleRaw || row.people || row.rep || '') +
+            (row.marketer ? (' | marketer=' + row.marketer) : '')
+        });
+      }
+    });
+    state.soft2026RepLabelsFromProduction = {
+      stamp: stamp, flipped: flipped, ids: ids, changes: changes, skippedConcord: skipped, at: '2026-09-21'
+    };
+    return state;
+  }
+  try { window.__softEnsureSoft2026RepLabelsFromProduction = ensureSoft2026RepLabelsFromProduction; } catch (e2026Rep) {}
+
+
+
 
 
   function ensureChdi16856UnassignedDedupe(state) {
@@ -58956,6 +59200,7 @@ function softIsoDate(v) {
     ensureCullmanJan5kBrenton(s); /* soft-cullman-jan-5k-brenton-20260920 */
     ensureIhc16972MikeRandy5050(s); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
     ensureCopperQueen17037RandyKelley5050(s); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
+    try { ensureSoft2026RepLabelsFromProduction(s); } catch (e2026RepLab) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     return s;
@@ -71856,6 +72101,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureSoftProdPaidFromSpineSoT(state);
     ensureIhc16972MikeRandy5050(state); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
     ensureCopperQueen17037RandyKelley5050(state); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
+    try { ensureSoft2026RepLabelsFromProduction(state); } catch (e2026RepLab2) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureMidland17004MktStephanie7030(state); /* soft-midland-17004-mkt-stephanie-7030-20260920 — AFTER repeat GM */
     ensureOrs8432NateGm(state); /* soft-ors8432-spine-nate-20260920 — LAST before catch end */
   } catch (eSpineCashBoot) {}
