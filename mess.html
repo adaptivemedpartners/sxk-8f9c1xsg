@@ -53219,6 +53219,9 @@ function mktSendAmplified(searchKey) {
             <span class="badge" id="exec-prod-badge">Live · 2026 year</span>
           </div>
           <div class="exec-prod-statrow" id="exec-prod-statrow"></div>
+          
+        </div>
+          <div class="exec-prod-sections" id="exec-prod-sections"></div>
           <div class="prod-aging-strip" id="prod-aging-strip" hidden aria-label="Invoice aging early warning (Exec only)">
           <div class="prod-aging-head">
             <strong>Invoice aging</strong>
@@ -53235,8 +53238,6 @@ function mktSendAmplified(searchKey) {
           </div>
           <div class="prod-aging-buckets" id="prod-aging-buckets" role="group" aria-label="Aging buckets"></div>
           <div id="prod-aging-body"><div class="prod-aging-empty">Loading aging…</div></div>
-        </div>
-          <div class="exec-prod-sections" id="exec-prod-sections"></div>
         </div>
       </div>
 
@@ -55531,7 +55532,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-exec-pl-1st-half-booked-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-aging-bucket-subtotals-bottom-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
 
   /* soft-2026-unmapped-faces-prune-20260921 — pruned to open only (Concord 16942); panel kept; do not invent faces */
   var SOFT_UNMAPPED_2026_FACES = [
@@ -75384,19 +75385,28 @@ ownersDetailHtml(row) +
     var asof = softTodayIsoLocal();
     var faces = softCollectInvoiceCashFaces({ asof: asof }).filter(function (f) { return f.cash === 'unpaid'; });
     var counts = { all: faces.length, b30: 0, b60: 0, b90: 0, b90p: 0, unknown: 0 };
-    var openSum = 0;
+    var sums = { all: 0, b30: 0, b60: 0, b90: 0, b90p: 0, unknown: 0 };
     faces.forEach(function (f) {
-      openSum += Number(f.openBalance || f.amount) || 0;
+      var amt = Number(f.openBalance || f.amount) || 0;
+      sums.all += amt;
       var b = f.bucket || 'unknown';
       if (counts[b] == null) counts[b] = 0;
+      if (sums[b] == null) sums[b] = 0;
       counts[b]++;
+      sums[b] += amt;
     });
+    function fmtMoney(n) {
+      return (typeof money === 'function') ? money(n) : String(n);
+    }
     var bucketsEl = document.getElementById('prod-aging-buckets');
     if (bucketsEl) {
+      /* soft-aging-bucket-subtotals-bottom-20260921 — each bucket pill shows count + $ subtotal */
       bucketsEl.innerHTML = ['all', 'b30', 'b60', 'b90', 'b90p'].map(function (k) {
         var n = counts[k] || 0;
+        var s = sums[k] || 0;
         return '<button type="button" class="prod-aging-bucket' + (ui.bucket === k ? ' active' : '') +
-          '" data-aging-bucket="' + k + '">' + softAgingBucketLabel(k) + ' · ' + n + '</button>';
+          '" data-aging-bucket="' + k + '" title="' + softAgingBucketLabel(k) + ' subtotal">' +
+          softAgingBucketLabel(k) + ' · ' + n + ' · ' + fmtMoney(s) + '</button>';
       }).join('');
     }
     var boardSel = document.getElementById('prod-aging-board-filter');
@@ -75407,6 +75417,12 @@ ownersDetailHtml(row) +
       if (ui.bucket === 'all') return true;
       return f.bucket === ui.bucket;
     }).sort(function (a, b) {
+      var ba = String(a.bucket || 'unknown');
+      var bb = String(b.bucket || 'unknown');
+      var order = { b30: 1, b60: 2, b90: 3, b90p: 4, unknown: 5 };
+      var oa = order[ba] || 9;
+      var ob = order[bb] || 9;
+      if (oa !== ob) return oa - ob;
       var da = a.daysUnpaid == null ? -1 : a.daysUnpaid;
       var db = b.daysUnpaid == null ? -1 : b.daysUnpaid;
       return db - da;
@@ -75415,7 +75431,7 @@ ownersDetailHtml(row) +
       body.innerHTML = '<div class="prod-aging-empty">No outstanding (Invoiced) invoices for this filter · Soft Soft cash SoT.</div>';
       return;
     }
-    var rows = list.slice(0, 40).map(function (f) {
+    function faceRowHtml(f) {
       var days = f.daysUnpaid;
       var daysCls = 'prod-aging-days';
       if (days != null && days >= 90) daysCls += ' hot';
@@ -75425,22 +75441,54 @@ ownersDetailHtml(row) +
         '<td><strong>' + escHtml(f.qb || '—') + '</strong></td>' +
         '<td>' + escHtml(f.client || '—') +
           (f.searchRefs ? '<div style="font-size:11px;opacity:.75">' + escHtml(f.searchRefs) + '</div>' : '') + '</td>' +
-        '<td class="num">' + (typeof money === 'function' ? money(f.openBalance || f.amount) : String(f.openBalance || f.amount)) + '</td>' +
+        '<td class="num">' + fmtMoney(f.openBalance || f.amount) + '</td>' +
         '<td>' + escHtml(f.date || '—') + '</td>' +
         '<td class="' + daysCls + '">' + daysTxt + '</td>' +
         '<td>' + escHtml(f.department || '') + '</td>' +
         '</tr>';
-    }).join('');
+    }
+    var tableBits = [];
+    if (ui.bucket === 'all') {
+      ['b30', 'b60', 'b90', 'b90p', 'unknown'].forEach(function (k) {
+        var block = list.filter(function (f) { return (f.bucket || 'unknown') === k; });
+        if (!block.length) return;
+        var sub = block.reduce(function (s, f) { return s + (Number(f.openBalance || f.amount) || 0); }, 0);
+        tableBits.push(
+          '<div class="prod-aging-block" data-aging-block="' + k + '" style="margin:10px 0 14px">' +
+          '<div style="font-size:0.78rem;font-weight:700;margin:0 0 6px">' +
+          escHtml(softAgingBucketLabel(k)) + ' · ' + block.length + ' · ' + fmtMoney(sub) +
+          '</div>' +
+          '<table class="prod-aging-table"><thead><tr>' +
+          '<th>QB #</th><th>Client</th><th class="num">Open</th><th>Invoice date</th><th>Days unpaid</th><th>Dept</th>' +
+          '</tr></thead><tbody>' +
+          block.slice(0, 40).map(faceRowHtml).join('') +
+          '<tr class="sec-total"><td colspan="2">Bucket subtotal</td><td class="num">' + fmtMoney(sub) +
+          '</td><td colspan="3">' + block.length + ' invoice' + (block.length === 1 ? '' : 's') + '</td></tr>' +
+          '</tbody></table></div>'
+        );
+      });
+    } else {
+      var subOne = list.reduce(function (s, f) { return s + (Number(f.openBalance || f.amount) || 0); }, 0);
+      tableBits.push(
+        '<table class="prod-aging-table"><thead><tr>' +
+        '<th>QB #</th><th>Client</th><th class="num">Open</th><th>Invoice date</th><th>Days unpaid</th><th>Dept</th>' +
+        '</tr></thead><tbody>' +
+        list.slice(0, 40).map(faceRowHtml).join('') +
+        '<tr class="sec-total"><td colspan="2">' + escHtml(softAgingBucketLabel(ui.bucket)) + ' subtotal</td><td class="num">' +
+        fmtMoney(subOne) + '</td><td colspan="3">' + list.length + ' invoice' + (list.length === 1 ? '' : 's') +
+        '</td></tr></tbody></table>'
+      );
+    }
+    var filterSum = ui.bucket === 'all' ? sums.all : (sums[ui.bucket] || 0);
     body.innerHTML =
       '<div style="font-size:0.72rem;margin-bottom:6px;opacity:.9">Open ' +
-      (typeof money === 'function' ? money(openSum) : String(openSum)) +
-      ' · ' + faces.length + ' outstanding · as-of ' + escHtml(asof) +
+      fmtMoney(filterSum) +
+      ' · ' + list.length + ' in view · ' + faces.length + ' outstanding total · as-of ' + escHtml(asof) +
       ' · early warning before Deal write-off</div>' +
-      '<table class="prod-aging-table"><thead><tr>' +
-      '<th>QB #</th><th>Client</th><th class="num">Open</th><th>Invoice date</th><th>Days unpaid</th><th>Dept</th>' +
-      '</tr></thead><tbody>' + rows + '</tbody></table>' +
-      (list.length > 40 ? '<div class="prod-aging-empty">Showing 40 of ' + list.length + ' — use Exec invoice PDFs for full pull.</div>' : '');
+      tableBits.join('') +
+      (list.length > 40 && ui.bucket !== 'all' ? '<div class="prod-aging-empty">Showing 40 of ' + list.length + ' — use Exec invoice PDFs for full pull.</div>' : '');
   }
+
   function softExecInvPdfUi() {
     if (!state.execInvPdfUi || typeof state.execInvPdfUi !== 'object') {
       state.execInvPdfUi = { report: 'aging', scope: 'company', dept: 'recruiting', person: '', asof: softTodayIsoLocal() };
