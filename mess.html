@@ -9,6 +9,7 @@
 /* soft-woodland-apr-mkt-7030-20260921 — Woodland Heights Apr mkt 16944 Stephanie70/House30. Soft only. Never Hub. */
 /* soft-ihc-apr-mkt-8020-20260921 — IHC Santa Clara Apr mkt 16971 Mike80/House20. Soft only. Never Hub. */
 /* soft-md-gm-pct-decimals-20260921 — Modify GM % inputs accept decimals (step 0.01); no integer round on save. Soft only. Never Hub. */
+/* soft-internet-bool-not-dollars-20260921 — Soft Soft: Internet Yes/No separate from dollars; 0/1/Y/N never render as $0/$1; South Central xl_bd_2026-04_3 internets 1→internetOn+internets 0; marketing book no longer writes amount into internets; softInternetOn/softInternetDollars helpers; boot ensure migrates boolean tokens. Soft only. Never Hub. */
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
 /* soft-bd-year-fractions-tentative-20260920 — Soft Soft: Provisional YTD BD deal fractions (Mike) — Brenton 6.6 · Zach 4.4 — TENTATIVE / PROVISIONAL only; split-weighted deal credit (not whole books); unconfirmed pending Randy; read-only annotation strip on Exec BD Yearly + Awards + BD Hub Comp; does NOT mutate Production/BD row SoT. Soft only. Never Hub. */
 /* soft-ihc-16972-mike-randy-5050-20260920 — Soft Soft: Indian Health Center of Santa Clara Valley / Indian Health of Santa Clara Valley QB 16972 Apr 2026 $10k Deal → Split Mike 50% / Randy 50% (bdA/bdB, no House); softGmSplitOverride+Manual; stamp qbInvoice 16972; durable after repeat GM. Soft only. Never Hub. */
@@ -55995,10 +55996,53 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   function softBdSearchHay(r) {
     return String((r && (r.dealRef || '')) + ' ' + (r && (r.searchRefs || '')) + ' ' + (r && (r.bhSearch || ''))).toUpperCase();
   }
+  /* soft-internet-bool-not-dollars-20260921 — Internet Yes/No separate from dollar amounts */
+  function softInternetIsBoolToken(v) {
+    if (v === true || v === false) return true;
+    if (v == null || v === '') return false;
+    var s = String(v).trim().toLowerCase();
+    return s === '0' || s === '1' || s === 'y' || s === 'n' || s === 'yes' || s === 'no' || s === 'true' || s === 'false';
+  }
+  function softInternetOn(row) {
+    if (!row) return false;
+    if (row.internetOn === true || row.internetOn === false) return !!row.internetOn;
+    if (row.internetOff === true) return false;
+    var v = row.internets;
+    if (v === true) return true;
+    if (v === false || v == null || v === '') return false;
+    var s = String(v).trim().toLowerCase();
+    if (s === '1' || s === 'y' || s === 'yes' || s === 'true') return true;
+    if (s === '0' || s === 'n' || s === 'no' || s === 'false') return false;
+    var n = Number(v);
+    if (isFinite(n) && n > 1) return true;
+    return false;
+  }
+  function softInternetDollars(row) {
+    if (!row) return 0;
+    if (row.internetDollars != null && row.internetDollars !== '') {
+      var d = Number(row.internetDollars);
+      if (isFinite(d) && d > 1) return d;
+    }
+    var v = row.internets;
+    if (v == null || v === '' || softInternetIsBoolToken(v)) return 0;
+    var n = Number(v);
+    if (!isFinite(n) || n <= 1) return 0;
+    return n;
+  }
+  function softInternetCellHtml(row) {
+    var on = softInternetOn(row);
+    var dol = softInternetDollars(row);
+    if (dol > 0) {
+      var label = on ? ('Yes · ' + money(dol)) : money(dol);
+      return '<td class="num">' + label + '</td>';
+    }
+    return '<td class="num">' + (on ? 'Yes' : 'No') + '</td>';
+  }
+
   function softBdMoney(r) {
     if (!r) return 0;
     return (Number(r.initiation) || 0) + (Number(r.firstMonthRetainer) || 0) +
-      (Number(r.internets) || 0) + (Number(r.accountingBilled) || 0) +
+      softInternetDollars(r) + (Number(r.accountingBilled) || 0) +
       (Number(r.bookValueThisMonth) || 0);
   }
   function softIsZeroParkClone(r) {
@@ -56128,6 +56172,38 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
       row.softWoodlandAprMktLock = stamp;
     });
     return state;
+  }
+
+  
+  function ensureInternetBoolNotDollars20260921(s) {
+    /* soft-internet-bool-not-dollars-20260921 — migrate 0/1/Y/N internets tokens → internetOn; clear boolean-as-dollars. Soft only. Never Hub. */
+    if (!s || !Array.isArray(s.rows)) return s;
+    if (s._softInternetBoolNotDollars20260921) return s;
+    var migrated = [];
+    s.rows.forEach(function (row) {
+      if (!row || row.example) return;
+      var v = row.internets;
+      var isBool = (v === true || v === false);
+      if (!isBool && v != null && v !== '') {
+        var sVal = String(v).trim().toLowerCase();
+        isBool = (sVal === '0' || sVal === '1' || sVal === 'y' || sVal === 'n' || sVal === 'yes' || sVal === 'no' || sVal === 'true' || sVal === 'false');
+      }
+      if (!isBool) return;
+      var on = false;
+      if (row.internetOn === true || row.internetOn === false) on = !!row.internetOn;
+      else {
+        var sv = String(v).trim().toLowerCase();
+        on = (v === true || sv === '1' || sv === 'y' || sv === 'yes' || sv === 'true');
+      }
+      var before = row.internets;
+      row.internetOn = on;
+      row.internets = 0;
+      migrated.push({ id: row.id, client: row.client, month: row.month, qbInvoice: row.qbInvoice || '', before: before, after: { internetOn: on, internets: 0 } });
+    });
+    s._softInternetBoolNotDollars20260921 = 'soft-internet-bool-not-dollars-20260921';
+    s._softInternetBoolMigrated = migrated;
+    try { console.info('[soft-internet-bool]', migrated.length, migrated); } catch (eLog) {}
+    return s;
   }
 
   function ensureIhcAprMktSplit8020(state) {
@@ -56357,7 +56433,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   function softCarriBackfillMoney(row) {
     if (!row) return 0;
     return (Number(row.initiation) || 0) + (Number(row.firstMonthRetainer) || 0) +
-      (Number(row.internets) || 0) + (Number(row.accountingBilled) || 0) +
+      softInternetDollars(row) + (Number(row.accountingBilled) || 0) +
       (Number(row.bookValueThisMonth) || 0) + (Number(row.fee) || 0);
   }
   function softIsIsoYmd(s) {
@@ -56378,7 +56454,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     if (init === 0 && fm === 0) {
       if ((Number(row.numberOfMonthlies) || 0) > 0) return true;
       if ((Number(row.monthlyAmount) || 0) > 0) return true;
-      if ((Number(row.internets) || 0) > 0) return true;
+      if (softInternetDollars(row) > 0 || softInternetOn(row)) return true;
       if (softCarriBackfillMoney(row) === 0) return true; /* $0 park shells */
       if ((Number(row.accountingBilled) || 0) > 0 || (Number(row.bookValueThisMonth) || 0) > 0) return true;
     }
@@ -56403,7 +56479,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
       r.softJanBookedOnly = stamp;
       if (!r.lineKind || r.lineKind === 'initiation+current') {
         if (softCarriBackfillMoney(r) === 0) r.lineKind = 'carri-backfill-zero-shell';
-        else if ((Number(r.internets) || 0) > 0 && !(Number(r.numberOfMonthlies) || 0)) r.lineKind = 'carri-backfill-internets';
+        else if ((softInternetDollars(r) > 0 || softInternetOn(r)) && !(Number(r.numberOfMonthlies) || 0)) r.lineKind = 'carri-backfill-internets';
         else r.lineKind = 'carri-backfill-rolling';
       }
       if ((Number(r.numberOfMonthlies) || 0) > 0 || (Number(r.monthlyAmount) || 0) > 0) {
@@ -57328,7 +57404,7 @@ function ensureCarriGmSeed(s) {
     if (row.bookType === 'Marketing') return Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
     var billed = Number(row.accountingBilled != null ? row.accountingBilled : 0) || 0;
     if (billed > 0) return billed;
-    return (Number(row.initiation) || 0) + (Number(row.firstMonthRetainer) || 0) + (Number(row.internets) || 0);
+    return (Number(row.initiation) || 0) + (Number(row.firstMonthRetainer) || 0) + softInternetDollars(row);
   }
   function softProdQbFace(row) {
     return String((row && (row.qbInvoice || row.qbNumber)) || '').trim();
@@ -59205,7 +59281,7 @@ function ensureCarriGmSeed(s) {
         var amt2 = 0;
         if (r.bookType === 'Placement') amt2 = Number(r.fee != null ? r.fee : r.accountingBilled) || 0;
         else if (r.bookType === 'Marketing') amt2 = Number(r.accountingBilled != null ? r.accountingBilled : r.bookValueThisMonth) || 0;
-        else amt2 = Number(r.accountingBilled != null ? r.accountingBilled : 0) || ((Number(r.initiation)||0)+(Number(r.firstMonthRetainer)||0)+(Number(r.internets)||0));
+        else amt2 = Number(r.accountingBilled != null ? r.accountingBilled : 0) || ((Number(r.initiation)||0)+(Number(r.firstMonthRetainer)||0)+softInternetDollars(r));
         var c2 = softPaidNormClient(r.client);
         var mo2 = String(r.month || '').slice(0, 7);
         var a2 = softPaidAmtKey(amt2);
@@ -59453,6 +59529,7 @@ function softIsoDate(v) {
     ensureMorongoAprMktSplit602020(s); /* soft-morongo-apr-mkt-602020-20260921 */
     ensureWoodlandAprMktSplit7030(s); /* soft-woodland-apr-mkt-7030-20260921 */
     ensureIhcAprMktSplit8020(s); /* soft-ihc-apr-mkt-8020-20260921 */
+    ensureInternetBoolNotDollars20260921(s); /* soft-internet-bool-not-dollars-20260921 */
     ensureCopperQueen17037RandyKelley5050(s); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
     try { ensureSoft2026RepLabelsFromProduction(s); } catch (e2026RepLab) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
@@ -68128,7 +68205,8 @@ function softIsoDate(v) {
       specialties: "FP",
       initiation: 2500,
       firstMonthRetainer: 1500,
-      internets: 1,
+      internetOn: true,
+      internets: 0,
       accountingBilled: 4000,
       accountingBilledRaw: "YES",
       gmMode: "Whole",
@@ -71091,7 +71169,8 @@ function softIsoDate(v) {
       row.campaign = payload.campaignPackage;
       row.specialties = payload.specialty || 'Marketing';
       row.marketer = payload.marketer || '';
-      row.internets = payload.amount;
+      row.internets = 0;
+      row.internetOn = false;
       row.accountingBilled = payload.amount;
       row.bookValueThisMonth = payload.amount;
       row.initiation = 0;
@@ -73521,7 +73600,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     if (row.bookType === 'Placement') return '17040';
     if (row.bookType === 'Marketing') return '17078'; // standalone standard marketing campaign
     // Internets (web postings) — Production Internets column
-    var inet = Number(row.internets);
+    var inet = softInternetDollars(row);
     if (isFinite(inet) && inet > 0 && !Number(row.initiation) && !Number(row.firstMonthRetainer)) {
       return '17021';
     }
@@ -74354,7 +74433,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
           '<td>' + glowText(prodBdRepeatLabel(row)) + '</td>' + /* soft-overnight-cleanup-20260920: New|Repeat only */
           '<td>' + glowText(row.specialties || '') + '</td>' +
           moneyCell(row.initiation) + moneyCell(row.firstMonthRetainer) +
-          moneyCell(row.internets) + moneyCell(row.accountingBilled) +
+          softInternetCellHtml(row) + moneyCell(row.accountingBilled) +
           '<td>' + glowHtml(statusBadge(softProdDisplayStatus(row))) + '</td><td class="prod-actions">' + actions + '</td>';
         bdBody.appendChild(tr2);
       }
@@ -74386,7 +74465,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     if (row.bookType === 'Marketing') return Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
     /* Deal / BD */
     if (row.accountingBilled != null && row.accountingBilled !== '') return Number(row.accountingBilled) || 0;
-    return (Number(row.initiation) || 0) + (Number(row.firstMonthRetainer) || 0) + (Number(row.internets) || 0);
+    return (Number(row.initiation) || 0) + (Number(row.firstMonthRetainer) || 0) + softInternetDollars(row);
   }
   function prodCountSearchRefs(row) {
     var raw = String(row.searchRefs || row.dealRef || '').trim();
@@ -74971,7 +75050,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="dd-k">First month</div><div class="dd-v"><input type="number" id="md-first" value="' + escHtml(row.firstMonthRetainer != null ? row.firstMonthRetainer : '') + '" step="1" /></div>' +
       '<div class="dd-k">Monthly $</div><div class="dd-v"><input type="number" id="md-monthly" value="' + escHtml(row.monthlyAmount != null ? row.monthlyAmount : '') + '" step="1" /></div>' +
       '<div class="dd-k"># Monthlies</div><div class="dd-v"><input type="number" id="md-nmo" value="' + escHtml(row.numberOfMonthlies != null ? row.numberOfMonthlies : '') + '" step="1" min="0" /></div>' +
-      '<div class="dd-k">Internets $</div><div class="dd-v"><input type="number" id="md-inet" value="' + escHtml(row.internets != null ? row.internets : '') + '" step="1" /></div>' +
+      '<div class="dd-k">Internet</div><div class="dd-v"><label style="display:inline-flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="md-inet-on"' + (softInternetOn(row) ? ' checked' : '') + ' /> Yes</label></div>' +
+      '<div class="dd-k">Internets $</div><div class="dd-v"><input type="number" id="md-inet" value="' + escHtml(softInternetDollars(row) || '') + '" step="1" min="0" placeholder="optional real $" /></div>' +
       '<div class="dd-k">Accounting billed</div><div class="dd-v"><input type="number" id="md-acct" value="' + escHtml(row.accountingBilled != null ? row.accountingBilled : '') + '" step="1" /></div>' +
       mdGmFieldsHtml(row);
     openModifyShell(
@@ -74993,14 +75073,17 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         r.firstMonthRetainer = mdNum('md-first');
         r.monthlyAmount = mdNum('md-monthly');
         r.numberOfMonthlies = mdNum('md-nmo');
-        r.internets = mdNum('md-inet');
+        var _inetOn = !!(document.getElementById('md-inet-on') && document.getElementById('md-inet-on').checked);
+        var _inetDol = mdNum('md-inet');
+        r.internetOn = _inetOn || (_inetDol > 1);
+        r.internets = (_inetDol > 1) ? _inetDol : 0;
         r.accountingBilled = mdNum('md-acct');
         r.bookValueThisMonth = r.accountingBilled || r.initiation || r.firstMonthRetainer || r.bookValueThisMonth;
         mdApplyGmFromForm(r, r.accountingBilled); /* soft-md-fee-gm-clobber-fix-20260921 — Accounting billed is SoT on Deal modify */
         try { softApplyStandingRepeatGm601030(r); } catch (eRepGmMd2) {} /* soft-repeat-gm-60-30-10-20260920 */
         try { softApplyRepOwnerAutofix(r); } catch (eDealAf) {} /* soft-rep-owner-autofix-20260920 */
         r.lastModifyNote = note;
-        if (r.monthlyAmount > 0 || r.numberOfMonthlies > 0 || r.internets > 0) {
+        if (r.monthlyAmount > 0 || r.numberOfMonthlies > 0 || softInternetOn(r) || softInternetDollars(r) > 0) {
           if (!r.recurringStreamId) r.recurringStreamId = 'stream_mod_' + r.id;
         }
         mdAfterSave(r, 'Deal');
@@ -78203,7 +78286,7 @@ ownersDetailHtml(row) +
     }
     if (kind === 'marketing') {
       if (row.fee != null && row.fee !== '') return Number(row.fee) || 0;
-      return Number(row.accountingBilled) || Number(row.internets) || Number(row.bookValueThisMonth) || 0;
+      return Number(row.accountingBilled) || softInternetDollars(row) || Number(row.bookValueThisMonth) || 0;
     }
     if (kind === 'recurring') {
       var recurAmt = 0;
@@ -78212,13 +78295,13 @@ ownersDetailHtml(row) +
       else recurAmt = Number(row.firstMonthRetainer) || Number(row.bookValueThisMonth) || 0;
       /* Strip internets so Recurring never carries internet dollars (CHIP soft-exec-ar-internet-only-20260921) */
       if (execArIsInternetTagged(row)) {
-        var stripInet = Number(row.internets);
+        var stripInet = softInternetDollars(row);
         if (isFinite(stripInet) && stripInet > 0) recurAmt = Math.max(0, recurAmt - stripInet);
       }
       return recurAmt;
     }
     if (kind === 'internet') {
-      var inet = Number(row.internets);
+      var inet = softInternetDollars(row);
       if (isFinite(inet) && inet > 0) return inet;
       if (row.lineKind === 'internet') {
         if (row.accountingBilled != null && row.accountingBilled !== '') return Number(row.accountingBilled) || 0;
@@ -78286,9 +78369,7 @@ ownersDetailHtml(row) +
   function execArIsInternetTagged(row) {
     if (!row) return false;
     if (row.lineKind === 'internet') return true;
-    var inetNum = Number(row.internets);
-    if (isFinite(inetNum) && inetNum > 0) return true;
-    if (String(row.internets || '').trim().toUpperCase() === 'Y') return true;
+    if (softInternetOn(row) || softInternetDollars(row) > 0) return true;
     var blob = [row.agreement, row.specialties, row.gmLabel, row.campaign, row.carriNote, row.notes].join(' ');
     if (/^internets?$/i.test(String(row.agreement || '').trim())) return true;
     if (row.excludeFromBdGm && /\binternets?\b/i.test(blob)) return true;
@@ -78302,7 +78383,7 @@ ownersDetailHtml(row) +
   function execArHasNonInternetRecurringMoney(row) {
     if (!row) return false;
     if (execArHasMonthlyStream(row)) return true;
-    var inet = Number(row.internets);
+    var inet = softInternetDollars(row);
     if (!isFinite(inet) || inet < 0) inet = 0;
     var full = 0;
     if (row.accountingBilled != null && row.accountingBilled !== '') full = Number(row.accountingBilled) || 0;
@@ -78984,7 +79065,7 @@ ownersDetailHtml(row) +
     if (row.accountingBilled != null && row.accountingBilled !== '' && !isNaN(Number(row.accountingBilled))) {
       return Number(row.accountingBilled) || 0;
     }
-    return Number(row.bookValueThisMonth) || Number(row.internets) || 0;
+    return Number(row.bookValueThisMonth) || softInternetDollars(row) || 0;
   }
   function execProdIsBdRecurring(row) {
     if (!row || row.bookType !== 'Deal') return false;
@@ -80323,9 +80404,9 @@ ownersDetailHtml(row) +
       var isMktInstall = row.bookType === 'Marketing' && (row.marketingInstallment || row.isRecurringLine);
       /* soft-exec-ar-internet-only-20260921 — internets alone do not enter Recurring streams */
       var hasMoStream = (Number(row.monthlyAmount) > 0 || Number(row.numberOfMonthlies) > 0);
-      var inetOnlyDeal = row.bookType === 'Deal' && (Number(row.internets) || 0) > 0 && !hasMoStream &&
+      var inetOnlyDeal = row.bookType === 'Deal' && (softInternetDollars(row) > 0 || softInternetOn(row)) && !hasMoStream &&
         !(Number(row.initiation) > 0) && !(Number(row.firstMonthRetainer) > 0) &&
-        (Number(row.accountingBilled) || Number(row.bookValueThisMonth) || 0) <= (Number(row.internets) || 0) + 0.009;
+        (Number(row.accountingBilled) || Number(row.bookValueThisMonth) || 0) <= softInternetDollars(row) + 0.009;
       if (inetOnlyDeal) return;
       var isDealRec = row.bookType === 'Deal' && (hasMoStream || (row.isRecurringLine && !inetOnlyDeal));
       if (!isMktInstall && !isDealRec) return;
@@ -80414,7 +80495,7 @@ ownersDetailHtml(row) +
       var lastBilledMonth = '';
       var lastQbNumber = '';
       var billedChrono = s.lines.filter(function (r) {
-        return r.isRecurringLine || Number(r.firstMonthRetainer) > 0 || Number(r.monthlyAmount) > 0 || Number(r.internets) > 0;
+        return r.isRecurringLine || Number(r.firstMonthRetainer) > 0 || Number(r.monthlyAmount) > 0 || softInternetOn(r) || softInternetDollars(r) > 0;
       }).slice().sort(function (a, b) { return String(a.date || a.month) < String(b.date || b.month) ? -1 : 1; });
       if (billedChrono.length) {
         var lastLine = billedChrono[billedChrono.length - 1];
