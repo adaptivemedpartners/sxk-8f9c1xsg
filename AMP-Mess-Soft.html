@@ -58017,6 +58017,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-chd-feb-no-jan-twin-20260921 — Soft Soft: force Jan CHD month 2026-01 / 16821; Feb only 16856; strip Jan twin off Feb board. Soft only. Never Hub. */
         row.prodQbStamp = row.prodQbStamp || (forceChd ? 'soft-chd-qb-16821-16856-20260921' : 'soft-reverse-push-carri-sot-20260921');
         return;
       }
@@ -59134,12 +59135,14 @@ function ensureCarriGmSeed(s) {
   }
 
   function ensureSoftChdQb168211685620260921(state) {
-    /* soft-chd-qb-16821-16856-20260921 — AFTER superseded chdi-16856 dedupe.
-       Jan xl_bd_2026-01_2 (Aaron CHD) qbInvoice 16821; Feb xl_bd_2026-02_2 qbInvoice 16856;
-       clear Feb tombstone / restore row. Do NOT touch Riverview xl_bd_2026-05_2.
-       Soft only. Never Hub. */
+    /* soft-chd-qb-16821-16856-20260921 + soft-chd-feb-no-jan-twin-20260921 —
+       Jan xl_bd_2026-01_2 → month 2026-01 / qb 16821 (never on Feb board).
+       Feb xl_bd_2026-02_2 → month 2026-02 / qb 16856 only.
+       Tombstone any OTHER Feb BD twin with 16821 or CHD Development $4k Jan identity.
+       Soft only. Never Hub. Do NOT touch Riverview. */
     if (!state || !Array.isArray(state.rows)) return state;
     var stamp = "soft-chd-qb-16821-16856-20260921";
+    var twinStamp = "soft-chd-feb-no-jan-twin-20260921";
     var janId = "xl_bd_2026-01_2";
     var febId = "xl_bd_2026-02_2";
     softEnsureTombstoneMaps(state);
@@ -59166,13 +59169,21 @@ function ensureCarriGmSeed(s) {
       jan.gmMode = "Whole";
       jan.gmLabel = "Whole · Aaron 100%";
       jan.owners = { mode: "Whole", primary: "Aaron" };
+      jan.client = "Community Health Development";
+      jan.date = "2026-01-20";
+      jan.month = "2026-01";
       jan.qbInvoice = "16821";
       jan.qbNumber = "16821";
       jan.softGmSplitOverride = true;
       jan.softGmSplitManual = true;
       jan.softChdQbStamp = stamp;
       jan.prodQbStamp = stamp;
+      jan.softChdFebNoJanTwin = twinStamp;
       if (jan.softChdi16856AaronKeep) delete jan.softChdi16856AaronKeep;
+      if (jan.excludeFromProductionBoard && String(jan.month) === "2026-01") {
+        delete jan.excludeFromProductionBoard;
+        delete jan.isRecurringLine;
+      }
     }
     if (feb) {
       if (!feb.owners || typeof feb.owners !== "object") {
@@ -59180,13 +59191,47 @@ function ensureCarriGmSeed(s) {
       }
       if (!feb.gmLabel) feb.gmLabel = "Whole · Unassigned 100%";
       if (!feb.gmMode) feb.gmMode = "Whole";
+      feb.client = feb.client || "Community Health";
+      feb.date = "2026-02-01";
+      feb.month = "2026-02";
       feb.qbInvoice = "16856";
       feb.qbNumber = "16856";
       feb.softChdQbStamp = stamp;
       feb.prodQbStamp = stamp;
+      feb.softChdFebNoJanTwin = twinStamp;
     }
+    /* Strip Jan twin leaking onto February (any extra row, not janId/febId). */
+    var removed = [];
+    var keep = [];
+    for (var j = 0; j < state.rows.length; j++) {
+      var row = state.rows[j];
+      if (!row || !row.id) { keep.push(row); continue; }
+      var id = String(row.id);
+      if (id === janId || id === febId) { keep.push(row); continue; }
+      var mo = String(row.month || "");
+      var qb = String(row.qbInvoice || row.qbNumber || "").trim();
+      var client = String(row.client || "");
+      var init = Number(row.initiation) || 0;
+      var isFeb = mo === "2026-02";
+      var isJanTwinOnFeb = isFeb && (
+        qb === "16821" ||
+        (/Community Health Development/i.test(client) && init >= 3500 && init <= 4500 && (row.bookType === "Deal" || row.side === "bd"))
+      );
+      if (isJanTwinOnFeb) {
+        state.deletedRowIds[id] = {
+          at: "2026-09-21T16:53:00-05:00",
+          why: twinStamp,
+          note: "Jan CHD twin wrongly on February — keep xl_bd_2026-02_2 / 16856 only"
+        };
+        removed.push(id);
+        continue;
+      }
+      keep.push(row);
+    }
+    state.rows = keep;
     state.softChdQb1682116856 = {
       stamp: stamp,
+      twinStamp: twinStamp,
       janId: janId,
       febId: febId,
       janQb: "16821",
@@ -59195,6 +59240,7 @@ function ensureCarriGmSeed(s) {
       hadFeb: !!feb && !febRestored,
       febRestored: febRestored,
       tombCleared: tombCleared,
+      removedFebJanTwins: removed,
       at: "2026-09-21"
     };
     try { window.__softChdQb1682116856 = state.softChdQb1682116856; } catch (eW) {}
