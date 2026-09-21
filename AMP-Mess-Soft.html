@@ -56086,6 +56086,57 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   
   
 
+  function ensureDawnStanleyMarchFee19000(state) {
+    /* soft-stanley-march-fee-ls-repair-20260921 — Live Pages seed already has Dawn Stanley Mar 30 fee 19000 + QB 16936,
+       but loadState() prefers localStorage amp_soft_mess_book_to_gm_v62. Save/re-fan Fee→GM$ clobber left LS fee at 0,
+       so hard refresh still showed $0. Force excelSeed Placement fees back from seed when LS fee is empty/0;
+       hard-lock xl_pl_2026-03_6 Dawn Stanley South Georgia to 19000. Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var seedById = {};
+    try {
+      var fresh = seedState();
+      (fresh.rows || []).forEach(function (r) {
+        if (r && r.id) seedById[String(r.id)] = r;
+      });
+    } catch (eSeed) {}
+    state.rows.forEach(function (row) {
+      if (!row || row.example) return;
+      var id = String(row.id || '');
+      var isStanley = id === 'xl_pl_2026-03_6' || (
+        /dawn\s+stanley/i.test(String(row.physician || '')) &&
+        String(row.month || '') === '2026-03' &&
+        /south\s+georgia/i.test(String(row.client || ''))
+      );
+      if (isStanley) {
+        row.fee = 19000;
+        row.accountingBilled = 19000;
+        row.bookValueThisMonth = 19000;
+        row.accountingBilledRaw = row.accountingBilledRaw || 'YES';
+        row.qbInvoice = row.qbInvoice || '16936';
+        row.softStanleyMarchFeeLock = 'soft-stanley-march-fee-ls-repair-20260921';
+        return;
+      }
+      if (!row.excelSeed || String(row.bookType || '') !== 'Placement') return;
+      var feeNow = Number(row.fee);
+      if (!(feeNow > 0)) {
+        var seed = seedById[id];
+        var seedFee = seed ? Number(seed.fee) : 0;
+        if (seedFee > 0) {
+          row.fee = seedFee;
+          if (!(Number(row.accountingBilled) > 0)) {
+            row.accountingBilled = seed.accountingBilled != null ? seed.accountingBilled : seedFee;
+          }
+          if (!(Number(row.bookValueThisMonth) > 0)) {
+            row.bookValueThisMonth = seed.bookValueThisMonth != null ? seed.bookValueThisMonth : seedFee;
+          }
+          if (seed.qbInvoice && !row.qbInvoice) row.qbInvoice = seed.qbInvoice;
+          row.softExcelSeedFeeRepair = 'soft-stanley-march-fee-ls-repair-20260921';
+        }
+      }
+    });
+    return state;
+  }
+
   function ensureNmc17070ProdQbStamp20260921(state) {
     /* soft-nmc-17070-prod-qb-20260921 — NMC QB 17070 stays on July Production (book 2026-07-31), not August. */
     if (!state || !Array.isArray(state.rows)) return state;
@@ -59303,6 +59354,7 @@ function softIsoDate(v) {
     ensureWinnMayOdPackageOnProduction20260921(s); /* soft-winn-may-od-package-on-prod-20260921 */
     ensureMoHighlandsJulyFirstBookBooked20260921(s); /* soft-mo-highlands-july-first-book-20260921 */
     ensureNmc17070ProdQbStamp20260921(s); /* soft-nmc-17070-prod-qb-20260921 */
+    ensureDawnStanleyMarchFee19000(s); /* soft-stanley-march-fee-ls-repair-20260921 */
     ensureCopperQueen17037RandyKelley5050(s); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
     try { ensureSoft2026RepLabelsFromProduction(s); } catch (e2026RepLab) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
@@ -74603,6 +74655,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
   function mdApplyGmFromForm(r, amtOverride) {
     /* soft-md-fee-gm-clobber-fix-20260921 — optional amtOverride so Placement Fee / Deal acct / Marketing Amount
        win over the separate GM $ input (otherwise Save&re-fan silently kept the old GM $ and reverted Fee). */
+/* soft-stanley-march-fee-ls-repair-20260921 — Dawn Stanley Mar fee 19000 LS repair (excelSeed Placement fee 0←seed). Soft only. Never Hub. */
     var amt = (amtOverride != null && isFinite(Number(amtOverride))) ? Number(amtOverride) : mdNum('md-gm-amt');
     try {
       var gmEl = document.getElementById('md-gm-amt');
