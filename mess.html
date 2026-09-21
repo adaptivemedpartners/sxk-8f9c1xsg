@@ -58017,6 +58017,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-winn-jul21-nate-repeat-30-20260921 — Soft Soft: Winn Jul 21 Repeat Brenton60/Nate30/House10 → Nate Rec GM. Soft only. Never Hub. */
 /* soft-jul-kittitas-internet-exec-recurring-20260921 — Soft Soft: Kittitas Jul 1 Internets $790 off BD → exec recurring. Soft only. Never Hub. */
 /* soft-stephanie-cullman-feb-mkt-6020-20260921 — Soft Soft: Feb Cullman Premium Stephanie 60 / Brenton 20 / House 20. Soft only. Never Hub. */
 /* soft-chd-feb-no-jan-twin-20260921 — Soft Soft: force Jan CHD month 2026-01 / 16821; Feb only 16856; strip Jan twin off Feb board. Soft only. Never Hub. */
@@ -59262,6 +59263,50 @@ function ensureCarriGmSeed(s) {
 
 
 
+
+  function ensureWinnJul21NateRepeat30(state) {
+    /* soft-winn-jul21-nate-repeat-30-20260921 — Winn Community Jul 21 FM $2000 Repeat
+       Brenton 60% BD / Nate 30% repeat recruiter / House 10%. Fixes empty repeatRep + Whole Brenton
+       that left Nate Rec GM Repeats blank. Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-winn-jul21-nate-repeat-30-20260921";
+    var targetId = "xl_bd_2026-07_3";
+    var flipped = 0;
+    state.rows.forEach(function (row) {
+      if (!row) return;
+      var id = String(row.id || "");
+      var isTarget = id === targetId ||
+        (String(row.month || "") === "2026-07" && String(row.date || "").slice(0, 10) === "2026-07-21" &&
+          /winn/i.test(String(row.client || "")) && row.bookType === "Deal");
+      if (!isTarget) return;
+      row.rep = "Brenton";
+      row.repeatRep = "Nate";
+      row.repeatOrNew = "Repeat";
+      row.dealRef = row.dealRef || "PD8448";
+      row.searchRefs = row.searchRefs || "PD8448, PD-8448";
+      if (typeof softBuildRepeatGm601030Owners === "function") {
+        row.owners = softBuildRepeatGm601030Owners("Brenton", "Nate");
+      } else {
+        row.owners = {
+          mode: "Split",
+          bdA: { name: "Brenton", pct: 60 },
+          recruiter: { name: "Nate", pct: 30 },
+          housePct: 10
+        };
+      }
+      row.gmMode = "Split";
+      row.gmLabel = "Split · Brenton 60% / Nate 30% / House 10%";
+      row.softGmSplitOverride = true;
+      row.softGmSplitManual = true;
+      row.softWinnJul21NateRepeat30 = stamp;
+      row.softRepeatGm601030 = stamp;
+      flipped++;
+    });
+    state.winnJul21NateRepeat30 = { stamp: stamp, id: targetId, flipped: flipped, at: "2026-09-21" };
+    return state;
+  }
+  try { window.__softEnsureWinnJul21NateRepeat30 = ensureWinnJul21NateRepeat30; } catch (eWinnNate) {}
+
   function ensureJulKittitasInternetExecRecurring(state) {
     /* soft-jul-kittitas-internet-exec-recurring-20260921 — Kittitas Internets QB 17021 $790 dated 2026-07-01
        off Production BD → Exec Production recurring. Soft only. Never Hub. */
@@ -59839,6 +59884,7 @@ function softIsoDate(v) {
     ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
     ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
     ensureJulKittitasInternetExecRecurring(s); /* soft-jul-kittitas-internet-exec-recurring-20260921 */
+    ensureWinnJul21NateRepeat30(s); /* soft-winn-jul21-nate-repeat-30-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureSoftReversePushProdToSpine20260921(s); /* soft-reverse-push-carri-sot-20260921 — include QB 16973 twin */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
@@ -59921,6 +59967,7 @@ function softIsoDate(v) {
     ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
     ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
     ensureJulKittitasInternetExecRecurring(s); /* soft-jul-kittitas-internet-exec-recurring-20260921 */
+    ensureWinnJul21NateRepeat30(s); /* soft-winn-jul21-nate-repeat-30-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(s); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
@@ -59950,6 +59997,7 @@ function softIsoDate(v) {
     ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
     ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
     ensureJulKittitasInternetExecRecurring(s); /* soft-jul-kittitas-internet-exec-recurring-20260921 */
+    ensureWinnJul21NateRepeat30(s); /* soft-winn-jul21-nate-repeat-30-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     return s;
@@ -69607,10 +69655,10 @@ function softIsoDate(v) {
       date: "2026-07-21",
       month: "2026-07",
       rep: "Brenton",
-      repeatRep: "",
+      repeatRep: "Nate",
       client: "Winn Community Health Center",
-      dealRef: "",
-      searchRefs: "",
+      dealRef: "PD8448",
+      searchRefs: "PD8448, PD-8448",
       repeatOrNew: "Repeat",
       searches: 1,
       specialties: "Pediatrician",
@@ -69619,9 +69667,12 @@ function softIsoDate(v) {
       internets: 0,
       accountingBilled: 2000,
       accountingBilledRaw: "YES",
-      gmMode: "Whole",
-      gmLabel: "Whole · Brenton 100%",
-      owners: {"mode": "Whole", "primary": "Brenton"},
+      gmMode: "Split",
+      gmLabel: "Split · Brenton 60% / Nate 30% / House 10%",
+      owners: {"mode": "Split", "bdA": {"name": "Brenton", "pct": 60}, "recruiter": {"name": "Nate", "pct": 30}, "housePct": 10, "softRepeatGmStamp": "soft-comp-gm-splits-xlsx-20260920"},
+      softGmSplitOverride: true,
+      softGmSplitManual: true,
+      softWinnJul21NateRepeat30: "soft-winn-jul21-nate-repeat-30-20260921",
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 2000,
