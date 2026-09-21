@@ -58306,6 +58306,7 @@ function ensureCarriGmSeed(s) {
       row.gmLabel = "Split · Mike 50% / Randy 50%";
       row.owners = { mode: "Split", bdA: { name: "Mike", pct: 50 }, bdB: { name: "Randy", pct: 50 } };
       row.rep = "Mike";
+      row.repeatRep = "Randy";
       row.people = "Mike, Randy";
       row.peopleRaw = "Mike, Randy";
       row.qbInvoice = row.qbInvoice || "16972";
@@ -58546,6 +58547,11 @@ function ensureCarriGmSeed(s) {
     });
     softNormalizeAmpHouseInOwners(row);
     row.rep = display[0] || 'House';
+    /* Split BD face: second Production owner column = bdB / second locked owner */
+    if (row.owners && String(row.owners.mode || '') === 'Split' && display.length >= 2) {
+      var second = display[1];
+      if (second && second !== 'House') row.repeatRep = second;
+    }
     if (row.marketer != null && String(row.marketer).trim() !== '') {
       var mk = softCanonicalRepLabelName(row.marketer);
       row.marketer = (mk && ownerSet[mk]) ? mk : '';
@@ -68018,7 +68024,7 @@ function softIsoDate(v) {
       date: "2026-04-30",
       month: "2026-04",
       rep: "Mike",
-      repeatRep: "",
+      repeatRep: "Randy",
       client: "Indian Health of Santa Clara Valley",
       dealRef: "",
       searchRefs: "",
@@ -74065,7 +74071,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         var clientCell = escHtml(row.client || '') + prodMonthlyBadgeHtml(row);
         tr2.innerHTML =
           '<td>' + glowHtml(escHtml(shortDate(row.date)) + (row.example ? '' : '')) + '</td>' +
-          '<td>' + whoGlow(row.peopleRaw || row.people || row.rep) + '</td>' +
+          '<td>' + whoGlow(row.rep) + '</td>' +
           '<td>' + whoGlow(row.repeatRep || '—') + '</td>' +
           '<td>' + glowHtml(refHtml) + '</td>' +
           '<td>' + glowHtml(clientCell) + '</td>' +
