@@ -58305,8 +58305,8 @@ function ensureCarriGmSeed(s) {
       row.gmMode = "Split";
       row.gmLabel = "Split · Mike 50% / Randy 50%";
       row.owners = { mode: "Split", bdA: { name: "Mike", pct: 50 }, bdB: { name: "Randy", pct: 50 } };
-      row.rep = "Mike";
-      row.repeatRep = "Randy";
+      row.rep = "Mike / Randy";
+      row.repeatRep = "";
       row.people = "Mike, Randy";
       row.peopleRaw = "Mike, Randy";
       row.qbInvoice = row.qbInvoice || "16972";
@@ -58521,7 +58521,18 @@ function ensureCarriGmSeed(s) {
       }
       return false;
     }
-    if (dirtyVal(row.rep) || dirtyVal(row.marketer) || dirtyVal(row.repeatRep) ||
+    function repNeedsAlign(val) {
+      var s = String(val == null ? '' : val).trim();
+      if (!s) return false;
+      if (softIsAmpHouseLiteral(s)) return true;
+      /* Split compound "Mike / Randy" is clean when every part is a locked owner */
+      if (row.owners && String(row.owners.mode || '') === 'Split' && softOwnerRawIsCompound(s)) {
+        var bits = s.split(/[\s·/,+&]+/).map(function (x) { return softCanonicalRepLabelName(x); }).filter(Boolean);
+        if (bits.length >= 2 && bits.every(function (n) { return ownerSet[n]; })) return false;
+      }
+      return dirtyVal(val);
+    }
+    if (repNeedsAlign(row.rep) || dirtyVal(row.marketer) || dirtyVal(row.repeatRep) ||
         dirtyVal(row.people) || dirtyVal(row.peopleRaw) || dirtyVal(row.recruiter) || dirtyVal(row.researchRep)) {
       return true;
     }
@@ -58546,11 +58557,11 @@ function ensureCarriGmSeed(s) {
       people: row.people, peopleRaw: row.peopleRaw, gm: row.gmLabel
     });
     softNormalizeAmpHouseInOwners(row);
-    row.rep = display[0] || 'House';
-    /* Split BD face: second Production owner column = bdB / second locked owner */
+    /* Split face: Excel-style compound in rep (Mike / Randy). repeatRep stays Repeat recruiter only. */
     if (row.owners && String(row.owners.mode || '') === 'Split' && display.length >= 2) {
-      var second = display[1];
-      if (second && second !== 'House') row.repeatRep = second;
+      row.rep = display.join(' / ');
+    } else {
+      row.rep = display[0] || 'House';
     }
     if (row.marketer != null && String(row.marketer).trim() !== '') {
       var mk = softCanonicalRepLabelName(row.marketer);
@@ -68023,8 +68034,8 @@ function softIsoDate(v) {
       side: "bd",
       date: "2026-04-30",
       month: "2026-04",
-      rep: "Mike",
-      repeatRep: "Randy",
+      rep: "Mike / Randy",
+      repeatRep: "",
       client: "Indian Health of Santa Clara Valley",
       dealRef: "",
       searchRefs: "",
