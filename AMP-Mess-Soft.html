@@ -58017,6 +58017,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-jul-kittitas-internet-exec-recurring-20260921 — Soft Soft: Kittitas Jul 1 Internets $790 off BD → exec recurring. Soft only. Never Hub. */
 /* soft-stephanie-cullman-feb-mkt-6020-20260921 — Soft Soft: Feb Cullman Premium Stephanie 60 / Brenton 20 / House 20. Soft only. Never Hub. */
 /* soft-chd-feb-no-jan-twin-20260921 — Soft Soft: force Jan CHD month 2026-01 / 16821; Feb only 16856; strip Jan twin off Feb board. Soft only. Never Hub. */
         row.prodQbStamp = row.prodQbStamp || (forceChd ? 'soft-chd-qb-16821-16856-20260921' : 'soft-reverse-push-carri-sot-20260921');
@@ -59260,6 +59261,41 @@ function ensureCarriGmSeed(s) {
   try { window.__softEnsureSoftChdQb168211685620260921 = ensureSoftChdQb168211685620260921; } catch (e6) {}
 
 
+
+  function ensureJulKittitasInternetExecRecurring(state) {
+    /* soft-jul-kittitas-internet-exec-recurring-20260921 — Kittitas Internets QB 17021 $790 dated 2026-07-01
+       off Production BD → Exec Production recurring. Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-jul-kittitas-internet-exec-recurring-20260921";
+    var flipped = 0;
+    state.rows.forEach(function (row) {
+      if (!row) return;
+      var id = String(row.id || "");
+      var qb = String(row.qbInvoice || row.qbNumber || row.sampleId || "").trim();
+      var isTarget = id === "ex_spine_17021" || qb === "17021" ||
+        (String(row.client || "").indexOf("Kittitas") >= 0 && String(row.date || "").slice(0, 10) === "2026-07-01" &&
+          (Number(row.internets) === 790 || Number(row.internetDollars) === 790 || Number(row.accountingBilled) === 790));
+      if (!isTarget) return;
+      row.bookType = "Deal";
+      row.side = "bd";
+      row.date = "2026-07-01";
+      row.month = "2026-07";
+      row.internets = 790;
+      row.internetOn = true;
+      row.internetDollars = 790;
+      row.agreement = "Internets";
+      row.lineKind = "internet";
+      row.isRecurringLine = true;
+      row.excludeFromProductionBoard = true;
+      row.excludeFromBdGm = true;
+      row.softJulKittitasInternetExecRecurring = stamp;
+      flipped++;
+    });
+    state.julKittitasInternetExecRecurring = { stamp: stamp, flipped: flipped, amount: 790, date: "2026-07-01", at: "2026-09-21" };
+    return state;
+  }
+  try { window.__softEnsureJulKittitasInternetExecRecurring = ensureJulKittitasInternetExecRecurring; } catch (eJulKit) {}
+
   function ensureStephanieCullmanFebMkt6020(state) {
     /* soft-stephanie-cullman-feb-mkt-6020-20260921 — Feb Cullman Premium xl_mkt_2026-02_32
        Stephanie 60% / Brenton 20% / House 20% (match March Cullman mkt pattern). Soft only. Never Hub. */
@@ -59802,6 +59838,7 @@ function softIsoDate(v) {
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
     ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
     ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
+    ensureJulKittitasInternetExecRecurring(s); /* soft-jul-kittitas-internet-exec-recurring-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureSoftReversePushProdToSpine20260921(s); /* soft-reverse-push-carri-sot-20260921 — include QB 16973 twin */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
@@ -59883,6 +59920,7 @@ function softIsoDate(v) {
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
     ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
     ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
+    ensureJulKittitasInternetExecRecurring(s); /* soft-jul-kittitas-internet-exec-recurring-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(s); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
@@ -59911,6 +59949,7 @@ function softIsoDate(v) {
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
     ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
     ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
+    ensureJulKittitasInternetExecRecurring(s); /* soft-jul-kittitas-internet-exec-recurring-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     return s;
@@ -71053,14 +71092,19 @@ function softIsoDate(v) {
       rep: 'Kelley', repeatRep: '', client: 'Kittitas Valley Community Hospital',
       dealRef: 'FP8306', searchRefs: 'FP8306, NP8229',
       repeatOrNew: 'New', searches: 2, specialties: 'Family Medicine · NP (Internets)',
-      initiation: 0, firstMonthRetainer: 0, internets: 790, accountingBilled: 790,
+      initiation: 0, firstMonthRetainer: 0, internets: 790, internetOn: true, internetDollars: 790, accountingBilled: 790,
       gmMode: 'Whole', gmLabel: 'Whole · Kelley 100%',
       owners: { mode: 'Whole', primary: 'Kelley' },
       status: 'Paid', paid: true, paidDate: '2026-07-02',
       excludeFromBdGm: true,
+      agreement: 'Internets',
+      lineKind: 'internet',
+      isRecurringLine: true,
+      excludeFromProductionBoard: true,
+      softJulKittitasInternetExecRecurring: 'soft-jul-kittitas-internet-exec-recurring-20260921',
       billing: { name: 'AP Desk', email: 'ap@kvch.example', phone: '555-0701' },
       bookValueThisMonth: 790,
-      invoiceNarrative: 'Internets only · excludeFromBdGm'
+      invoiceNarrative: 'Internets only · exec recurring (not BD) · excludeFromBdGm'
     });
 
     /* ===== Awards density seed (Mike lock 2026-09-09) — fill Month thresholds; not live IDs ===== */
@@ -79918,10 +79962,11 @@ ownersDetailHtml(row) +
       if (row.bookType === 'Marketing') return 'mkt-recurring';
       /* soft-exec-ar-internet-only-20260921 — internet-only Deals leave Exec BD recurring; live on Internet AR */
       if (row.bookType === 'Deal') {
+        /* soft-jul-kittitas-internet-exec-recurring-20260921 — internet-only Deals go Exec Production recurring (not BD). Internet AR still owns the $. */
         if (typeof execArIsInternetTagged === 'function' && execArIsInternetTagged(row) &&
             typeof execArHasMonthlyStream === 'function' && !execArHasMonthlyStream(row) &&
             typeof execArHasNonInternetRecurringMoney === 'function' && !execArHasNonInternetRecurringMoney(row)) {
-          return null;
+          return 'bd-recurring';
         }
         return 'bd-recurring';
       }
