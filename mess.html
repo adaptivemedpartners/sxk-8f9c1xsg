@@ -58017,6 +58017,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-prod-gm-feed-hybrid-20260921 — Soft Soft: Production→GM hybrid — claim forward, protect unclaimed Carri GM. Soft only. Never Hub. */
 /* soft-prod-gm-feed-live-20260921 — Soft Soft: Production→GM feed ON (skip Carri GM seed gate). Soft only. Never Hub. */
 /* soft-recgm-carri-repeat-row-20260921 — Soft Soft: Carri REPEAT → Rec GM Repeat row (Winn PD8448 Nate $600). Soft only. Never Hub. */
 /* soft-winn-jul21-nate-repeat-30-20260921 — Soft Soft: Winn Jul 21 Repeat Brenton60/Nate30/House10 → Nate Rec GM. Soft only. Never Hub. */
@@ -59791,19 +59792,98 @@ function ensureCarriGmSeed(s) {
   /* legacy stub: QB Payment match disabled — Open Invoices invert is SoT */
   function ensureQbPaidMatch(s) { return s; }
 
+
   function softProdGmFeedLiveOn() {
-    /* soft-prod-gm-feed-live-20260921 — Mike voice: turn Production→GM fan-out back ON after reverse push.
-       When ON, Rec/BD GM boards read live Production rows (owners/splits), not frozen Carri GM seeds.
-       Set state.softProdGmFeedLive = false to re-freeze on Carri seeds. Soft only. Never Hub. */
+    /* soft-prod-gm-feed-hybrid-20260921 — Production→GM feed ON with manual-GM protect.
+       Forward: Modify/save on Production (softGmSplitManual|Override|softProdGmFeedClaim) claims that deal onto GM.
+       Protect: Carri GM lines stay until a Production twin claims them — no mass overwrite of GM-board fixes.
+       Set state.softProdGmFeedLive = false to re-freeze fully on Carri seeds. Soft only. Never Hub. */
     try {
       if (typeof state !== 'undefined' && state && state.softProdGmFeedLive === false) return false;
     } catch (eFeed) {}
     return true;
   }
+  function softGmRowIsManualLock(row) {
+    if (!row) return false;
+    return !!(row.softGmSplitOverride || row.softGmSplitManual || row.softGmBoardLock ||
+      row.softProdGmFeedClaim || row.softWinnJul21NateRepeat30 || row.softBib17082Lock ||
+      row.softOrs8432NateLock || row.softStephanieCullmanFebMkt6020);
+  }
+  function softGmNormClientKey(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 48);
+  }
+  function softGmExtractSearchTok(row) {
+    var blob = String((row && (row.searchRefs || row.dealRef || row.gmLabel || row.gmLineKey)) || '').toUpperCase();
+    var m = blob.match(/[A-Z]{1,8}[- ]?\d{3,5}/);
+    return m ? m[0].replace(/[-\s]/g, '') : '';
+  }
+  function softRecGmRowsMatchTwin(a, b) {
+    if (!a || !b) return false;
+    if (String(a.month || '') !== String(b.month || '')) return false;
+    var ta = softGmExtractSearchTok(a);
+    var tb = softGmExtractSearchTok(b);
+    if (ta && tb && ta === tb) return true;
+    var ca = softGmNormClientKey(a.client);
+    var cb = softGmNormClientKey(b.client);
+    if (!ca || !cb) return false;
+    if (ca.indexOf(cb.slice(0, 10)) < 0 && cb.indexOf(ca.slice(0, 10)) < 0) return false;
+    var aMkt = a.bookType === 'Marketing' || /marketing/i.test(String(a.carriKind || a.gmLabel || ''));
+    var bMkt = b.bookType === 'Marketing' || /marketing/i.test(String(b.carriKind || b.gmLabel || ''));
+    if (aMkt && bMkt) return true;
+    var aPl = a.bookType === 'Placement' || /placement/i.test(String(b.carriKind || ''));
+    var bPl = b.bookType === 'Placement' || /placement/i.test(String(a.carriKind || ''));
+    if (a.bookType === 'Placement' && b.bookType === 'Placement') return true;
+    if (aPl && bPl) return true;
+    var aRep = (a.repeatOrNew === 'Repeat') || String(a.carriKind || '').toUpperCase() === 'REPEAT' || /repeat/i.test(String(a.gmLabel || ''));
+    var bRep = (b.repeatOrNew === 'Repeat') || String(b.carriKind || '').toUpperCase() === 'REPEAT' || /repeat/i.test(String(b.gmLabel || ''));
+    if (aRep && bRep) return true;
+    if (a.bookType === 'Deal' && b.bookType === 'Deal') return true;
+    return false;
+  }
+  function softRecGmFindClaimingProdTwin(carriRow) {
+    if (!carriRow || !state || !Array.isArray(state.rows)) return null;
+    for (var i = 0; i < state.rows.length; i++) {
+      var r = state.rows[i];
+      if (!r || r.carriGmSeed || r.carriBdGmSeed || r.example) continue;
+      if (!softGmRowIsManualLock(r)) continue;
+      if (softRecGmRowsMatchTwin(carriRow, r)) return r;
+    }
+    return null;
+  }
+  function softRecGmFindProtectedCarriTwin(prodRow) {
+    if (!prodRow || !state || !Array.isArray(state.rows)) return null;
+    if (softGmRowIsManualLock(prodRow)) return null; /* Production claimed — do not defer to Carri */
+    for (var i = 0; i < state.rows.length; i++) {
+      var r = state.rows[i];
+      if (!r || !r.carriGmSeed || r.example) continue;
+      if (softRecGmRowsMatchTwin(prodRow, r)) return r;
+    }
+    return null;
+  }
+  function softBdGmFindClaimingProdTwin(carriRow) {
+    if (!carriRow || !state || !Array.isArray(state.rows)) return null;
+    for (var i = 0; i < state.rows.length; i++) {
+      var r = state.rows[i];
+      if (!r || r.carriBdGmSeed || r.carriGmSeed || r.example) continue;
+      if (!softGmRowIsManualLock(r)) continue;
+      if (softRecGmRowsMatchTwin(carriRow, r)) return r;
+    }
+    return null;
+  }
+  function softBdGmFindProtectedCarriTwin(prodRow) {
+    if (!prodRow || !state || !Array.isArray(state.rows)) return null;
+    if (softGmRowIsManualLock(prodRow)) return null;
+    for (var i = 0; i < state.rows.length; i++) {
+      var r = state.rows[i];
+      if (!r || !r.carriBdGmSeed || r.example) continue;
+      if (softRecGmRowsMatchTwin(prodRow, r)) return r;
+    }
+    return null;
+  }
   function ensureSoftProdGmFeedLive(state) {
-    /* soft-prod-gm-feed-live-20260921 — default ON; stamp gmGate ON for reverse-push meta. Soft only. Never Hub. */
+    /* soft-prod-gm-feed-hybrid-20260921 — default ON + hybrid protect. Soft only. Never Hub. */
     if (!state) return state;
-    var stamp = 'soft-prod-gm-feed-live-20260921';
+    var stamp = 'soft-prod-gm-feed-hybrid-20260921';
     if (state.softProdGmFeedLive === false) {
       /* explicit off preserved */
     } else {
@@ -59812,9 +59892,14 @@ function ensureCarriGmSeed(s) {
     if (!state.softReversePushSpine || typeof state.softReversePushSpine !== 'object') {
       state.softReversePushSpine = {};
     }
-    state.softReversePushSpine.gmGate = state.softProdGmFeedLive ? 'ON' : 'OFF';
+    state.softReversePushSpine.gmGate = state.softProdGmFeedLive ? 'ON-HYBRID' : 'OFF';
     state.softReversePushSpine.prodGmFeed = stamp;
-    state.softProdGmFeedLiveMeta = { stamp: stamp, on: !!state.softProdGmFeedLive, at: '2026-09-21' };
+    state.softProdGmFeedLiveMeta = {
+      stamp: stamp,
+      on: !!state.softProdGmFeedLive,
+      mode: 'hybrid-manual-protect',
+      at: '2026-09-21'
+    };
     try { window.__softProdGmFeedLiveOn = softProdGmFeedLiveOn; } catch (eW) {}
     return state;
   }
@@ -59830,15 +59915,21 @@ function ensureCarriGmSeed(s) {
     if (!row) return false;
     var y = String(year || "2026");
     if (!row.month || String(row.month).slice(0, 4) !== y) return false;
-    /* soft-prod-gm-feed-live-20260921 — Production→GM live: skip frozen Carri seeds; use Production */
+    /* soft-prod-gm-feed-hybrid-20260921 — claim-based Production feed; protect unclaimed Carri GM */
     if (typeof softProdGmFeedLiveOn === 'function' && softProdGmFeedLiveOn()) {
-      if (row.carriGmSeed) return false;
       if (row.example) return false;
+      if (row.carriGmSeed) {
+        /* Keep Carri GM face until a locked Production twin claims this deal */
+        return !softRecGmFindClaimingProdTwin(row);
+      }
+      /* Production: show when claimed/manual, or when no Carri twin (new / gap). Hide while Carri still protected. */
+      if (softGmRowIsManualLock(row)) return true;
+      if (softRecGmFindProtectedCarriTwin(row)) return false;
       return true;
     }
     if (recGmHasCarriSeed(y)) return !!row.carriGmSeed;
     if (row.carriGmSeed) return false;
-    if (row.excelSeed) return true; /* legacy: derive from Production until Carri GM present */
+    if (row.excelSeed) return true;
     return !row.example;
   }
 
@@ -59855,15 +59946,19 @@ function ensureCarriGmSeed(s) {
     if (!row) return false;
     var y = String(year || "2026");
     if (!row.month || String(row.month).slice(0, 4) !== y) return false;
-    /* soft-prod-gm-feed-live-20260921 — Production→GM live: skip frozen Carri BD GM seeds */
+    /* soft-prod-gm-feed-hybrid-20260921 — same hybrid protect on BD GM */
     if (typeof softProdGmFeedLiveOn === 'function' && softProdGmFeedLiveOn()) {
-      if (row.carriBdGmSeed) return false;
       if (row.example) return false;
+      if (row.carriBdGmSeed) {
+        return !softBdGmFindClaimingProdTwin(row);
+      }
+      if (softGmRowIsManualLock(row)) return true;
+      if (softBdGmFindProtectedCarriTwin(row)) return false;
       return true;
     }
     if (bdGmHasCarriSeed(y)) return !!row.carriBdGmSeed;
     if (row.carriBdGmSeed) return false;
-    return true; /* legacy: Production excelSeed / live BD rows until Carri BD GM present */
+    return true;
   }
 
 function softIsoDate(v) {
@@ -75667,7 +75762,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       r.owners = { mode: mode, housePct: housePct, reps: collected.reps.slice() };
       r.gmMode = mode;
       r.gmLabel = mdBuildHouseGmLabel(mode, collected.reps, housePct);
-      r.softGmSplitOverride = true;
+            r.softProdGmFeedClaim = 'soft-prod-gm-feed-hybrid-20260921';
+r.softGmSplitOverride = true;
       r.softGmSplitManual = true;
       if (r.bookType === 'Marketing') {
         var recs = collected.reps.filter(function (x) { return x.role === 'recruiter'; });
