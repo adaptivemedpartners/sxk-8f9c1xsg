@@ -57418,6 +57418,8 @@ function ensureCarriGmSeed(s) {
       if (rq === key || rid === key || rsid === key || String(r.linkRowId || '') === key) {
         /* Do not un-book deferred future months */
         if (r.gmCashState === 'booked' && r.carriQbMatch && r.carriQbMatch.deferred) return;
+        var beforePaid = null;
+        try { beforePaid = softFanLogRowSnap(r); } catch (eBp) {}
         softApplyCashSoTToRow(r, cash, src);
         /* soft-invoice-qb-roundtrip-20260920 — write known spine QB # onto linked Production row */
         if (qbFace && /^\d+$/.test(qbFace)) {
@@ -57437,6 +57439,20 @@ function ensureCarriGmSeed(s) {
             r.carriQbMatch.how = 'spine-roundtrip';
           }
         }
+        try {
+          if (typeof softFanLogPush === 'function') {
+            softFanLogPush({
+              direction: 'spine→Production',
+              source: 'spine-mark-paid',
+              row: r,
+              before: beforePaid,
+              after: softFanLogRowSnap(r),
+              spineId: key,
+              qb: qbFace || key,
+              note: 'Spine cash/paid applied to Production'
+            });
+          }
+        } catch (eFanPay) {}
         n++;
       }
     });
@@ -58017,6 +58033,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-fanlog-real-20260921 — Soft Soft: real fan-out log + query (__softFanLogQuery). Soft only. Never Hub. */
 /* soft-prod-spine-owners-live-20260921 — Soft Soft: Modify save re-runs ensureSpineOwnersFromProduction + renderSpine. Soft only. Never Hub. */
 /* soft-prod-gm-feed-hybrid-20260921 — Soft Soft: Production→GM hybrid — claim forward, protect unclaimed Carri GM. Soft only. Never Hub. */
 /* soft-prod-gm-feed-live-20260921 — Soft Soft: Production→GM feed ON (skip Carri GM seed gate). Soft only. Never Hub. */
@@ -74794,18 +74811,194 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       appliedOnPaidOnly: true, note: 'Splits preview — applied to live GM boards when paid signal fires' };
   }
 
-  function doFanOut(row, fromBook) {
-    var entry = {
-      id: uid('fan'), at: new Date().toISOString(), rowId: row.id, client: row.client,
-      bookType: row.bookType, fromBook: !!fromBook,
-      bullhorn: buildBhPayload(row), qb: buildQbPayload(row), gm: buildGmPreview(row),
-      webflowJobs: buildWebflowJobsPayload(row)
+
+  /* soft-fanlog-real-20260921 — real fan-out event log (not stub). Soft only. Never Hub. */
+  function softFanLogEnsure() {
+    if (!state.fanLog || !Array.isArray(state.fanLog)) state.fanLog = [];
+    return state.fanLog;
+  }
+  function softFanLogOwnersFace(owners) {
+    if (!owners || typeof owners !== 'object') return '';
+    try {
+      if (owners.mode === 'Whole') return 'Whole · ' + (owners.primary || '?') + ' 100%';
+      if (owners.mode === 'Split') {
+        var bits = [];
+        if (owners.bdA) bits.push(owners.bdA.name + ' ' + owners.bdA.pct + '%');
+        if (owners.a) bits.push(owners.a.name + ' ' + owners.a.pct + '%');
+        if (owners.recruiter) bits.push(owners.recruiter.name + ' ' + owners.recruiter.pct + '% (rec)');
+        if (owners.b) bits.push(owners.b.name + ' ' + owners.b.pct + '%');
+        if (owners.bdB) bits.push(owners.bdB.name + ' ' + owners.bdB.pct + '%');
+        if (owners.housePct != null) bits.push('House ' + owners.housePct + '%');
+        return 'Split · ' + bits.join(' / ');
+      }
+      if (owners.mode === 'Marketing' || owners.mode === 'BD') {
+        var reps = (owners.reps || []).map(function (r) {
+          return (r.name || '?') + ' ' + (r.pct != null ? r.pct : '?') + '%' + (r.role ? (' [' + r.role + ']') : '');
+        });
+        if (owners.housePct != null) reps.push('House ' + owners.housePct + '%');
+        return owners.mode + ' · ' + reps.join(' / ');
+      }
+      if (owners.mode === 'Repeat') {
+        return 'Repeat · ' + ((owners.primary && owners.primary.name) || '?') + ' / ' +
+          ((owners.repeatRecipient && owners.repeatRecipient.name) || '?');
+      }
+      return owners.mode || JSON.stringify(owners).slice(0, 120);
+    } catch (eF) { return ''; }
+  }
+  function softFanLogRowSnap(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      client: row.client || '',
+      bookType: row.bookType || '',
+      month: row.month || '',
+      status: row.status || '',
+      qb: String(row.qbInvoice || row.qbNumber || '').trim(),
+      amount: Number(row.bookType === 'Placement' ? row.fee : (row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth)) || 0,
+      gmLabel: row.gmLabel || '',
+      gmMode: row.gmMode || '',
+      ownersFace: softFanLogOwnersFace(row.owners),
+      owners: (function () {
+        try { return JSON.parse(JSON.stringify(row.owners || null)); } catch (e) { return row.owners || null; }
+      })(),
+      paid: !!row.paid,
+      softGmSplitManual: !!row.softGmSplitManual,
+      softProdGmFeedClaim: row.softProdGmFeedClaim || null
     };
-    state.fanLog.unshift(entry);
+  }
+  function softFanLogDiff(before, after) {
+    var changes = [];
+    if (!before && after) {
+      changes.push({ field: 'row', from: null, to: 'created' });
+      return changes;
+    }
+    if (!after) return changes;
+    function push(field, a, b) {
+      var sa = a == null ? '' : String(a);
+      var sb = b == null ? '' : String(b);
+      if (sa === sb) return;
+      changes.push({ field: field, from: a, to: b });
+    }
+    push('owners', before && before.ownersFace, after.ownersFace);
+    push('gmLabel', before && before.gmLabel, after.gmLabel);
+    push('gmMode', before && before.gmMode, after.gmMode);
+    push('amount', before && before.amount, after.amount);
+    push('status', before && before.status, after.status);
+    push('qb', before && before.qb, after.qb);
+    push('paid', before && before.paid, after.paid);
+    try {
+      var bo = JSON.stringify((before && before.owners) || null);
+      var ao = JSON.stringify((after && after.owners) || null);
+      if (bo !== ao) {
+        if (!changes.some(function (c) { return c.field === 'owners'; })) {
+          changes.push({ field: 'ownersJson', from: bo.slice(0, 200), to: ao.slice(0, 200) });
+        }
+      }
+    } catch (eD) {}
+    return changes;
+  }
+  function softFanLogPush(opts) {
+    opts = opts || {};
+    var log = softFanLogEnsure();
+    var after = opts.after || (opts.row ? softFanLogRowSnap(opts.row) : null);
+    var before = opts.before || null;
+    var changes = opts.changes || softFanLogDiff(before, after);
+    var entry = {
+      id: (typeof uid === 'function' ? uid('fan') : ('fan_' + Date.now())),
+      at: new Date().toISOString(),
+      real: true,
+      stamp: 'soft-fanlog-real-20260921',
+      direction: opts.direction || 'unknown',
+      source: opts.source || '',
+      rowId: (after && after.id) || (before && before.id) || opts.rowId || '',
+      client: (after && after.client) || (before && before.client) || opts.client || '',
+      bookType: (after && after.bookType) || (before && before.bookType) || opts.bookType || '',
+      month: (after && after.month) || (before && before.month) || opts.month || '',
+      qbFace: (after && after.qb) || (before && before.qb) || opts.qb || '',
+      spineId: opts.spineId || '',
+      note: opts.note || '',
+      before: before,
+      after: after,
+      changes: changes,
+      changeSummary: changes.map(function (c) {
+        return c.field + ': ' + (c.from == null || c.from === '' ? '(empty)' : c.from) + ' → ' + (c.to == null || c.to === '' ? '(empty)' : c.to);
+      }).join(' · '),
+      bullhorn: opts.bullhorn || null,
+      gm: opts.gm || (after ? { label: after.gmLabel, ownersFace: after.ownersFace, amount: after.amount } : null),
+      fromBook: !!opts.fromBook,
+      modify: !!opts.modify
+    };
+    /* legacy renderFanout cards expect e.qb as QuickBooks payload object */
+    entry.qb = opts.qbPayload || { number: entry.qbFace || '', stub: false, realFanLog: true };
+    log.unshift(entry);
+    if (log.length > 500) log.length = 500;
+    try { window.__softFanLogLatest = entry; } catch (eL) {}
+    return entry;
+  }
+  function softFanLogQuery(filter) {
+    filter = filter || {};
+    var log = softFanLogEnsure();
+    return log.filter(function (e) {
+      if (!e || !e.real) {
+        if (filter.includeStubs) { /* ok */ } else if (filter.realOnly !== false && e && e.real !== true) {
+          /* still include stubs if no realOnly — default show all; realOnly default false for audit of all */
+        }
+      }
+      if (filter.realOnly && !(e && e.real)) return false;
+      if (filter.direction && String(e.direction || '') !== String(filter.direction)) return false;
+      if (filter.rowId && String(e.rowId || '') !== String(filter.rowId)) return false;
+      if (filter.spineId && String(e.spineId || '') !== String(filter.spineId)) return false;
+      if (filter.qb) {
+        var q = String(filter.qb);
+        var eq = String((e.after && e.after.qb) || e.qbFace || e.qb || '');
+        if (typeof e.qb === 'object' && e.qb && e.qb.number) eq = String(e.qb.number);
+        if (eq !== q) return false;
+      }
+      if (filter.client) {
+        var c = String(filter.client).toLowerCase();
+        if (String(e.client || '').toLowerCase().indexOf(c) < 0) return false;
+      }
+      if (filter.since && String(e.at || '') < String(filter.since)) return false;
+      if (filter.until && String(e.at || '') > String(filter.until)) return false;
+      if (filter.field) {
+        var hit = (e.changes || []).some(function (ch) { return ch.field === filter.field; });
+        if (!hit) return false;
+      }
+      return true;
+    });
+  }
+  try {
+    window.__softFanLogPush = softFanLogPush;
+    window.__softFanLogQuery = softFanLogQuery;
+    window.__softFanLogRowSnap = softFanLogRowSnap;
+  } catch (eFanApi) {}
+
+  function doFanOut(row, fromBook) {
+    var before = softFanLogRowSnap(row);
+    var bh = buildBhPayload(row);
+    var qbPay = buildQbPayload(row);
+    var gmPrev = buildGmPreview(row);
     if (isBookedStatus(row.status)) row.status = 'Invoiced';
+    var after = softFanLogRowSnap(row);
+    var entry = softFanLogPush({
+      direction: 'Production→GM',
+      source: fromBook ? 'book' : 'fan-out',
+      fromBook: !!fromBook,
+      row: row,
+      before: before,
+      after: after,
+      note: fromBook ? 'Book auto fan-out' : 'Manual Fan out',
+      bullhorn: bh,
+      qbPayload: qbPay,
+      gm: gmPrev
+    });
+    entry.webflowJobs = buildWebflowJobsPayload(row);
+    try {
+      if (typeof ensureSpineOwnersFromProduction === 'function') ensureSpineOwnersFromProduction(state);
+    } catch (eSpFan) {}
     saveState();
-    paintFanLatest(entry);
-    console.log('[PLAYHOUSE MOCK] Fan-out stub:', entry);
+    try { paintFanLatest(entry); } catch (eP) {}
+    try { console.log('[Soft fan-log]', entry.direction, entry.changeSummary || entry.note); } catch (eC) {}
     return entry;
   }
 
@@ -75357,19 +75550,34 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
   
 
   function doRefanUpdate(row) {
-    /* Modify path: refresh BH + GM stubs. Do NOT treat as new book / do NOT Booked→Invoiced. */
-    var entry = {
-      id: uid('refan'), at: new Date().toISOString(), rowId: row.id, client: row.client,
-      bookType: row.bookType, fromBook: false, modify: true,
-      bullhorn: buildBhPayload(row), qb: buildQbPayload(row), gm: buildGmPreview(row),
-      webflowJobs: buildWebflowJobsPayload(row)
-    };
-    state.fanLog.unshift(entry);
+    /* Modify path: real fan-log. Do NOT Booked→Invoiced. */
+    var before = (typeof window.__softMdBeforeSnap !== 'undefined' && window.__softMdBeforeSnap)
+      ? window.__softMdBeforeSnap
+      : null;
+    try { window.__softMdBeforeSnap = null; } catch (eClr) {}
+    var after = softFanLogRowSnap(row);
+    if (!before) before = after; /* still log event */
+    var bh = buildBhPayload(row);
+    var qbPay = buildQbPayload(row);
+    var gmPrev = buildGmPreview(row);
+    var entry = softFanLogPush({
+      direction: 'Production→GM',
+      source: 'modify-save',
+      modify: true,
+      row: row,
+      before: before,
+      after: after,
+      note: row.lastModifyNote || 'Save & re-fan',
+      bullhorn: bh,
+      qbPayload: qbPay,
+      gm: gmPrev
+    });
+    entry.webflowJobs = buildWebflowJobsPayload(row);
     row.lastModifiedAt = entry.at;
     row.lastModifyNote = row.lastModifyNote || '';
     saveState();
     try { paintFanLatest(entry); } catch (e) {}
-    console.log('[PLAYHOUSE MOCK] Re-fan modify stub:', entry);
+    try { console.log('[Soft fan-log]', entry.direction, entry.changeSummary || entry.note); } catch (eC) {}
     return entry;
   }
 
@@ -75412,7 +75620,50 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<br><em>Fan-out log #' + escHtml((entry && entry.id) || '—') + '</em>');
     /* soft-prod-spine-owners-live-20260921 — Production Modify → spine owners (linked by QB/linkRowId/sampleId) */
     try {
+      var snapBeforeSpine = softFanLogRowSnap(r);
+      var spineBeforeFaces = {};
+      try {
+        if (typeof listSpineInvoices === 'function') {
+          listSpineInvoices().forEach(function (inv) {
+            if (!inv || !inv.id) return;
+            var linked = false;
+            if (inv.linkRowId && String(inv.linkRowId) === String(r.id)) linked = true;
+            var qb = String(r.qbInvoice || r.qbNumber || '').trim();
+            if (qb && String(inv.qbNumber || '').trim() === qb) linked = true;
+            if (linked) spineBeforeFaces[inv.id] = softFanLogOwnersFace(inv.owners);
+          });
+        }
+      } catch (eBf) {}
       if (typeof ensureSpineOwnersFromProduction === 'function') ensureSpineOwnersFromProduction(state);
+      try {
+        if (typeof listSpineInvoices === 'function') {
+          listSpineInvoices().forEach(function (inv) {
+            if (!inv || !inv.id) return;
+            if (!(inv.id in spineBeforeFaces) && !(inv.linkRowId && String(inv.linkRowId) === String(r.id))) {
+              var qb2 = String(r.qbInvoice || r.qbNumber || '').trim();
+              if (!(qb2 && String(inv.qbNumber || '').trim() === qb2)) return;
+            }
+            if (!(inv.id in spineBeforeFaces)) {
+              var qb3 = String(r.qbInvoice || r.qbNumber || '').trim();
+              if (!(inv.linkRowId && String(inv.linkRowId) === String(r.id)) && !(qb3 && String(inv.qbNumber || '').trim() === qb3)) return;
+            }
+            var faceAfter = softFanLogOwnersFace(inv.owners);
+            var faceBefore = spineBeforeFaces[inv.id];
+            if (faceBefore === faceAfter && faceBefore != null) return;
+            softFanLogPush({
+              direction: 'Production→spine',
+              source: 'modify-save',
+              row: r,
+              before: snapBeforeSpine,
+              after: softFanLogRowSnap(r),
+              spineId: inv.id,
+              qb: String(inv.qbNumber || '').trim(),
+              note: 'Spine owners from Production',
+              changes: [{ field: 'spineOwners', from: faceBefore || '∅', to: faceAfter || '∅' }]
+            });
+          });
+        }
+      } catch (eAf) {}
     } catch (eSpineOwn) {}
     try { saveState(); } catch (eSv) {}
     try { renderProduction(); } catch (e1) {}
@@ -75744,6 +75995,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     /* soft-md-fee-gm-clobber-fix-20260921 — optional amtOverride so Placement Fee / Deal acct / Marketing Amount
        win over the separate GM $ input (otherwise Save&re-fan silently kept the old GM $ and reverted Fee). */
 /* soft-stanley-march-fee-ls-repair-20260921 — Dawn Stanley Mar fee 19000 LS repair (excelSeed Placement fee 0←seed). Soft only. Never Hub. */
+    try { window.__softMdBeforeSnap = softFanLogRowSnap(r); } catch (eBef) { window.__softMdBeforeSnap = null; }
     var amt = (amtOverride != null && isFinite(Number(amtOverride))) ? Number(amtOverride) : mdNum('md-gm-amt');
     try {
       var gmEl = document.getElementById('md-gm-amt');
@@ -76301,8 +76553,15 @@ ownersDetailHtml(row) +
     }
     log.innerHTML = state.fanLog.map(function (e) {
       var when = e.at ? new Date(e.at).toLocaleString() : '';
-      return '<div class="fan-entry"><div class="meta">' + when + ' · ' + e.bookType + ' · ' + (e.client || '') +
-        (e.fromBook ? ' · auto on Book' : '') + '</div><div class="fan-grid">' +
+      var dir = e.direction ? ('<strong>' + escHtml(e.direction) + '</strong> · ') : '';
+      var real = e.real ? 'LIVE' : 'stub';
+      var sum = e.changeSummary ? ('<div style="margin:6px 0 8px;font-size:12.5px;line-height:1.35;color:var(--muted,#64748b)">' +
+        escHtml(e.changeSummary) + '</div>') : '';
+      var meta2 = (e.qbFace ? (' · QB ' + escHtml(e.qbFace)) : '') + (e.spineId ? (' · spine ' + escHtml(e.spineId)) : '') +
+        (e.source ? (' · ' + escHtml(e.source)) : '');
+      return '<div class="fan-entry"><div class="meta">' + dir + when + ' · ' + escHtml(real) + ' · ' + escHtml(e.bookType || '') +
+        ' · ' + escHtml(e.client || '') + meta2 +
+        (e.fromBook ? ' · auto on Book' : '') + (e.modify ? ' · modify' : '') + '</div>' + sum + '<div class="fan-grid">' +
         '<div><h3 style="margin:0 0 6px;font-size:13px">Bullhorn</h3><div class="fan-kv">' + fanBhCard(e.bullhorn) + '</div></div>' +
         '<div><h3 style="margin:0 0 6px;font-size:13px">QuickBooks invoice</h3><div class="fan-kv">' + fanQbHistoryCard(e.qb) + '</div></div>' +
         '<div><h3 style="margin:0 0 6px;font-size:13px">GM splits</h3><div class="fan-kv">' + fanGmCard(e.gm) + '</div></div>' +
