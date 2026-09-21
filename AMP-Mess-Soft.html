@@ -58017,6 +58017,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-prod-spine-owners-live-20260921 — Soft Soft: Modify save re-runs ensureSpineOwnersFromProduction + renderSpine. Soft only. Never Hub. */
 /* soft-prod-gm-feed-hybrid-20260921 — Soft Soft: Production→GM hybrid — claim forward, protect unclaimed Carri GM. Soft only. Never Hub. */
 /* soft-prod-gm-feed-live-20260921 — Soft Soft: Production→GM feed ON (skip Carri GM seed gate). Soft only. Never Hub. */
 /* soft-recgm-carri-repeat-row-20260921 — Soft Soft: Carri REPEAT → Rec GM Repeat row (Winn PD8448 Nate $600). Soft only. Never Hub. */
@@ -75409,6 +75410,11 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<br>Status stays ' + escHtml(r.status || '—') +
       (r.lastModifyNote ? ('<br>' + escHtml(r.lastModifyNote)) : '') +
       '<br><em>Fan-out log #' + escHtml((entry && entry.id) || '—') + '</em>');
+    /* soft-prod-spine-owners-live-20260921 — Production Modify → spine owners (linked by QB/linkRowId/sampleId) */
+    try {
+      if (typeof ensureSpineOwnersFromProduction === 'function') ensureSpineOwnersFromProduction(state);
+    } catch (eSpineOwn) {}
+    try { saveState(); } catch (eSv) {}
     try { renderProduction(); } catch (e1) {}
     try { renderBdGm(); } catch (e2) {}
     try { renderRecGm(); } catch (e3) {}
@@ -75417,6 +75423,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     try { if (typeof renderInvoiceCheck === 'function') renderInvoiceCheck(); } catch (e6) {}
     try { if (typeof renderExecGm === 'function') renderExecGm(); } catch (e7) {}
     try { if (typeof renderCommission === 'function') renderCommission(); } catch (e8) {}
+    try { if (typeof renderSpine === 'function') renderSpine(); } catch (e9) {}
     closeDealDetail();
   }
 
