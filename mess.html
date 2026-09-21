@@ -53102,7 +53102,7 @@ function mktSendAmplified(searchKey) {
 <section class="view" id="view-execgm">
       <div class="card">
         <h2>Exec Total GM (read-mostly)</h2>
-        <p class="lede">Rollup for Mike / David / Randy. Combined / Recruiting / BD = production pots. <strong>AR</strong> = quarter billed revenue + cash / expenses stubs (Live Soft · board/spine SoT). <strong>Exec Production</strong> = Jan–Dec board lines (BD/Marketing booked vs recurring · Placements) from Production SoT + Carri QB stamps. <strong>Run commissions</strong> = Exec-side pay-run pull (Recruiting 15th · BD 15th from prior EOM paid) — pay revenue only.</p>
+        <p class="lede">Rollup for Mike / David / Randy. Combined / Recruiting / BD = production pots. <strong>AR</strong> = quarter billed revenue + cash / expenses stubs (Live Soft · board/spine SoT). <strong>Exec Production</strong> = Jan–Dec board lines (BD/Marketing booked vs recurring · Placements · Placement recurring) from Production SoT + Carri QB stamps. <strong>Run commissions</strong> = Exec-side pay-run pull (Recruiting 15th · BD 15th from prior EOM paid) — pay revenue only.</p>
         <div class="exec-gm-layers" id="execgm-layer-chips" aria-label="Exec GM layers: Booked · Paid · Prior-year unpaid carry-in"></div>
         <p class="gm-layers-hint" id="execgm-layers-hint">Carry-in is last year’s unpaid; it enters Paid tiers only when Mark paid this year. · Carri AR / Mark paid on Invoice spine.</p>
         <div class="seg-pills" id="exec-toggles">
@@ -55531,7 +55531,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-map-nisarq-month-2026-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-exec-placement-recurring-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
 
   /* soft-2026-unmapped-faces-prune-20260921 — pruned to open only (Concord 16942); panel kept; do not invent faces */
   var SOFT_UNMAPPED_2026_FACES = [
@@ -78355,7 +78355,7 @@ ownersDetailHtml(row) +
   }
   function execProdAmount(row, sec) {
     if (!row) return 0;
-    if (sec === 'placements') {
+    if (sec === 'placements' || sec === 'placements-recurring') {
       if (row.fee != null && row.fee !== '' && !isNaN(Number(row.fee))) return Number(row.fee) || 0;
       return Number(row.accountingBilled) || Number(row.bookValueThisMonth) || 0;
     }
@@ -78413,8 +78413,8 @@ ownersDetailHtml(row) +
     if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(row)) {
       if (row.bookType === 'Marketing') return 'mkt-recurring';
       if (row.bookType === 'Deal') return 'bd-recurring';
-      /* Placement second-half / rolling fee piece — park with BD recurring so Exec still sees it */
-      if (row.bookType === 'Placement') return 'bd-recurring';
+      /* soft-exec-placement-recurring-20260921 — Placement second-half / rolling fee → Exec Placement recurring */
+      if (row.bookType === 'Placement') return 'placements-recurring';
     }
     if (row.bookType === 'Placement') return 'placements';
     if (row.bookType === 'Marketing') {
@@ -78456,7 +78456,8 @@ ownersDetailHtml(row) +
       'bd-recurring': { title: 'BD recurring', blurb: 'Deal monthlies · Highlands /N · isRecurringLine' },
       'mkt-booked': { title: 'Marketing booked', blurb: 'New marketing packages · first board month' },
       'mkt-recurring': { title: 'Marketing recurring', blurb: 'Installment / rolling bills · original book date kept' },
-      'placements': { title: 'Placements', blurb: 'Placement only · not muddied with rolling retainers' }
+      'placements': { title: 'Placements', blurb: 'Placement only · first / full fee · not rolling halves' },
+      'placements-recurring': { title: 'Placement recurring', blurb: 'Second-half / rolling placement bills · original book date kept' }
     };
     return map[sec] || { title: sec, blurb: '' };
   }
@@ -78492,7 +78493,7 @@ ownersDetailHtml(row) +
     var st = '';
     try { st = typeof softProdDisplayStatus === 'function' ? softProdDisplayStatus(row) : (row.status || ''); } catch (e) { st = row.status || ''; }
     var stHtml = typeof statusBadge === 'function' ? statusBadge(st) : escHtml(st);
-    if (sec === 'placements') {
+    if (sec === 'placements' || sec === 'placements-recurring') {
       var splitLab = execProdSplitLabel(row);
       var splitHtml = splitLab
         ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(splitLab) + '</div>'
@@ -78524,7 +78525,7 @@ ownersDetailHtml(row) +
     var tot = rows.reduce(function (s, r) { return s + execProdAmount(r, sec); }, 0);
     var head;
     var cols;
-    if (sec === 'placements') {
+    if (sec === 'placements' || sec === 'placements-recurring') {
       head = '<tr><th>Date</th><th>Rep</th><th>Client / split</th><th>Candidate</th><th>Specialty</th><th class="num">Fee</th><th>QB#</th><th>Status</th></tr>';
       cols = 8;
     } else if (sec === 'bd-booked' || sec === 'bd-recurring') {
@@ -78572,7 +78573,7 @@ ownersDetailHtml(row) +
     if (badge) {
       badge.textContent = 'Live · ' + year + (month === 'all' ? ' year' : (' · ' + (EXEC_AR_MONTH_NAMES[Number(month) - 1] || month)));
     }
-    var secs = ['bd-booked', 'bd-recurring', 'mkt-booked', 'mkt-recurring', 'placements'];
+    var secs = ['bd-booked', 'bd-recurring', 'mkt-booked', 'mkt-recurring', 'placements', 'placements-recurring'];
     var counts = {};
     var amts = {};
     secs.forEach(function (sec) {
