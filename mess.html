@@ -58017,6 +58017,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-prod-gm-feed-live-20260921 — Soft Soft: Production→GM feed ON (skip Carri GM seed gate). Soft only. Never Hub. */
 /* soft-recgm-carri-repeat-row-20260921 — Soft Soft: Carri REPEAT → Rec GM Repeat row (Winn PD8448 Nate $600). Soft only. Never Hub. */
 /* soft-winn-jul21-nate-repeat-30-20260921 — Soft Soft: Winn Jul 21 Repeat Brenton60/Nate30/House10 → Nate Rec GM. Soft only. Never Hub. */
 /* soft-jul-kittitas-internet-exec-recurring-20260921 — Soft Soft: Kittitas Jul 1 Internets $790 off BD → exec recurring. Soft only. Never Hub. */
@@ -58165,7 +58166,7 @@ function ensureCarriGmSeed(s) {
       qbHitIds: qbHitIds.slice(0, 60),
       sampleCheck: sampleCheck,
       prodQbCount: Object.keys(prodByQb).length,
-      gmGate: 'OFF',
+      gmGate: 'ON',
       at: '2026-09-21'
     };
     try { window.__softReversePushSpine = s.softReversePushSpine; } catch (eW) {}
@@ -59789,6 +59790,36 @@ function ensureCarriGmSeed(s) {
 
   /* legacy stub: QB Payment match disabled — Open Invoices invert is SoT */
   function ensureQbPaidMatch(s) { return s; }
+
+  function softProdGmFeedLiveOn() {
+    /* soft-prod-gm-feed-live-20260921 — Mike voice: turn Production→GM fan-out back ON after reverse push.
+       When ON, Rec/BD GM boards read live Production rows (owners/splits), not frozen Carri GM seeds.
+       Set state.softProdGmFeedLive = false to re-freeze on Carri seeds. Soft only. Never Hub. */
+    try {
+      if (typeof state !== 'undefined' && state && state.softProdGmFeedLive === false) return false;
+    } catch (eFeed) {}
+    return true;
+  }
+  function ensureSoftProdGmFeedLive(state) {
+    /* soft-prod-gm-feed-live-20260921 — default ON; stamp gmGate ON for reverse-push meta. Soft only. Never Hub. */
+    if (!state) return state;
+    var stamp = 'soft-prod-gm-feed-live-20260921';
+    if (state.softProdGmFeedLive === false) {
+      /* explicit off preserved */
+    } else {
+      state.softProdGmFeedLive = true;
+    }
+    if (!state.softReversePushSpine || typeof state.softReversePushSpine !== 'object') {
+      state.softReversePushSpine = {};
+    }
+    state.softReversePushSpine.gmGate = state.softProdGmFeedLive ? 'ON' : 'OFF';
+    state.softReversePushSpine.prodGmFeed = stamp;
+    state.softProdGmFeedLiveMeta = { stamp: stamp, on: !!state.softProdGmFeedLive, at: '2026-09-21' };
+    try { window.__softProdGmFeedLiveOn = softProdGmFeedLiveOn; } catch (eW) {}
+    return state;
+  }
+  try { window.__softEnsureSoftProdGmFeedLive = ensureSoftProdGmFeedLive; } catch (eEns) {}
+
   function recGmHasCarriSeed(year) {
     var y = String(year || "2026");
     return (state.rows || []).some(function (r) {
@@ -59799,6 +59830,12 @@ function ensureCarriGmSeed(s) {
     if (!row) return false;
     var y = String(year || "2026");
     if (!row.month || String(row.month).slice(0, 4) !== y) return false;
+    /* soft-prod-gm-feed-live-20260921 — Production→GM live: skip frozen Carri seeds; use Production */
+    if (typeof softProdGmFeedLiveOn === 'function' && softProdGmFeedLiveOn()) {
+      if (row.carriGmSeed) return false;
+      if (row.example) return false;
+      return true;
+    }
     if (recGmHasCarriSeed(y)) return !!row.carriGmSeed;
     if (row.carriGmSeed) return false;
     if (row.excelSeed) return true; /* legacy: derive from Production until Carri GM present */
@@ -59818,6 +59855,12 @@ function ensureCarriGmSeed(s) {
     if (!row) return false;
     var y = String(year || "2026");
     if (!row.month || String(row.month).slice(0, 4) !== y) return false;
+    /* soft-prod-gm-feed-live-20260921 — Production→GM live: skip frozen Carri BD GM seeds */
+    if (typeof softProdGmFeedLiveOn === 'function' && softProdGmFeedLiveOn()) {
+      if (row.carriBdGmSeed) return false;
+      if (row.example) return false;
+      return true;
+    }
     if (bdGmHasCarriSeed(y)) return !!row.carriBdGmSeed;
     if (row.carriBdGmSeed) return false;
     return true; /* legacy: Production excelSeed / live BD rows until Carri BD GM present */
@@ -59886,6 +59929,7 @@ function softIsoDate(v) {
     ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
     ensureJulKittitasInternetExecRecurring(s); /* soft-jul-kittitas-internet-exec-recurring-20260921 */
     ensureWinnJul21NateRepeat30(s); /* soft-winn-jul21-nate-repeat-30-20260921 */
+    ensureSoftProdGmFeedLive(s); /* soft-prod-gm-feed-live-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureSoftReversePushProdToSpine20260921(s); /* soft-reverse-push-carri-sot-20260921 — include QB 16973 twin */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
