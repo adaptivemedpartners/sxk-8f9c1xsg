@@ -58000,7 +58000,9 @@ function ensureCarriGmSeed(s) {
       "xl_bd_2026-05_3": "16974",
       "xl_bd_2026-05_4": "16974",
       "xl_mkt_2026-05_35": "17003",
-      "xl_pl_2026-05_2": "17002"
+      "xl_pl_2026-05_2": "17002",
+      "xl_bd_2026-01_2": "16821",
+      "xl_bd_2026-02_2": "16856"
     };
     var stamped = 0, already = 0, skipped = [];
     (s.rows || []).forEach(function (row) {
@@ -58009,14 +58011,15 @@ function ensureCarriGmSeed(s) {
       if (!map[id]) return;
       var want = map[id];
       var have = String(row.qbInvoice || row.qbNumber || '').trim();
-      if (have && have !== want) { skipped.push({ id: id, have: have, want: want }); return; }
+      var forceChd = (id === "xl_bd_2026-01_2" || id === "xl_bd_2026-02_2");
+      if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
-        row.prodQbStamp = row.prodQbStamp || 'soft-reverse-push-carri-sot-20260921';
+        row.prodQbStamp = row.prodQbStamp || (forceChd ? 'soft-chd-qb-16821-16856-20260921' : 'soft-reverse-push-carri-sot-20260921');
         return;
       }
       row.qbInvoice = want;
-      row.prodQbStamp = 'soft-reverse-push-carri-sot-20260921';
+      row.prodQbStamp = forceChd ? 'soft-chd-qb-16821-16856-20260921' : 'soft-reverse-push-carri-sot-20260921';
       row.carriQbMatch = row.carriQbMatch || { num: want, how: 'carri-clear-gaps', source: 'soft-reverse-push-carri-sot-20260921' };
       stamped++;
     });
@@ -59078,51 +59081,124 @@ function ensureCarriGmSeed(s) {
 
 
   function ensureChdi16856UnassignedDedupe(state) {
-    /* soft-chdi-16856-unassigned-dedupe-20260920 — tombstone xl_bd_2026-02_2; keep Aaron xl_bd_2026-01_2. Soft only. Never Hub. */
+    /* soft-chdi-16856-unassigned-dedupe-20260920 SUPERSEDED by soft-chd-qb-16821-16856-20260921 —
+       no longer tombstone xl_bd_2026-02_2 or pin qbInvoice 16856 on Jan xl_bd_2026-01_2.
+       Soft only. Never Hub. */
     if (!state || !Array.isArray(state.rows)) return state;
-    var stamp = "soft-chdi-16856-unassigned-dedupe-20260920";
-    var dropId = "xl_bd_2026-02_2";
-    var keepId = "xl_bd_2026-01_2";
-    softEnsureTombstoneMaps(state);
-    var hadDrop = false, hadKeep = false, keepAaron = false;
-    for (var i = 0; i < state.rows.length; i++) {
-      var r = state.rows[i];
-      if (!r || !r.id) continue;
-      if (String(r.id) === dropId) hadDrop = true;
-      if (String(r.id) === keepId) {
-        hadKeep = true;
-        if (/Aaron/i.test(String(r.rep || "")) || (r.owners && String(r.owners.primary || "") === "Aaron")) keepAaron = true;
-      }
-    }
-    if (!state.deletedRowIds[dropId]) {
-      state.deletedRowIds[dropId] = {
-        at: "2026-09-20T16:55:00-05:00",
-        why: stamp,
-        keep: keepId,
-        note: "CHDI 16856 Unassigned excel double of Aaron initiation DDS8419; keep xl_bd_2026-01_2"
-      };
-    }
-    var before = state.rows.length;
-    state.rows = state.rows.filter(function (r) { return !(r && String(r.id) === dropId); });
-    state.rows.forEach(function (row) {
-      if (!row || String(row.id) !== keepId) return;
-      row.rep = "Aaron";
-      row.gmMode = "Whole";
-      row.gmLabel = "Whole · Aaron 100%";
-      row.owners = { mode: "Whole", primary: "Aaron" };
-      row.qbInvoice = row.qbInvoice || "16856";
-      row.softGmSplitOverride = true;
-      row.softGmSplitManual = true;
-      row.softChdi16856AaronKeep = stamp;
-      keepAaron = true;
-    });
     state.chdi16856UnassignedDedupe = {
-      stamp: stamp, dropped: dropId, kept: keepId, hadDrop: hadDrop, hadKeep: hadKeep,
-      keepAaron: keepAaron, removedNow: before - state.rows.length, at: "2026-09-20"
+      stamp: "soft-chdi-16856-unassigned-dedupe-20260920",
+      supersededBy: "soft-chd-qb-16821-16856-20260921",
+      note: "Feb Unassigned CHD kept; Jan Aaron qb 16821; Feb qb 16856",
+      at: "2026-09-21"
     };
     return state;
   }
   try { window.__softEnsureChdi16856UnassignedDedupe = ensureChdi16856UnassignedDedupe; } catch (e5) {}
+
+  function softChdQbFebSeedRow() {
+    /* seed twin for xl_bd_2026-02_2 — Community Health $4000 · Unassigned · QB 16856 */
+    return {
+      id: "xl_bd_2026-02_2",
+      example: false,
+      excelSeed: true,
+      bookType: "Deal",
+      side: "bd",
+      date: "2026-02-01",
+      month: "2026-02",
+      rep: "",
+      repeatRep: "",
+      client: "Community Health",
+      dealRef: "",
+      searchRefs: "",
+      repeatOrNew: "",
+      searches: "",
+      specialties: "dds - allied",
+      initiation: 4000,
+      firstMonthRetainer: 0,
+      internets: 0,
+      accountingBilled: 4000,
+      accountingBilledRaw: "yes",
+      gmMode: "Whole",
+      gmLabel: "Whole · Unassigned 100%",
+      owners: {"mode": "Whole", "primary": "Unassigned"},
+      qbInvoice: "16856",
+      status: "Invoiced",
+      paid: false,
+      bookValueThisMonth: 4000,
+      sourceSheet: "February 2026",
+      sourceRow: 2,
+      sourceYear: 2026
+    };
+  }
+
+  function ensureSoftChdQb168211685620260921(state) {
+    /* soft-chd-qb-16821-16856-20260921 — AFTER superseded chdi-16856 dedupe.
+       Jan xl_bd_2026-01_2 (Aaron CHD) qbInvoice 16821; Feb xl_bd_2026-02_2 qbInvoice 16856;
+       clear Feb tombstone / restore row. Do NOT touch Riverview xl_bd_2026-05_2.
+       Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-chd-qb-16821-16856-20260921";
+    var janId = "xl_bd_2026-01_2";
+    var febId = "xl_bd_2026-02_2";
+    softEnsureTombstoneMaps(state);
+    var tombCleared = false;
+    if (state.deletedRowIds && state.deletedRowIds[febId]) {
+      delete state.deletedRowIds[febId];
+      tombCleared = true;
+    }
+    var jan = null, feb = null;
+    for (var i = 0; i < state.rows.length; i++) {
+      var r = state.rows[i];
+      if (!r || !r.id) continue;
+      if (String(r.id) === janId) jan = r;
+      if (String(r.id) === febId) feb = r;
+    }
+    var febRestored = false;
+    if (!feb) {
+      feb = softChdQbFebSeedRow();
+      state.rows.push(feb);
+      febRestored = true;
+    }
+    if (jan) {
+      jan.rep = "Aaron";
+      jan.gmMode = "Whole";
+      jan.gmLabel = "Whole · Aaron 100%";
+      jan.owners = { mode: "Whole", primary: "Aaron" };
+      jan.qbInvoice = "16821";
+      jan.qbNumber = "16821";
+      jan.softGmSplitOverride = true;
+      jan.softGmSplitManual = true;
+      jan.softChdQbStamp = stamp;
+      jan.prodQbStamp = stamp;
+      if (jan.softChdi16856AaronKeep) delete jan.softChdi16856AaronKeep;
+    }
+    if (feb) {
+      if (!feb.owners || typeof feb.owners !== "object") {
+        feb.owners = { mode: "Whole", primary: "Unassigned" };
+      }
+      if (!feb.gmLabel) feb.gmLabel = "Whole · Unassigned 100%";
+      if (!feb.gmMode) feb.gmMode = "Whole";
+      feb.qbInvoice = "16856";
+      feb.qbNumber = "16856";
+      feb.softChdQbStamp = stamp;
+      feb.prodQbStamp = stamp;
+    }
+    state.softChdQb1682116856 = {
+      stamp: stamp,
+      janId: janId,
+      febId: febId,
+      janQb: "16821",
+      febQb: "16856",
+      hadJan: !!jan,
+      hadFeb: !!feb && !febRestored,
+      febRestored: febRestored,
+      tombCleared: tombCleared,
+      at: "2026-09-21"
+    };
+    try { window.__softChdQb1682116856 = state.softChdQb1682116856; } catch (eW) {}
+    return state;
+  }
+  try { window.__softEnsureSoftChdQb168211685620260921 = ensureSoftChdQb168211685620260921; } catch (e6) {}
 
 
   function ensureKalyaniJulExcelDedupe(state) {
@@ -59557,6 +59633,7 @@ function softIsoDate(v) {
     ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
     ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
+    ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(s); /* soft-repeat-gm-60-30-10-20260920 */
     softApplyRowTombstones(s); /* soft-prod-iv-harden-20260919 — after ensure* so reseed cannot revive deletes */
@@ -59634,6 +59711,7 @@ function softIsoDate(v) {
     ensureChdAugMktDedupe(s); /* soft-chd-aug-mkt-dedupe-20260920 */
     ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
+    ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(s); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
     try { ensureSoftRepOwnerAutofix(s); } catch (eRepAf) {} /* soft-rep-owner-autofix-20260920 */
@@ -59659,6 +59737,7 @@ function softIsoDate(v) {
     ensureCopperQueen17037RandyKelley5050(s); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
     try { ensureSoft2026RepLabelsFromProduction(s); } catch (e2026RepLab) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
+    ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     return s;
   }
@@ -67594,7 +67673,7 @@ function softIsoDate(v) {
       gmMode: "Whole",
       gmLabel: "Whole · Aaron 100%",
       owners: {"mode": "Whole", "primary": "Aaron"},
-      qbInvoice: "16856",
+      qbInvoice: "16821",
       softGmSplitOverride: true,
       softGmSplitManual: true,
       status: "Invoiced",
@@ -67778,6 +67857,7 @@ function softIsoDate(v) {
       gmMode: "Whole",
       gmLabel: "Whole · Unassigned 100%",
       owners: {"mode": "Whole", "primary": "Unassigned"},
+      qbInvoice: "16856",
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 4000,
@@ -72605,6 +72685,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureChdAugMktDedupe(state); /* soft-chd-aug-mkt-dedupe-20260920 */
     ensureHadleyAugEcbDedupe(state); /* soft-hadley-aug-ecb-dedupe-20260920 */
     ensureChdi16856UnassignedDedupe(state);
+    ensureSoftChdQb168211685620260921(state); /* soft-chd-qb-16821-16856-20260921 */
     ensureKalyaniJulExcelDedupe(state); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(state); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
     try { ensureSoftRepOwnerAutofix(state); } catch (eRepAf2) {}
