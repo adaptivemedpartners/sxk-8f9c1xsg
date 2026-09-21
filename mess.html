@@ -56261,9 +56261,37 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     if (/^2\s*n?d\s*bill/.test(c) || /^2nd\s*bill/.test(c)) return 2;
     if (/^3\s*rd\s*bill/.test(c) || /^3rd\s*bill/.test(c)) return 3;
     if (/^4\s*th\s*bill/.test(c)) return 4;
-    if (/^package$/.test(c)) return 90;
+    if (/^package$/.test(c)) return 0; /* soft-winn-may-od-package-on-prod-20260921 — Package is a primary book, not 2nd+ */
     return 0;
   }
+  
+  function ensureWinnMayOdPackageOnProduction20260921(state) {
+    /* soft-winn-may-od-package-on-prod-20260921 — Excel May 5/20 NS/MF OD Package $15k on Production Marketing. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-winn-may-od-package-on-prod-20260921";
+    state.rows.forEach(function (row) {
+      if (!row || row.example) return;
+      if (String(row.bookType || "") !== "Marketing") return;
+      var idHit = String(row.id || "") === "xl_mkt_2026-05_34" || String(row.qbInvoice || "") === "16977";
+      var faceHit = /Winn|Wynn/i.test(String(row.client || ""))
+        && (String(row.month || "") === "2026-05" || String(row.date || "").indexOf("2026-05") === 0)
+        && /OD/i.test(String(row.specialties || row.campaign || ""))
+        && Math.abs(Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) - 15000) < 0.5;
+      if (!(idHit || faceHit)) return;
+      row.excludeFromProductionBoard = false;
+      row.isRecurringLine = false;
+      row.marketingInstallment = false;
+      if (String(row.lineKind || "") === "marketing-installment") row.lineKind = "marketing-book";
+      row.campaign = row.campaign || "Package";
+      row.specialties = row.specialties || "OD";
+      row.rep = "Nate / Mike";
+      row.people = "Nate, Mike";
+      row.peopleRaw = "Nate, Mike";
+      row.softWinnMayOdPackageOnProd = stamp;
+    });
+    return state;
+  }
+
   function softIsMarketingFollowOnBill(row) {
     if (!row || row.bookType !== 'Marketing') return false;
     var ord = softMarketingBillOrdinal(row.campaign);
@@ -59218,6 +59246,7 @@ function softIsoDate(v) {
     ensureMidland17004MktStephanie7030(s); /* soft-midland-17004-mkt-stephanie-7030-20260920 — AFTER repeat GM */
     ensureCullmanJan5kBrenton(s); /* soft-cullman-jan-5k-brenton-20260920 */
     ensureIhc16972MikeRandy5050(s); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
+    ensureWinnMayOdPackageOnProduction20260921(s); /* soft-winn-may-od-package-on-prod-20260921 */
     ensureCopperQueen17037RandyKelley5050(s); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
     try { ensureSoft2026RepLabelsFromProduction(s); } catch (e2026RepLab) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
@@ -68550,7 +68579,7 @@ function softIsoDate(v) {
       side: "bd",
       date: "2026-05-20",
       month: "2026-05",
-      rep: "Mike",
+      rep: "Nate / Mike",
       marketer: "",
       client: "Winn Community",
       campaign: "Package",
@@ -68565,6 +68594,8 @@ function softIsoDate(v) {
       owners: {"mode": "Marketing", "housePct": 30, "reps": [{"name": "Mike", "pct": 35}, {"name": "Nate", "pct": 35}]},
       softGmSplitOverride: true,
       softGmSplitManual: true,
+      people: "Nate, Mike",
+      peopleRaw: "Nate, Mike",
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 15000,
@@ -72121,6 +72152,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureSoftPre2026AgingPaid(state);
     ensureSoftProdPaidFromSpineSoT(state);
     ensureIhc16972MikeRandy5050(state); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
+    ensureWinnMayOdPackageOnProduction20260921(state); /* soft-winn-may-od-package-on-prod-20260921 */
     ensureCopperQueen17037RandyKelley5050(state); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
     try { ensureSoft2026RepLabelsFromProduction(state); } catch (e2026RepLab2) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureMidland17004MktStephanie7030(state); /* soft-midland-17004-mkt-stephanie-7030-20260920 — AFTER repeat GM */
