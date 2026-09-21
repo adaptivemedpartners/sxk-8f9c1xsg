@@ -11,6 +11,7 @@
 /* soft-md-gm-pct-decimals-20260921 — Modify GM % inputs accept decimals (step 0.01); no integer round on save. Soft only. Never Hub. */
 /* soft-md-gm-house-leftover-20260921 — Soft Soft Modify GM House leftover for Marketing + BD Deal (no rescale; over-100 abort; roles recruiter/bd and bd_primary/repeat_recruiter). Soft only. Never Hub. */
 /* soft-md-gm-house-layout-card-20260921 — Modify GM House UI: display:contents so dd-k/dd-v fill card grid; person rows flex full width. Soft only. Never Hub. */
+/* soft-md-repeat-rep-dropdown-20260921 — Modify Deal Repeat rep is select dropdown (no free text). Soft only. Never Hub. */
 
 /* soft-internet-bool-not-dollars-20260921 — Soft Soft: Internet Yes/No separate from dollars; 0/1/Y/N never render as $0/$1; South Central xl_bd_2026-04_3 internets 1→internetOn+internets 0; marketing book no longer writes amount into internets; softInternetOn/softInternetDollars helpers; boot ensure migrates boolean tokens. Soft only. Never Hub. */
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
@@ -75378,12 +75379,15 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     var primary = (ow.mode === 'Whole' ? (ow.primary || row.rep) : (row.rep || '')) || '';
     var people = BD_PEOPLE.concat(['Mike', 'Randy', 'David', 'Carri']);
     var opts = mdOptList(people, primary);
+    var recPeople = (typeof REC_PEOPLE !== 'undefined' ? REC_PEOPLE.slice() : []).concat(['Mike']);
+    var repeatOpts = mdOptList(['—'].concat(recPeople), row.repeatRep || '—');
     var fields =
       '<div class="dd-k">Client</div><div class="dd-v"><input type="text" id="md-client" value="' + escHtml(row.client || '') + '" /></div>' +
       '<div class="dd-k">Search #</div><div class="dd-v"><input type="text" id="md-search" value="' + escHtml(row.searchRefs || row.dealRef || '') + '" placeholder="GS-8453, …" /></div>' +
       '<div class="dd-k">Primary BD</div><div class="dd-v"><select id="md-rep">' + opts + '</select>' +
-        '<div class="md-hint">Whole ownership for this mock · Split/Repeat edit later</div></div>' +
-      '<div class="dd-k">Repeat rep</div><div class="dd-v"><input type="text" id="md-repeat" value="' + escHtml(row.repeatRep || '') + '" placeholder="optional" /></div>' +
+        '<div class="md-hint">BD face on Production · GM House % below is SoT for splits</div></div>' +
+      '<div class="dd-k">Repeat rep</div><div class="dd-v"><select id="md-repeat">' + repeatOpts + '</select>' +
+        '<div class="md-hint">Recruiter dropdown only · no free type</div></div>' +
       '<div class="dd-k">Specialties</div><div class="dd-v"><input type="text" id="md-spec" value="' + escHtml(row.specialties || '') + '" /></div>' +
       '<div class="dd-k">New / Repeat</div><div class="dd-v"><select id="md-rn">' +
         '<option value="New"' + (row.repeatOrNew === 'New' ? ' selected' : '') + '>New</option>' +
@@ -75416,7 +75420,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         r.searchRefs = search;
         r.dealRef = search ? search.split(',')[0].trim() : (r.dealRef || '');
         r.rep = mdVal('md-rep') || r.rep;
-        r.repeatRep = mdVal('md-repeat');
+        r.repeatRep = mdVal('md-repeat'); if (r.repeatRep === '—' || r.repeatRep === '-') r.repeatRep = '';
         /* standing 60/30/10 only when not using House UI (House save sets softGmSplitOverride) */
         if (!document.getElementById('md-gm-house-ui')) {
           try { softApplyStandingRepeatGm601030(r); } catch (eRepGmMd) {} /* soft-repeat-gm-60-30-10-20260920 */
