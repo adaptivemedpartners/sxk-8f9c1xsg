@@ -12,6 +12,7 @@
 /* soft-md-gm-house-leftover-20260921 — Soft Soft Modify GM House leftover for Marketing + BD Deal (no rescale; over-100 abort; roles recruiter/bd and bd_primary/repeat_recruiter). Soft only. Never Hub. */
 /* soft-md-gm-house-layout-card-20260921 — Modify GM House UI: display:contents so dd-k/dd-v fill card grid; person rows flex full width. Soft only. Never Hub. */
 /* soft-md-repeat-rep-dropdown-20260921 — Modify Deal Repeat rep is select dropdown (no free text). Soft only. Never Hub. */
+/* soft-md-delete-desktop-exec-20260921 — Soft Soft Modify Delete visible on Desktop file:// + Soft Soft skip-auth; never strip md-delete. Soft only. Never Hub. */
 
 /* soft-internet-bool-not-dollars-20260921 — Soft Soft: Internet Yes/No separate from dollars; 0/1/Y/N never render as $0/$1; South Central xl_bd_2026-04_3 internets 1→internetOn+internets 0; marketing book no longer writes amount into internets; softInternetOn/softInternetDollars helpers; boot ensure migrates boolean tokens. Soft only. Never Hub. */
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
@@ -37079,6 +37080,7 @@ window.SNAP = {
           skip.style.cssText = "margin-top:8px;font:650 12px/1.3 ui-sans-serif,system-ui,sans-serif;padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(148,163,184,.45);background:transparent;color:inherit;";
           skip.addEventListener("click", function () {
             ov.hidden = true;
+            try { sessionStorage.setItem("softSoftExec", "1"); } catch (eSs) {} /* soft-md-delete-desktop-exec-20260921 */
             try { ampApplyAuth(null); } catch (eA) {}
             try { if (typeof render === "function") render(); } catch (eR) {}
           });
@@ -75256,6 +75258,15 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
 
   /* soft-modify-delete-exec-gate-fix-20260920 · soft-modify-delete-beside-save-20260920 */
   function softIsExec() {
+    /* soft-md-delete-desktop-exec-20260921 — Soft Soft Modify Delete must show on Desktop file://
+       and after Soft Soft "Continue without signing in". Do not rely on Hub AMP_AUTH alone.
+       Never remove #md-delete from openModifyShell when syncing Desktop → Pages. */
+    try {
+      if (location && location.protocol === 'file:') return true;
+    } catch (eFile) {}
+    try {
+      if (sessionStorage && sessionStorage.getItem('softSoftExec') === '1') return true;
+    } catch (eSs) {}
     try {
       if (typeof window.isMike === 'function' && window.isMike()) return true;
     } catch (e0) {}
@@ -75304,6 +75315,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
           ? ('<button type="button" class="mini-btn" id="md-writeoff" data-act="writeoff" data-id="' + escHtml(row.id) +
              '" title="Deal write-off · request Carri QB negative line">Deal write-off</button>')
           : '') +
+        /* soft-md-delete-desktop-exec-20260921 — always emit Delete; softIsExec only toggles hidden */
         '<button type="button" class="mini-btn md-delete-btn" id="md-delete" data-row-id="' + escHtml(row.id) + '" title="Exec only · permanent Soft delete"' +
           (softIsExec() ? '' : ' hidden') + '>Delete</button>' +
       '</div>' +
