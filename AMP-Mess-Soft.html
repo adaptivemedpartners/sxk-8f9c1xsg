@@ -9,6 +9,8 @@
 /* soft-woodland-apr-mkt-7030-20260921 — Woodland Heights Apr mkt 16944 Stephanie70/House30. Soft only. Never Hub. */
 /* soft-ihc-apr-mkt-8020-20260921 — IHC Santa Clara Apr mkt 16971 Mike80/House20. Soft only. Never Hub. */
 /* soft-md-gm-pct-decimals-20260921 — Modify GM % inputs accept decimals (step 0.01); no integer round on save. Soft only. Never Hub. */
+/* soft-md-gm-house-leftover-20260921 — Soft Soft Modify GM House leftover for Marketing + BD Deal (no rescale; over-100 abort; roles recruiter/bd and bd_primary/repeat_recruiter). Soft only. Never Hub. */
+
 /* soft-internet-bool-not-dollars-20260921 — Soft Soft: Internet Yes/No separate from dollars; 0/1/Y/N never render as $0/$1; South Central xl_bd_2026-04_3 internets 1→internetOn+internets 0; marketing book no longer writes amount into internets; softInternetOn/softInternetDollars helpers; boot ensure migrates boolean tokens. Soft only. Never Hub. */
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
 /* soft-bd-year-fractions-tentative-20260920 — Soft Soft: Provisional YTD BD deal fractions (Mike) — Brenton 6.6 · Zach 4.4 — TENTATIVE / PROVISIONAL only; split-weighted deal credit (not whole books); unconfirmed pending Randy; read-only annotation strip on Exec BD Yearly + Awards + BD Hub Comp; does NOT mutate Production/BD row SoT. Soft only. Never Hub. */
@@ -71006,9 +71008,11 @@ function softIsoDate(v) {
       return 'Repeat · ' + owners.primary.name + ' ' + owners.primary.pct + '% / ' +
         owners.repeatRecipient.name + ' ' + owners.repeatRecipient.pct + '%';
     }
-    if (owners.mode === 'Marketing') {
-      var r = (owners.reps || []).map(function (x) { return x.name + ' ' + x.pct + '%'; }).join(' / ');
-      return 'House ' + owners.housePct + '% · ' + r;
+    if (owners.mode === 'Marketing' || owners.mode === 'BD') {
+      /* soft-md-gm-house-leftover-20260921 */
+      var bitsH = (owners.reps || []).map(function (x) { return x.name + ' ' + x.pct + '%'; });
+      if (owners.housePct != null) bitsH.push('House ' + owners.housePct + '%');
+      return owners.mode + ' · ' + bitsH.join(' / ');
     }
     return owners.mode || '—';
   }
@@ -71021,7 +71025,16 @@ function softIsoDate(v) {
       if (owners.a) return owners.a.name;
     }
     if (owners.mode === 'Repeat') return owners.primary && owners.primary.name;
-    if (owners.mode === 'Marketing' && owners.reps && owners.reps[0]) return owners.reps[0].name;
+    if ((owners.mode === 'Marketing' || owners.mode === 'BD') && owners.reps && owners.reps.length) {
+      /* soft-md-gm-house-leftover-20260921 — prefer primary-ish role */
+      var pref = owners.mode === 'BD' ? 'bd_primary' : 'recruiter';
+      var hit = null;
+      (owners.reps || []).forEach(function (x) {
+        if (!hit && x && x.role === pref) hit = x.name;
+      });
+      if (!hit && owners.reps[0]) hit = owners.reps[0].name;
+      return hit || fallback || '';
+    }
     return fallback || '';
   }
 
@@ -74184,9 +74197,12 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     } else if (owners.mode === 'Repeat') {
       push(owners.primary.name, owners.primary.pct, 'Repeat primary');
       push(owners.repeatRecipient.name, owners.repeatRecipient.pct, 'Repeat recipient');
-    } else if (owners.mode === 'Marketing') {
+    } else if (owners.mode === 'Marketing' || owners.mode === 'BD') {
+      /* soft-md-gm-house-leftover-20260921 */
       push('House', owners.housePct, 'House');
-      (owners.reps || []).forEach(function (r) { push(r.name, r.pct, 'Marketing rep'); });
+      (owners.reps || []).forEach(function (r) {
+        push(r.name, r.pct, owners.mode === 'BD' ? ('BD ' + (r.role || 'rep')) : 'Marketing rep');
+      });
     } else push(row.rep || 'Unassigned', 100, 'Fallback');
     return out;
   }
@@ -74222,7 +74238,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       } else if (owners.mode === 'Repeat') {
         hit(owners.primary && owners.primary.name, amt * (owners.primary.pct || 0) / 100);
         hit(owners.repeatRecipient && owners.repeatRecipient.name, amt * (owners.repeatRecipient.pct || 0) / 100);
-      } else if (owners.mode === 'Marketing') {
+      } else if (owners.mode === 'Marketing' || owners.mode === 'BD') {
+        /* soft-md-gm-house-leftover-20260921 */
         (owners.reps || []).forEach(function (r) { hit(r.name, amt * r.pct / 100); });
       }
     });
@@ -74613,10 +74630,12 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       if (o.recruiter) bits.push('<div>Repeat recruiter: <strong>' + escHtml(o.recruiter.name) + '</strong> · ' + escHtml(String(o.recruiter.pct)) + '%</div>');
       if (o.housePct != null) bits.push('<div>House (remainder): ' + escHtml(String(o.housePct)) + '%</div>');
     }
-    if (o.mode === 'Marketing') {
-      bits.push('<div>BD / people splits (Marketing)</div>');
+    if (o.mode === 'Marketing' || o.mode === 'BD') {
+      /* soft-md-gm-house-leftover-20260921 */
+      bits.push('<div>' + (o.mode === 'BD' ? 'BD deal' : 'Marketing') + ' House leftover splits</div>');
       (o.reps || []).forEach(function (r) {
-        bits.push('<div><strong>' + escHtml(r.name) + '</strong> · ' + escHtml(String(r.pct)) + '%</div>');
+        var roleBit = r.role ? (' <span style="font-size:11px;color:#64748b">(' + escHtml(String(r.role)) + ')</span>') : '';
+        bits.push('<div><strong>' + escHtml(r.name) + '</strong> · ' + escHtml(String(r.pct)) + '%' + roleBit + '</div>');
       });
       if (o.housePct != null) bits.push('<div>House (remainder): ' + escHtml(String(o.housePct)) + '%</div>');
     }
@@ -74793,8 +74812,147 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     if (row.bookType === 'Marketing') return row.rep || row.marketer || '';
     return row.rep || '';
   }
+  /* soft-md-gm-house-leftover-20260921 — Marketing + BD Deal House leftover Modify GM (Placement keeps Whole/Split A/B) */
+  function mdHouseRoundPct(n) {
+    var x = Number(n);
+    if (!isFinite(x)) return 0;
+    return Math.round(x * 100) / 100;
+  }
+  function mdInferMktGmRole(name, row, existingRole) {
+    var er = String(existingRole || '').toLowerCase();
+    if (er === 'recruiter' || er === 'bd') return er;
+    if (er === 'marketer' || er === 'bd_owner' || er === 'bdowner') return 'bd';
+    if (er === 'rep' || er === 'recruiter_owner') return 'recruiter';
+    var n = String(name || '').trim();
+    try {
+      if (row && row.marketer && typeof softShortRepName === 'function' && softShortRepName(row.marketer) === softShortRepName(n)) return 'bd';
+      if (row && row.rep && typeof softShortRepName === 'function' && softShortRepName(row.rep) === softShortRepName(n)) return 'recruiter';
+      if (typeof softIsBdPersonName === 'function' && softIsBdPersonName(n)) return 'bd';
+      if (typeof softIsRecPersonName === 'function' && softIsRecPersonName(n)) return 'recruiter';
+    } catch (eInf) {}
+    if (typeof BD_PEOPLE !== 'undefined' && BD_PEOPLE.indexOf(n) >= 0) return 'bd';
+    if (typeof REC_PEOPLE !== 'undefined' && REC_PEOPLE.indexOf(n) >= 0) return 'recruiter';
+    return 'recruiter';
+  }
+  function mdMktHousePrefillReps(row) {
+    ensureOwners(row);
+    var ow = row.owners || {};
+    var out = [];
+    if (ow.mode === 'Marketing' && Array.isArray(ow.reps) && ow.reps.length) {
+      ow.reps.forEach(function (r) {
+        if (!r || !r.name) return;
+        out.push({ name: r.name, pct: mdHouseRoundPct(r.pct), role: mdInferMktGmRole(r.name, row, r.role) });
+      });
+      return out;
+    }
+    if (ow.mode === 'Split') {
+      if (ow.a && ow.a.name) out.push({ name: ow.a.name, pct: mdHouseRoundPct(ow.a.pct), role: mdInferMktGmRole(ow.a.name, row, 'recruiter') });
+      if (ow.b && ow.b.name) out.push({ name: ow.b.name, pct: mdHouseRoundPct(ow.b.pct), role: mdInferMktGmRole(ow.b.name, row, 'bd') });
+      if (ow.bdA && ow.bdA.name) out.push({ name: ow.bdA.name, pct: mdHouseRoundPct(ow.bdA.pct), role: 'bd' });
+      if (ow.bdB && ow.bdB.name) out.push({ name: ow.bdB.name, pct: mdHouseRoundPct(ow.bdB.pct), role: 'bd' });
+      if (out.length) return out;
+    }
+    if (ow.mode === 'Whole' && ow.primary) {
+      out.push({ name: ow.primary, pct: 100, role: mdInferMktGmRole(ow.primary, row, '') });
+      return out;
+    }
+    if (row.rep) out.push({ name: row.rep, pct: 50, role: 'recruiter' });
+    if (row.marketer && row.marketer !== row.rep) out.push({ name: row.marketer, pct: 50, role: 'bd' });
+    if (!out.length && row.rep) out.push({ name: row.rep, pct: 100, role: 'recruiter' });
+    return out;
+  }
+  function mdBdHousePrefillReps(row) {
+    ensureOwners(row);
+    var ow = row.owners || {};
+    var out = [];
+    if (ow.mode === 'BD' && Array.isArray(ow.reps) && ow.reps.length) {
+      ow.reps.forEach(function (r) {
+        if (!r || !r.name) return;
+        var role = r.role === 'repeat_recruiter' ? 'repeat_recruiter' : 'bd_primary';
+        out.push({ name: r.name, pct: mdHouseRoundPct(r.pct), role: role });
+      });
+      return out;
+    }
+    /* Split / Repeat standing shapes → map into BD house rows */
+    if (ow.mode === 'Split' || ow.mode === 'Repeat') {
+      if (ow.bdA && ow.bdA.name) out.push({ name: ow.bdA.name, pct: mdHouseRoundPct(ow.bdA.pct != null ? ow.bdA.pct : 60), role: 'bd_primary' });
+      else if (ow.a && ow.a.name) out.push({ name: ow.a.name, pct: mdHouseRoundPct(ow.a.pct != null ? ow.a.pct : 60), role: 'bd_primary' });
+      else if (ow.primary && typeof ow.primary === 'object' && ow.primary.name) {
+        out.push({ name: ow.primary.name, pct: mdHouseRoundPct(ow.primary.pct != null ? ow.primary.pct : 60), role: 'bd_primary' });
+      } else if (ow.mode === 'Whole' && ow.primary) {
+        out.push({ name: ow.primary, pct: 60, role: 'bd_primary' });
+      }
+      if (ow.bdB && ow.bdB.name) out.push({ name: ow.bdB.name, pct: mdHouseRoundPct(ow.bdB.pct), role: 'bd_primary' });
+      if (ow.recruiter && ow.recruiter.name) {
+        out.push({ name: ow.recruiter.name, pct: mdHouseRoundPct(ow.recruiter.pct != null ? ow.recruiter.pct : 30), role: 'repeat_recruiter' });
+      } else if (ow.repeatRecipient && ow.repeatRecipient.name) {
+        out.push({ name: ow.repeatRecipient.name, pct: mdHouseRoundPct(ow.repeatRecipient.pct != null ? ow.repeatRecipient.pct : 30), role: 'repeat_recruiter' });
+      } else if (ow.b && ow.b.name) {
+        out.push({ name: ow.b.name, pct: mdHouseRoundPct(ow.b.pct != null ? ow.b.pct : 30), role: 'repeat_recruiter' });
+      }
+      if (out.length) return out;
+    }
+    /* Whole / missing BD shape → defaults 60 / 30 → House 10 */
+    var prim = row.rep || (ow.mode === 'Whole' ? ow.primary : '') || '';
+    var repR = row.repeatRep || '—';
+    out.push({ name: prim || 'Unassigned', pct: 60, role: 'bd_primary' });
+    out.push({ name: repR || '—', pct: 30, role: 'repeat_recruiter' });
+    return out;
+  }
+  function mdHousePersonRowHtml(people, name, pct, role, allowDash) {
+    var list = allowDash ? ['—'].concat(people) : people;
+    var sel = name || (allowDash ? '—' : (people[0] || ''));
+    return '' +
+      '<div class="md-gm-person-row" data-role="' + escHtml(role) + '" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px">' +
+        '<select class="md-gm-person-name" style="min-width:120px">' + mdOptList(list, sel) + '</select>' +
+        '<input type="number" class="md-gm-person-pct" value="' + escHtml(pct) + '" min="0" max="100" step="0.01" style="width:72px" title="% (decimals OK)" />' +
+        '<span>%</span>' +
+        '<button type="button" class="mini-btn md-gm-person-remove" title="Remove">×</button>' +
+      '</div>';
+  }
+  function mdGmHouseFieldsHtml(row) {
+    var amt = mdCurrentGmAmt(row);
+    var isMkt = row.bookType === 'Marketing';
+    var reps = isMkt ? mdMktHousePrefillReps(row) : mdBdHousePrefillReps(row);
+    var recPeople = (typeof REC_PEOPLE !== 'undefined' ? REC_PEOPLE.slice() : []).concat(['Mike']);
+    var bdPeople = (typeof BD_PEOPLE !== 'undefined' ? BD_PEOPLE.slice() : []).concat(['Mike', 'Randy', 'David', 'Carri']);
+    var roleA = isMkt ? 'recruiter' : 'bd_primary';
+    var roleB = isMkt ? 'bd' : 'repeat_recruiter';
+    var labA = isMkt ? 'Recruiter owner(s)' : 'Primary BD';
+    var labB = isMkt ? 'BD owner(s)' : 'Repeat recruiter';
+    var peopleA = isMkt ? recPeople : bdPeople;
+    var peopleB = isMkt ? bdPeople : recPeople;
+    var rowsA = '';
+    var rowsB = '';
+    var sum = 0;
+    reps.forEach(function (r) {
+      sum += Number(r.pct) || 0;
+      if (r.role === roleA) rowsA += mdHousePersonRowHtml(peopleA, r.name, r.pct, roleA, false);
+      else if (r.role === roleB) rowsB += mdHousePersonRowHtml(peopleB, r.name, r.pct, roleB, !isMkt);
+    });
+    if (!rowsA) rowsA = mdHousePersonRowHtml(peopleA, isMkt ? (row.rep || '') : (row.rep || ''), isMkt ? '' : 60, roleA, false);
+    if (!rowsB) rowsB = mdHousePersonRowHtml(peopleB, isMkt ? (row.marketer || '') : (row.repeatRep || '—'), isMkt ? '' : 30, roleB, !isMkt);
+    var housePct = Math.max(0, mdHouseRoundPct(100 - sum));
+    return '' +
+      '<div id="md-gm-house-ui" data-book="' + (isMkt ? 'Marketing' : 'Deal') + '">' +
+      '<div class="dd-k">GM $</div><div class="dd-v"><input type="number" id="md-gm-amt" value="' + escHtml(amt) + '" step="1" />' +
+        '<div class="md-hint">Dollars that count toward GM (exec cleanup) · % fields below are percent only</div></div>' +
+      '<div class="dd-k">' + labA + '</div><div class="dd-v" id="md-gm-role-' + roleA + '">' + rowsA +
+        '<button type="button" class="mini-btn" id="md-gm-add-' + roleA + '">Add person</button>' +
+        '<div class="md-hint">' + (isMkt ? 'Recruiter owners · typed % as-is' : 'Primary BD · may multi-split · default 60%') + '</div></div>' +
+      '<div class="dd-k">' + labB + '</div><div class="dd-v" id="md-gm-role-' + roleB + '">' + rowsB +
+        '<button type="button" class="mini-btn" id="md-gm-add-' + roleB + '">Add person</button>' +
+        '<div class="md-hint">' + (isMkt ? 'BD owners · typed % as-is' : 'Repeat recruiter · default 30% · multi-split rare') + '</div></div>' +
+      '<div class="dd-k">House %</div><div class="dd-v"><strong id="md-gm-house-pct">' + escHtml(housePct) + '</strong>%' +
+        '<div class="md-hint">Automatic leftover · 100 − people % · never rescaled to fill 100 · over 100 blocks save</div></div>' +
+      '</div>';
+  }
   function mdGmFieldsHtml(row) {
     ensureOwners(row);
+    if (row.bookType === 'Marketing' || row.bookType === 'Deal') {
+      return mdGmHouseFieldsHtml(row);
+    }
+    /* Placement — keep Whole / Split A/B */
     var ow = row.owners || {};
     var mode = (ow.mode === 'Split') ? 'Split' : 'Whole';
     var amt = mdCurrentGmAmt(row);
@@ -74824,7 +74982,103 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         '</div>' +
         '<div class="md-hint">A + B should equal 100 · decimals OK (e.g. 13.33). Use GM $ above for dollars, not %.</div></div>';
   }
+  function mdCollectHouseGmFromDom() {
+    var reps = [];
+    var sum = 0;
+    var root = document.getElementById('md-gm-house-ui');
+    if (!root) return { reps: [], sum: 0 };
+    var rows = root.querySelectorAll('.md-gm-person-row');
+    for (var i = 0; i < rows.length; i++) {
+      var rowEl = rows[i];
+      var role = rowEl.getAttribute('data-role') || '';
+      var nameEl = rowEl.querySelector('.md-gm-person-name');
+      var pctEl = rowEl.querySelector('.md-gm-person-pct');
+      var name = nameEl ? String(nameEl.value || '').trim() : '';
+      var pct = pctEl ? Number(pctEl.value) : 0;
+      if (!isFinite(pct)) pct = 0;
+      pct = mdHouseRoundPct(pct);
+      if (!name || name === '—') {
+        /* allow dash name only if pct is 0 — skip empty dash rows */
+        if (!pct) continue;
+        /* keep named — with pct (rare) */
+      }
+      if (!name) continue;
+      reps.push({ name: name, pct: pct, role: role });
+      sum += pct;
+    }
+    sum = mdHouseRoundPct(sum);
+    return { reps: reps, sum: sum, housePct: Math.max(0, mdHouseRoundPct(100 - sum)) };
+  }
+  function mdRecalcHousePctLive() {
+    var el = document.getElementById('md-gm-house-pct');
+    if (!el) return;
+    var c = mdCollectHouseGmFromDom();
+    el.textContent = String(c.housePct);
+    if (c.sum > 100.0001) {
+      el.style.color = '#b91c1c';
+      el.title = 'People sum ' + c.sum + '% > 100 — save blocked';
+    } else {
+      el.style.color = '';
+      el.title = 'Leftover House %';
+    }
+  }
+  function mdWireHouseGmUi() {
+    var root = document.getElementById('md-gm-house-ui');
+    if (!root) return;
+    var book = root.getAttribute('data-book') || '';
+    var isMkt = book === 'Marketing';
+    var recPeople = (typeof REC_PEOPLE !== 'undefined' ? REC_PEOPLE.slice() : []).concat(['Mike']);
+    var bdPeople = (typeof BD_PEOPLE !== 'undefined' ? BD_PEOPLE.slice() : []).concat(['Mike', 'Randy', 'David', 'Carri']);
+    function bindRow(rowEl) {
+      if (!rowEl || rowEl._mdHouseBound) return;
+      rowEl._mdHouseBound = true;
+      var pct = rowEl.querySelector('.md-gm-person-pct');
+      var name = rowEl.querySelector('.md-gm-person-name');
+      if (pct) pct.addEventListener('input', mdRecalcHousePctLive);
+      if (name) name.addEventListener('change', mdRecalcHousePctLive);
+      var rm = rowEl.querySelector('.md-gm-person-remove');
+      if (rm) {
+        rm.onclick = function () {
+          var wrap = rowEl.parentNode;
+          var siblings = wrap ? wrap.querySelectorAll('.md-gm-person-row') : [];
+          if (siblings.length <= 1) {
+            toast('Keep at least one person row (set % to 0 if unused).');
+            return;
+          }
+          rowEl.parentNode.removeChild(rowEl);
+          mdRecalcHousePctLive();
+        };
+      }
+    }
+    root.querySelectorAll('.md-gm-person-row').forEach(bindRow);
+    function addBtn(role, people, allowDash, defaultPct) {
+      var btn = document.getElementById('md-gm-add-' + role);
+      var wrap = document.getElementById('md-gm-role-' + role);
+      if (!btn || !wrap) return;
+      btn.onclick = function () {
+        var tmp = document.createElement('div');
+        tmp.innerHTML = mdHousePersonRowHtml(people, allowDash ? '—' : (people[0] || ''), defaultPct != null ? defaultPct : '', role, allowDash);
+        var rowEl = tmp.firstChild;
+        var addEl = wrap.querySelector('#md-gm-add-' + role) || btn;
+        wrap.insertBefore(rowEl, addEl);
+        bindRow(rowEl);
+        mdRecalcHousePctLive();
+      };
+    }
+    if (isMkt) {
+      addBtn('recruiter', recPeople, false, '');
+      addBtn('bd', bdPeople, false, '');
+    } else {
+      addBtn('bd_primary', bdPeople, false, '');
+      addBtn('repeat_recruiter', recPeople, true, '');
+    }
+    mdRecalcHousePctLive();
+  }
   function mdWireGmModeToggle() {
+    if (document.getElementById('md-gm-house-ui')) {
+      try { mdWireHouseGmUi(); } catch (eH) {}
+      return;
+    }
     function sync() {
       var split = !!(document.getElementById('md-gm-mode-split') && document.getElementById('md-gm-mode-split').checked);
       var sw = document.getElementById('md-gm-split-wrap');
@@ -74842,6 +75096,11 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     if (s) s.onchange = sync;
     sync();
   }
+  function mdBuildHouseGmLabel(mode, reps, housePct) {
+    var bits = (reps || []).map(function (x) { return x.name + ' ' + x.pct + '%'; });
+    bits.push('House ' + housePct + '%');
+    return mode + ' · ' + bits.join(' / ');
+  }
   function mdApplyGmFromForm(r, amtOverride) {
     /* soft-md-fee-gm-clobber-fix-20260921 — optional amtOverride so Placement Fee / Deal acct / Marketing Amount
        win over the separate GM $ input (otherwise Save&re-fan silently kept the old GM $ and reverted Fee). */
@@ -74851,7 +75110,48 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       var gmEl = document.getElementById('md-gm-amt');
       if (gmEl && amtOverride != null && isFinite(Number(amtOverride))) gmEl.value = String(amt);
     } catch (eSyncGm) {}
-    var split = !!(document.getElementById('md-gm-mode-split') && document.getElementById('md-gm-mode-split').checked);
+
+    /* soft-md-gm-house-leftover-20260921 — Marketing + Deal: House leftover, NO rescale; over-100 aborts */
+    if ((r.bookType === 'Marketing' || r.bookType === 'Deal') && document.getElementById('md-gm-house-ui')) {
+      var collected = mdCollectHouseGmFromDom();
+      if (collected.sum > 100.0001) {
+        toast('<strong>GM % over 100</strong><br>People sum ' + collected.sum + '% · House cannot go negative. Fix percents before save (no auto-rescale).');
+        throw new Error('GM% over 100 — House leftover blocked');
+      }
+      if (r.bookType === 'Marketing') {
+        r.accountingBilled = amt;
+        r.bookValueThisMonth = amt;
+      } else {
+        r.accountingBilled = amt;
+        r.bookValueThisMonth = amt;
+      }
+      var mode = (r.bookType === 'Marketing') ? 'Marketing' : 'BD';
+      var housePct = collected.housePct;
+      r.owners = { mode: mode, housePct: housePct, reps: collected.reps.slice() };
+      r.gmMode = mode;
+      r.gmLabel = mdBuildHouseGmLabel(mode, collected.reps, housePct);
+      r.softGmSplitOverride = true;
+      r.softGmSplitManual = true;
+      if (r.bookType === 'Marketing') {
+        var recs = collected.reps.filter(function (x) { return x.role === 'recruiter'; });
+        var bds = collected.reps.filter(function (x) { return x.role === 'bd'; });
+        if (recs.length === 1 && recs[0].name && recs[0].name !== '—') r.rep = recs[0].name;
+        if (bds.length === 1 && bds[0].name && bds[0].name !== '—') r.marketer = bds[0].name;
+      } else {
+        var prims = collected.reps.filter(function (x) { return x.role === 'bd_primary'; });
+        var repsR = collected.reps.filter(function (x) { return x.role === 'repeat_recruiter'; });
+        if (prims.length === 1 && prims[0].name && prims[0].name !== '—') r.rep = prims[0].name;
+        if (repsR.length === 1 && repsR[0].name && repsR[0].name !== '—') r.repeatRep = repsR[0].name;
+      }
+      try {
+        if (r.paid && Array.isArray(state.commissionLines)) {
+          state.commissionLines = state.commissionLines.filter(function (c) { return c.rowId !== r.id; });
+          splitCommissionLines(r, amt).forEach(function (l) { state.commissionLines.unshift(l); });
+        }
+      } catch (eCommH) {}
+      return true;
+    }
+
     if (r.bookType === 'Placement') {
       r.fee = amt;
       r.accountingBilled = amt;
@@ -74863,6 +75163,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       r.accountingBilled = amt;
       r.bookValueThisMonth = amt;
     }
+    var split = !!(document.getElementById('md-gm-mode-split') && document.getElementById('md-gm-mode-split').checked);
     if (split) {
       var a = mdVal('md-gm-a');
       var b = mdVal('md-gm-b');
@@ -74870,7 +75171,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       var bp = mdNum('md-gm-b-pct');
       if (!a) a = r.rep || 'Unassigned';
       if (!b || b === '—') b = '';
-      if (b && Math.abs(ap + bp - 100) > 0.05) {
+      /* soft-md-gm-house-leftover-20260921 — rescale ONLY for Placement Split A/B (Marketing/Deal use House UI above) */
+      if (r.bookType === 'Placement' && b && Math.abs(ap + bp - 100) > 0.05) {
         /* soft-md-gm-pct-decimals-20260921 — rescale to 100 keeping 2 decimal places (never integer-only) */
         var sum = ap + bp;
         if (sum > 0) {
@@ -74908,6 +75210,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         splitCommissionLines(r, amt).forEach(function (l) { state.commissionLines.unshift(l); });
       }
     } catch (eComm) {}
+    return true;
   }
 
   /* soft-modify-delete-exec-gate-fix-20260920 · soft-modify-delete-beside-save-20260920 */
@@ -75060,13 +75363,24 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       'Exec · Modify booked deal · Save & re-fan updates BH + GM · edit GM $ and % below',
       fields,
       function (r, note) {
+        /* soft-md-gm-house-leftover-20260921 — validate House leftover before mutating row */
+        if (document.getElementById('md-gm-house-ui')) {
+          var _preDeal = mdCollectHouseGmFromDom();
+          if (_preDeal.sum > 100.0001) {
+            toast('<strong>GM % over 100</strong><br>People sum ' + _preDeal.sum + '% · fix before save (no auto-rescale).');
+            throw new Error('GM% over 100 — House leftover blocked');
+          }
+        }
         r.client = mdVal('md-client') || r.client;
         var search = mdVal('md-search');
         r.searchRefs = search;
         r.dealRef = search ? search.split(',')[0].trim() : (r.dealRef || '');
         r.rep = mdVal('md-rep') || r.rep;
         r.repeatRep = mdVal('md-repeat');
-        try { softApplyStandingRepeatGm601030(r); } catch (eRepGmMd) {} /* soft-repeat-gm-60-30-10-20260920 */
+        /* standing 60/30/10 only when not using House UI (House save sets softGmSplitOverride) */
+        if (!document.getElementById('md-gm-house-ui')) {
+          try { softApplyStandingRepeatGm601030(r); } catch (eRepGmMd) {} /* soft-repeat-gm-60-30-10-20260920 */
+        }
         r.specialties = mdVal('md-spec');
         r.repeatOrNew = mdVal('md-rn') || r.repeatOrNew;
         r.initiation = mdNum('md-init');
@@ -75080,7 +75394,9 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         r.accountingBilled = mdNum('md-acct');
         r.bookValueThisMonth = r.accountingBilled || r.initiation || r.firstMonthRetainer || r.bookValueThisMonth;
         mdApplyGmFromForm(r, r.accountingBilled); /* soft-md-fee-gm-clobber-fix-20260921 — Accounting billed is SoT on Deal modify */
-        try { softApplyStandingRepeatGm601030(r); } catch (eRepGmMd2) {} /* soft-repeat-gm-60-30-10-20260920 */
+        if (!document.getElementById('md-gm-house-ui')) {
+          try { softApplyStandingRepeatGm601030(r); } catch (eRepGmMd2) {} /* soft-repeat-gm-60-30-10-20260920 */
+        }
         try { softApplyRepOwnerAutofix(r); } catch (eDealAf) {} /* soft-rep-owner-autofix-20260920 */
         r.lastModifyNote = note;
         if (r.monthlyAmount > 0 || r.numberOfMonthlies > 0 || softInternetOn(r) || softInternetDollars(r) > 0) {
@@ -75161,6 +75477,14 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       'Exec · Modify booked marketing · Save & re-fan · edit GM $ and % (e.g. Amy) below',
       fields,
       function (r, note) {
+        /* soft-md-gm-house-leftover-20260921 — validate House leftover before mutating row */
+        if (document.getElementById('md-gm-house-ui')) {
+          var _preMkt = mdCollectHouseGmFromDom();
+          if (_preMkt.sum > 100.0001) {
+            toast('<strong>GM % over 100</strong><br>People sum ' + _preMkt.sum + '% · fix before save (no auto-rescale).');
+            throw new Error('GM% over 100 — House leftover blocked');
+          }
+        }
         r.client = mdVal('md-client') || r.client;
         r.campaign = mdVal('md-campaign') || r.campaign;
         r.marketer = mdVal('md-bd') || r.marketer;
@@ -75458,6 +75782,12 @@ ownersDetailHtml(row) +
       bump(owners.repeatRecipient.name, 'repeat', amt * owners.repeatRecipient.pct / 100);
     } else if (owners.mode === 'Marketing') {
       (owners.reps || []).forEach(function (r) { bump(r.name, 'marketing', amt * r.pct / 100); });
+    } else if (owners.mode === 'BD') {
+      /* soft-md-gm-house-leftover-20260921 */
+      (owners.reps || []).forEach(function (r) {
+        if (!r) return;
+        bump(r.name, r.role === 'repeat_recruiter' ? 'repeat' : 'bd', amt * r.pct / 100);
+      });
     }
   }
 
@@ -75482,6 +75812,12 @@ ownersDetailHtml(row) +
     }
     if (owners.mode === 'Marketing') {
       return (owners.reps || []).some(function (r) { return r.name === person; });
+    }
+    if (owners.mode === 'BD') {
+      /* soft-md-gm-house-leftover-20260921 */
+      return (owners.reps || []).some(function (r) {
+        return r && r.name === person && r.role !== 'repeat_recruiter';
+      });
     }
     return row.rep === person;
   }
@@ -76272,6 +76608,16 @@ ownersDetailHtml(row) +
       });
       return m;
     }
+    if (owners.mode === 'BD') {
+      /* soft-md-gm-house-leftover-20260921 — credit bd_primary (and BD-named reps) */
+      var mBd = 0;
+      (owners.reps || []).forEach(function (rep) {
+        if (!rep || rep.name !== person) return;
+        if (rep.role === 'repeat_recruiter') return;
+        mBd += full * (rep.pct || 0) / 100;
+      });
+      return mBd;
+    }
     return row.rep === person ? full : 0;
   }
   function bdGmRepeatCreditOnRow(row, person, amt) {
@@ -76682,6 +77028,14 @@ ownersDetailHtml(row) +
         if (rep.name === person) m += full * (rep.pct || 0) / 100;
       });
       return m;
+    }
+    if (owners.mode === 'BD') {
+      /* soft-md-gm-house-leftover-20260921 */
+      var m2 = 0;
+      (owners.reps || []).forEach(function (rep) {
+        if (rep && rep.name === person) m2 += full * (rep.pct || 0) / 100;
+      });
+      return m2;
     }
     return 0;
   }
@@ -77723,6 +78077,16 @@ ownersDetailHtml(row) +
     if (owners.mode === 'Split' && owners.recruiter && owners.recruiter.name === person) {
       return full * (owners.recruiter.pct || 0) / 100;
     }
+    if (owners.mode === 'BD') {
+      /* soft-md-gm-house-leftover-20260921 — repeat_recruiter share to Rec GM */
+      var mR = 0;
+      (owners.reps || []).forEach(function (rep) {
+        if (!rep || rep.name !== person) return;
+        if (rep.role !== 'repeat_recruiter') return;
+        mR += full * (rep.pct || 0) / 100;
+      });
+      return mR;
+    }
     return 0;
   }
   function recGmIsBoardMoney(row) {
@@ -78357,7 +78721,8 @@ ownersDetailHtml(row) +
       if (owners.bdA) bumpNamed(owners.bdA.name, owners.bdA.pct);
       if (owners.bdB) bumpNamed(owners.bdB.name, owners.bdB.pct);
       if (owners.recruiter) bumpNamed(owners.recruiter.name, owners.recruiter.pct);
-    } else if (owners.mode === 'Marketing') {
+    } else if (owners.mode === 'Marketing' || owners.mode === 'BD') {
+      /* soft-md-gm-house-leftover-20260921 */
       (owners.reps || []).forEach(function (r) { bumpNamed(r && r.name, r && r.pct); });
     } else if (owners.mode === 'Repeat') {
       if (owners.primary) bumpNamed(owners.primary.name, owners.primary.pct);
@@ -81922,7 +82287,8 @@ ownersDetailHtml(row) +
     } else if (owners.mode === 'Repeat') {
       if (owners.primary) hit(owners.primary.name, amt * (owners.primary.pct || 0) / 100);
       if (owners.repeatRecipient) hit(owners.repeatRecipient.name, amt * (owners.repeatRecipient.pct || 0) / 100);
-    } else if (owners.mode === 'Marketing') {
+    } else if (owners.mode === 'Marketing' || owners.mode === 'BD') {
+      /* soft-md-gm-house-leftover-20260921 */
       (owners.reps || []).forEach(function (r) { hit(r.name, amt * (r.pct || 0) / 100); });
     } else if (row.rep) hit(row.rep, amt);
   }
