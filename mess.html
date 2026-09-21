@@ -56082,6 +56082,19 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     return copy;
   }
   
+  
+  function ensureNmc17070ProdQbStamp20260921(state) {
+    /* soft-nmc-17070-prod-qb-20260921 — stamp Soft Soft July NMC GS/URO Deal+Mkt seeds with QB 17070 ($20k All-In). */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var ids = { "xl_bd_2026-07_7":1, "xl_bd_2026-07_8":1, "xl_mkt_2026-07_36":1, "xl_mkt_2026-07_37":1 };
+    state.rows.forEach(function (row) {
+      if (!row || !ids[String(row.id || "")]) return;
+      row.qbInvoice = "17070";
+      row.softNmc17070ProdQb = "soft-nmc-17070-prod-qb-20260921";
+    });
+    return state;
+  }
+
   function ensureMoHighlandsJulyFirstBookBooked20260921(state) {
     /* soft-mo-highlands-july-first-book-20260921 — July board first bills for Missouri Highlands Nk/N → BD booked. */
     if (!state || !Array.isArray(state.rows)) return state;
@@ -59276,6 +59289,7 @@ function softIsoDate(v) {
     ensureIhc16972MikeRandy5050(s); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
     ensureWinnMayOdPackageOnProduction20260921(s); /* soft-winn-may-od-package-on-prod-20260921 */
     ensureMoHighlandsJulyFirstBookBooked20260921(s); /* soft-mo-highlands-july-first-book-20260921 */
+    ensureNmc17070ProdQbStamp20260921(s); /* soft-nmc-17070-prod-qb-20260921 */
     ensureCopperQueen17037RandyKelley5050(s); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
     try { ensureSoft2026RepLabelsFromProduction(s); } catch (e2026RepLab) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
@@ -69033,7 +69047,8 @@ function softIsoDate(v) {
       bookValueThisMonth: 5000,
       sourceSheet: "July 2026",
       sourceRow: 7,
-      sourceYear: 2026
+      sourceYear: 2026,
+      qbInvoice: "17070"
     });
     rows.push({
       id: "xl_bd_2026-07_8",
@@ -69064,7 +69079,8 @@ function softIsoDate(v) {
       bookValueThisMonth: 5000,
       sourceSheet: "July 2026",
       sourceRow: 8,
-      sourceYear: 2026
+      sourceYear: 2026,
+      qbInvoice: "17070"
     });
     rows.push({
       id: "xl_pl_2026-07_2",
@@ -69289,7 +69305,8 @@ function softIsoDate(v) {
       bookValueThisMonth: 5000,
       sourceSheet: "July 2026",
       sourceRow: 36,
-      sourceYear: 2026
+      sourceYear: 2026,
+      qbInvoice: "17070"
     });
     rows.push({
       id: "xl_mkt_2026-07_37",
@@ -69317,7 +69334,8 @@ function softIsoDate(v) {
       bookValueThisMonth: 5000,
       sourceSheet: "July 2026",
       sourceRow: 37,
-      sourceYear: 2026
+      sourceYear: 2026,
+      qbInvoice: "17070"
     });
     rows.push({
       id: "xl_bd_2026-08_2",
