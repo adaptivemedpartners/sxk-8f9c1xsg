@@ -8,6 +8,7 @@
 /* soft-morongo-apr-mkt-602020-20260921 — Morongo Apr mkt 16941 Amy60/Aaron20/House20. Soft only. Never Hub. */
 /* soft-woodland-apr-mkt-7030-20260921 — Woodland Heights Apr mkt 16944 Stephanie70/House30. Soft only. Never Hub. */
 /* soft-ihc-apr-mkt-8020-20260921 — IHC Santa Clara Apr mkt 16971 Mike80/House20. Soft only. Never Hub. */
+/* soft-md-gm-pct-decimals-20260921 — Modify GM % inputs accept decimals (step 0.01); no integer round on save. Soft only. Never Hub. */
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
 /* soft-bd-year-fractions-tentative-20260920 — Soft Soft: Provisional YTD BD deal fractions (Mike) — Brenton 6.6 · Zach 4.4 — TENTATIVE / PROVISIONAL only; split-weighted deal credit (not whole books); unconfirmed pending Randy; read-only annotation strip on Exec BD Yearly + Awards + BD Hub Comp; does NOT mutate Production/BD row SoT. Soft only. Never Hub. */
 /* soft-ihc-16972-mike-randy-5050-20260920 — Soft Soft: Indian Health Center of Santa Clara Valley / Indian Health of Santa Clara Valley QB 16972 Apr 2026 $10k Deal → Split Mike 50% / Randy 50% (bdA/bdB, no House); softGmSplitOverride+Manual; stamp qbInvoice 16972; durable after repeat GM. Soft only. Never Hub. */
@@ -74736,13 +74737,13 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       '<div class="dd-v" id="md-gm-split-wrap" style="' + (mode === 'Split' ? '' : 'display:none') + '">' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
           '<select id="md-gm-a" style="min-width:120px">' + mdOptList(people, aName) + '</select>' +
-          '<input type="number" id="md-gm-a-pct" value="' + escHtml(aPct) + '" min="0" max="100" step="1" style="width:64px" title="A %" />' +
+          '<input type="number" id="md-gm-a-pct" value="' + escHtml(aPct) + '" min="0" max="100" step="0.01" style="width:72px" title="A % (decimals OK, e.g. 13.33)" />' +
           '<span>%</span>' +
           '<select id="md-gm-b" style="min-width:120px">' + mdOptList(['—'].concat(people), bName || '—') + '</select>' +
-          '<input type="number" id="md-gm-b-pct" value="' + escHtml(bPct) + '" min="0" max="100" step="1" style="width:64px" title="B %" />' +
+          '<input type="number" id="md-gm-b-pct" value="' + escHtml(bPct) + '" min="0" max="100" step="0.01" style="width:72px" title="B % (decimals OK, e.g. 13.33)" />' +
           '<span>%</span>' +
         '</div>' +
-        '<div class="md-hint">A + B should equal 100</div></div>';
+        '<div class="md-hint">A + B should equal 100 · decimals OK (e.g. 13.33). Use GM $ above for dollars, not %.</div></div>';
   }
   function mdWireGmModeToggle() {
     function sync() {
@@ -74790,10 +74791,13 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       var bp = mdNum('md-gm-b-pct');
       if (!a) a = r.rep || 'Unassigned';
       if (!b || b === '—') b = '';
-      if (ap + bp !== 100 && b) {
-        /* soft-normalize to 100 if close */
+      if (b && Math.abs(ap + bp - 100) > 0.05) {
+        /* soft-md-gm-pct-decimals-20260921 — rescale to 100 keeping 2 decimal places (never integer-only) */
         var sum = ap + bp;
-        if (sum > 0) { ap = Math.round(ap * 100 / sum); bp = 100 - ap; }
+        if (sum > 0) {
+          ap = Math.round(ap * 10000 / sum) / 100;
+          bp = Math.round((100 - ap) * 100) / 100;
+        }
       }
       if (!b) {
         r.owners = { mode: 'Whole', primary: a };
