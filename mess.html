@@ -44784,7 +44784,7 @@ function renderWeekend() {
     var t = execArNormItem(item);
     if (t === "total billed revenue") return "billed";
     if (t === "net from collected and expenses" || t === "net" || t === "") return "net";
-    if (t === "business development" || t === "recruiting" || t === "marketing" || t === "recurring" || t === "house") return "input-billed";
+    if (t === "business development" || t === "recruiting" || t === "marketing" || t === "recurring" || t === "internet" || t === "house") return "input-billed";
     if (t === "cash collected for the month") return "cash";
     if (t === "expenses") return "exp";
     return "other";
@@ -44826,6 +44826,7 @@ function renderWeekend() {
       { Item: "Recruiting" },
       { Item: "Marketing" },
       { Item: "Recurring" },
+      { Item: "Internet" },
       { Item: "House" },
       { Item: "Total Billed Revenue" },
       { Item: "Cash Collected for the Month" },
@@ -53137,10 +53138,11 @@ function mktSendAmplified(searchKey) {
             Recruiting = Placement · fee / accountingBilled.
             Marketing = Marketing · fee / accountingBilled · campaign Standard/Premium/Platinum / All-In from label.
             Recurring = Deal <code>isRecurringLine</code> monthlies.
+            Internet = Carrie tracker / Book rows tagged internet (<code>internets</code> &gt; 0, <code>lineKind: internet</code>, or Internets agreement) · CHIP soft-exec-ar-internet-line-20260921 · does not rewrite BD/Rec/Mkt/Recurring/House.
             House = Soft Soft GM House attribution on Production rows: House/AMP House–named booker (full amt) + <code>owners.housePct</code> share + people named House (CHIP soft-exec-ar-house-hover-20260920).
-            Bucket by <code>row.month</code>. Five billed rows (BD/Rec/Mkt/Recurring/House) + Total live from Production (no EXAMPLE / Carri GM seeds).
+            Bucket by <code>row.month</code>. Six billed rows (BD/Rec/Mkt/Recurring/Internet/House) + Total live from Production (no EXAMPLE / Carri GM seeds).
             Cash Collected + Expenses = manual only (not invented). Net = Cash − Expenses when both entered.
-            Click a BD / Recruiting / Marketing / Recurring / House month cell for underlying deals.
+            Click a BD / Recruiting / Marketing / Recurring / Internet / House month cell for underlying deals.
           </div>
           <div class="exec-ar-controls">
             <div>
@@ -55532,7 +55534,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-aging-bucket-subtotals-bottom-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-exec-ar-internet-line-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
 
   /* soft-2026-unmapped-faces-prune-20260921 — pruned to open only (Concord 16942); panel kept; do not invent faces */
   var SOFT_UNMAPPED_2026_FACES = [
@@ -77717,6 +77719,15 @@ ownersDetailHtml(row) +
       if (row.accountingBilled != null) return Number(row.accountingBilled) || 0;
       return Number(row.firstMonthRetainer) || Number(row.bookValueThisMonth) || 0;
     }
+    if (kind === 'internet') {
+      var inet = Number(row.internets);
+      if (isFinite(inet) && inet > 0) return inet;
+      if (row.lineKind === 'internet') {
+        if (row.accountingBilled != null && row.accountingBilled !== '') return Number(row.accountingBilled) || 0;
+        return Number(row.bookValueThisMonth) || 0;
+      }
+      return 0;
+    }
     return 0;
   }
   /* soft-exec-ar-house-hover-20260920 — Soft Soft House GM meaning for AR live sum (not invented):
@@ -77773,10 +77784,26 @@ ownersDetailHtml(row) +
     }
     return Math.round(credit * 100) / 100;
   }
+  /* soft-exec-ar-internet-line-20260921 — Carrie tracker + Book internet tags → Exec AR Internet line only */
+  function execArIsInternetTagged(row) {
+    if (!row) return false;
+    if (row.lineKind === 'internet') return true;
+    var inetNum = Number(row.internets);
+    if (isFinite(inetNum) && inetNum > 0) return true;
+    if (String(row.internets || '').trim().toUpperCase() === 'Y') return true;
+    var blob = [row.agreement, row.specialties, row.gmLabel, row.campaign, row.carriNote, row.notes].join(' ');
+    if (/^internets?$/i.test(String(row.agreement || '').trim())) return true;
+    if (row.excludeFromBdGm && /\binternets?\b/i.test(blob)) return true;
+    return false;
+  }
   function execArMatchesKind(row, kind) {
     if (!row) return false;
     /* soft-exec-ar-live-20260920 — Production/GM live only; never EXAMPLE / Carri GM month-lines */
     if (row.example || row.carriGmSeed || row.carriBdGmSeed) return false;
+    if (kind === 'internet') {
+      /* Internet line: Carrie backfill + live Deal/Book internet tags; do not alter other AR kinds */
+      return execArIsInternetTagged(row);
+    }
     if (kind === 'house') return execArHouseAmount(row) > 0;
     var bdMonthly = (typeof prodBdIsMonthly === 'function') ? prodBdIsMonthly(row) : !!(row.isRecurringLine || row.recurringMonthlySplit);
     if (kind === 'bd') return row.bookType === 'Deal' && !bdMonthly;
@@ -77847,7 +77874,7 @@ ownersDetailHtml(row) +
     var thead = document.getElementById('exec-ar-drawer-thead');
     var tbody = document.getElementById('exec-ar-drawer-tbody');
     if (!drawer || !thead || !tbody) return;
-    var labels = { bd: 'Business Development', recruiting: 'Recruiting / Placements', marketing: 'Marketing', recurring: 'Recurring', house: 'House' };
+    var labels = { bd: 'Business Development', recruiting: 'Recruiting / Placements', marketing: 'Marketing', recurring: 'Recurring', internet: 'Internet', house: 'House' };
     var rows = execArRowsFor(kind, monthKey);
     title.textContent = (labels[kind] || kind) + ' · ' + monthLabel + ' ' + (execArUi().year || '');
     sub.innerHTML = 'Read-only · from <code>state.rows</code> · ' + rows.length + ' line(s)' +
@@ -77856,6 +77883,7 @@ ownersDetailHtml(row) +
     if (kind === 'bd') head = '<tr><th>Who booked</th><th>Client</th><th class="num">Initiation</th><th class="num">Monthly</th><th class="num">Total</th><th></th></tr>';
     else if (kind === 'recruiting') head = '<tr><th>Who booked</th><th>Client</th><th>Candidate</th><th class="num">Amount</th><th></th></tr>';
     else if (kind === 'marketing') head = '<tr><th>Who booked</th><th>Client</th><th class="num">Amount</th><th>Campaign</th><th></th></tr>';
+    else if (kind === 'internet') head = '<tr><th>Who</th><th>Client</th><th class="num">Internets</th><th>Search / tag</th><th></th></tr>';
     else if (kind === 'house') head = '<tr><th>Who / attribution</th><th>Client</th><th class="num">House amt</th><th>Book type</th><th></th></tr>';
     else head = '<tr><th>BD rep</th><th>Client</th><th class="num">Amount</th><th></th></tr>';
     thead.innerHTML = head;
@@ -77880,6 +77908,12 @@ ownersDetailHtml(row) +
         if (kind === 'marketing') {
           return '<tr><td>' + who + '</td><td>' + client + ex + '</td><td class="num">' + money(execArRowAmount(row, 'marketing')) +
             '</td><td>' + escHtml(execArCampaignLabel(row)) + '</td><td>' + escHtml(row.status || '') + '</td></tr>';
+        }
+        if (kind === 'internet') {
+          var iAmt = execArRowAmount(row, 'internet');
+          var tag = escHtml(row.searchRefs || row.dealRef || row.specialties || row.agreement || 'Internet');
+          return '<tr>' + ex + '<td>' + who + '</td><td>' + client + '</td><td class="num">' + money(iAmt) +
+            '</td><td>' + tag + '</td><td></td></tr>';
         }
         if (kind === 'house') {
           var attr = '';
@@ -77966,24 +78000,27 @@ ownersDetailHtml(row) +
     var recCells = moneyCells('recruiting', true);
     var mktCells = moneyCells('marketing', true);
     var recurCells = moneyCells('recurring', true);
+    var inetCells = moneyCells('internet', true);
     var houseCells = moneyCells('house', true);
     var bdTot = months.reduce(function (s, m) { return s + execArSum('bd', m.monthKey); }, 0);
     var recTot = months.reduce(function (s, m) { return s + execArSum('recruiting', m.monthKey); }, 0);
     var mktTot = months.reduce(function (s, m) { return s + execArSum('marketing', m.monthKey); }, 0);
     var recurTot = months.reduce(function (s, m) { return s + execArSum('recurring', m.monthKey); }, 0);
+    var inetTot = months.reduce(function (s, m) { return s + execArSum('internet', m.monthKey); }, 0);
     var houseTot = months.reduce(function (s, m) { return s + execArSum('house', m.monthKey); }, 0);
     var billedCells = months.map(function (m) {
       var amt = execArSum('bd', m.monthKey) + execArSum('recruiting', m.monthKey) +
         execArSum('marketing', m.monthKey) + execArSum('recurring', m.monthKey) +
-        execArSum('house', m.monthKey);
+        execArSum('internet', m.monthKey) + execArSum('house', m.monthKey);
       return '<td class="num">' + money(amt) + '</td>';
-    }).join('') + '<td class="num">' + money(bdTot + recTot + mktTot + recurTot + houseTot) + '</td>';
+    }).join('') + '<td class="num">' + money(bdTot + recTot + mktTot + recurTot + inetTot + houseTot) + '</td>';
 
     tbody.innerHTML =
       '<tr><td>Business Development</td>' + bdCells + '</tr>' +
       '<tr><td>Recruiting</td>' + recCells + '</tr>' +
       '<tr><td>Marketing</td>' + mktCells + '</tr>' +
       '<tr><td>Recurring</td>' + recurCells + '</tr>' +
+      '<tr><td>Internet</td>' + inetCells + '</tr>' +
       '<tr><td>House</td>' + houseCells + '</tr>' +
       '<tr class="ar-total-billed"><td>Total Billed Revenue</td>' + billedCells + '</tr>' +
       '<tr class="ar-stub"><td>Cash Collected for the Month <span class="badge draft">manual</span></td>' +
