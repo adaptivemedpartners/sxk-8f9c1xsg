@@ -53111,7 +53111,7 @@ function mktSendAmplified(searchKey) {
           <button type="button" data-exec="bd">BD</button>
           <button type="button" data-exec="ar">AR</button>
           <button type="button" data-exec="production">Exec Production</button>
-          <button type="button" data-exec="unmapped2026" title="Report only — 17 unmapped 2026 faces">2026 Unmapped faces</button>
+          <button type="button" data-exec="unmapped2026" title="Report only — 1 unmapped 2026 face (Concord 16942)">2026 Unmapped faces</button>
         </div>
         <div id="exec-panel-gm">
           <div class="exec-side-prod-hint" id="exec-side-prod-hint" hidden></div>
@@ -53272,7 +53272,7 @@ function mktSendAmplified(searchKey) {
       </div>
       <div class="card" id="exec-panel-unmapped2026" hidden>
         <h3 style="margin:0 0 6px;font-size:1.05rem">2026 unmapped faces <span class="badge draft">report only · no edits</span></h3>
-        <p class="lede" id="soft-unmapped2026-lede">17 faces · CHIP <code>soft-2026-unmapped-faces-panel-20260920</code> · static embed from 2026 GM map report · display only (no status flips, no owner changes).</p>
+        <p class="lede" id="soft-unmapped2026-lede">1 face · CHIP <code>soft-2026-unmapped-faces-prune-20260921</code> · static embed · open only (Concord 16942) · display only (no status flips, no owner changes).</p>
         <div class="table-wrap">
           <table class="board" id="tbl-unmapped2026">
             <thead>
@@ -55533,152 +55533,8 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
   var CHIP = 'soft-2026-rep-labels-from-prod-20260921'; /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
 
-  /* soft-2026-unmapped-faces-panel-20260920 — static read-only embed; do not invent faces */
+  /* soft-2026-unmapped-faces-prune-20260921 — pruned to open only (Concord 16942); panel kept; do not invent faces */
   var SOFT_UNMAPPED_2026_FACES = [
-  {
-    "invoice": "16786",
-    "id": "carri_inv_FPOB8385",
-    "people": "House",
-    "gmBucket": "Whole · House 100%",
-    "amount": 2000,
-    "client": "Blue Mountain Hospital",
-    "date": "2026-01-15",
-    "mapStatus": "mapped",
-    "mapKind": "plain",
-    "cash": "paid"
-  },
-  {
-    "invoice": "16856",
-    "id": "carri_qb_16856",
-    "people": "Aaron",
-    "gmBucket": "Whole \u00b7 Aaron 100%",
-    "amount": 4000,
-    "client": "Community Health Development, INC",
-    "date": "2026-02-01",
-    "mapStatus": "mapped",
-    "mapKind": "plain",
-    "cash": "paid"
-  },
-  {
-    "invoice": "16861",
-    "id": "carri_qb_16861",
-    "people": "Mike, Amy, Aaron",
-    "gmBucket": "Marketing \u00b7 Mike 30% / Amy 30% / Aaron 20% / House 20%",
-    "amount": 19800,
-    "client": "Community Health Development, INC",
-    "date": "2026-02-23",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "paid"
-  },
-  {
-    "invoice": "16943",
-    "id": "carri_qb_16943",
-    "people": "Mike, Amy, Aaron",
-    "gmBucket": "Marketing \u00b7 Mike 30% / Amy 30% / Aaron 20% / House 20%",
-    "amount": 19800,
-    "client": "Community Health Development, INC",
-    "date": "2026-04-07",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "paid"
-  },
-  {
-    "invoice": "16945",
-    "id": "carri_qb_16945",
-    "people": "Mike, Nate, Randy",
-    "gmBucket": "Marketing \u00b7 Mike 30% / Nate 30% / Randy 20% / House 20%",
-    "amount": 19800,
-    "client": "Helen Newberry Joy Hospital & Healthcare",
-    "date": "2026-04-29",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "paid"
-  },
-  {
-    "invoice": "16977",
-    "id": "carri_qb_16977",
-    "people": "Mike, Nate",
-    "gmBucket": "Marketing \u00b7 Mike 35% / Nate 35% / House 30%",
-    "amount": 15000,
-    "client": "Winn Community",
-    "date": "2026-05-21",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "paid"
-  },
-  {
-    "invoice": "17037",
-    "id": "carri_qb_17037",
-    "people": "Randy, Kelley",
-    "gmBucket": "Split · Randy 50% / Kelley 50%",
-    "amount": 5000,
-    "client": "Copper Queen",
-    "date": "2026-07-13",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "paid"
-  },
-  {
-    "invoice": "16822",
-    "id": "xl_bd_2026-01_3",
-    "people": "Brenton",
-    "gmBucket": "Whole \u00b7 Brenton 100%",
-    "amount": 5000,
-    "client": "Cullman Regional",
-    "date": "2026-01-23",
-    "mapStatus": "mapped",
-    "mapKind": "plain",
-    "cash": "paid"
-  },
-  {
-    "invoice": "16856",
-    "id": "xl_bd_2026-02_2",
-    "people": "(tombstoned dup)",
-    "gmBucket": "Tombstone \u00b7 double of Aaron 16856 / xl_bd_2026-01_2",
-    "amount": 4000,
-    "client": "Community Health",
-    "date": "2026-02-01",
-    "mapStatus": "tombstoned",
-    "mapKind": "plain",
-    "cash": "paid"
-  },
-  {
-    "invoice": "16861",
-    "id": "xl_mkt_2026-02_33",
-    "people": "Mike, Amy, Aaron",
-    "gmBucket": "Marketing \u00b7 Mike 30% / Amy 30% / Aaron 20% / House 20%",
-    "amount": 19800,
-    "client": "Community Health Development, INC",
-    "date": "2026-02-17",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "paid"
-  },
-  {
-    "invoice": "xl_bd_2026-04_8",
-    "id": "xl_bd_2026-04_8",
-    "people": "Mike, Randy",
-    "gmBucket": "Split · Mike 50% / Randy 50%",
-    "amount": 10000,
-    "client": "Indian Health of Santa Clara Valley",
-    "date": "2026-04-30",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "unpaid"
-  },
-  {
-    "invoice": "16943",
-    "id": "xl_mkt_2026-04_32",
-    "people": "Mike, Amy, Aaron",
-    "gmBucket": "Marketing \u00b7 Mike 30% / Amy 30% / Aaron 20% / House 20%",
-    "amount": 19800,
-    "client": "Community Health Development, INC",
-    "date": "2026-04-03",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "paid"
-  },
   {
     "invoice": "16942",
     "id": "xl_mkt_2026-04_33",
@@ -55690,57 +55546,9 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     "mapStatus": "compound_unmapped",
     "mapKind": "compound",
     "cash": "paid"
-  },
-  {
-    "invoice": "16945",
-    "id": "xl_mkt_2026-04_36",
-    "people": "Mike, Nate, Randy",
-    "gmBucket": "Marketing \u00b7 Mike 30% / Nate 30% / Randy 20% / House 20%",
-    "amount": 19800,
-    "client": "Helen Newberry Joy Hospital & Healthcare",
-    "date": "2026-04-29",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "paid"
-  },
-  {
-    "invoice": "17004",
-    "id": "xl_mkt_2026-06_32",
-    "people": "Stephanie",
-    "gmBucket": "Marketing · Stephanie 70% / House 30%",
-    "amount": 19800,
-    "client": "Midland Health",
-    "date": "2026-06-03",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "unpaid"
-  },
-  {
-    "invoice": "17004",
-    "id": "xl_mkt_2026-06_33",
-    "people": "Stephanie",
-    "gmBucket": "Marketing · Stephanie 70% / House 30%",
-    "amount": 17800,
-    "client": "Midland Health",
-    "date": "2026-06-03",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "unpaid"
-  },
-  {
-    "invoice": "17037",
-    "id": "xl_bd_2026-07_2",
-    "people": "Randy, Kelley",
-    "gmBucket": "Split · Randy 50% / Kelley 50%",
-    "amount": 5000,
-    "client": "Copper Queen Commmunity",
-    "date": "2026-07-10",
-    "mapStatus": "mapped",
-    "mapKind": "compound",
-    "cash": "paid"
   }
 ];
-  var SOFT_UNMAPPED_2026_CHIP = 'soft-2026-unmapped-faces-panel-20260920';
+  var SOFT_UNMAPPED_2026_CHIP = 'soft-2026-unmapped-faces-prune-20260921';
   
   /* soft-comp-gm-splits-xlsx-20260920 — ONLY SoT: docs/AMP-Comp-GM-Splits-BD-Recruiting-UPDATED-20260920.xlsx
      Numbers below are copied from Recruiting + BDR tabs ("% of Billed Rev Allocated to GM").
