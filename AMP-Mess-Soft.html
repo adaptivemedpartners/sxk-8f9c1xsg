@@ -59200,6 +59200,16 @@ function ensureCarriGmSeed(s) {
       feb.prodQbStamp = stamp;
       feb.softChdFebNoJanTwin = twinStamp;
     }
+    /* Force every 16821 row onto January month (never February board). */
+    for (var k = 0; k < state.rows.length; k++) {
+      var rr = state.rows[k];
+      if (!rr) continue;
+      var qbx = String(rr.qbInvoice || rr.qbNumber || "").trim();
+      if (qbx !== "16821") continue;
+      rr.month = "2026-01";
+      if (!rr.date || String(rr.date).slice(0, 7) === "2026-02") rr.date = "2026-01-20";
+      rr.softChdFebNoJanTwin = twinStamp;
+    }
     /* Strip Jan twin leaking onto February (any extra row, not janId/febId). */
     var removed = [];
     var keep = [];
