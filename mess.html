@@ -10,6 +10,7 @@
 /* soft-ihc-apr-mkt-8020-20260921 — IHC Santa Clara Apr mkt 16971 Mike80/House20. Soft only. Never Hub. */
 /* soft-md-gm-pct-decimals-20260921 — Modify GM % inputs accept decimals (step 0.01); no integer round on save. Soft only. Never Hub. */
 /* soft-md-gm-house-leftover-20260921 — Soft Soft Modify GM House leftover for Marketing + BD Deal (no rescale; over-100 abort; roles recruiter/bd and bd_primary/repeat_recruiter). Soft only. Never Hub. */
+/* soft-md-gm-house-layout-card-20260921 — Modify GM House UI: display:contents so dd-k/dd-v fill card grid; person rows flex full width. Soft only. Never Hub. */
 
 /* soft-internet-bool-not-dollars-20260921 — Soft Soft: Internet Yes/No separate from dollars; 0/1/Y/N never render as $0/$1; South Central xl_bd_2026-04_3 internets 1→internetOn+internets 0; marketing book no longer writes amount into internets; softInternetOn/softInternetDollars helpers; boot ensure migrates boolean tokens. Soft only. Never Hub. */
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
@@ -9022,7 +9023,7 @@ html[data-look="light"] body::before { opacity: 0.14; }
 }
 .deal-detail-backdrop.show { display: flex !important; }
 .deal-detail-backdrop[hidden] { display: none !important; }
-.deal-detail-modal.modify-deal-wide { width: min(560px, 100%); }
+.deal-detail-modal.modify-deal-wide { width: min(720px, 100%); } /* soft-md-gm-house-layout-card-20260921 */
 .deal-detail-modal {
   background: var(--card, #fff); border-radius: 14px; box-shadow: 0 20px 50px rgba(15,23,42,.25);
   width: min(440px, 100%); max-height: 90vh; overflow: auto;
@@ -9127,6 +9128,45 @@ html[data-look="light"] body::before { opacity: 0.14; }
   background: #fff; color: #152033;
 }
 .dd-modify .md-hint { font-size: 11.5px; color: #64748b; margin-top: 4px; }
+
+/* soft-md-gm-house-layout-card-20260921 — House GM fields fill Modify card grid */
+.md-gm-house-ui {
+  display: contents;
+}
+.deal-detail-modal.modify-deal-wide {
+  width: min(720px, 100%);
+}
+.dd-modify .md-gm-person-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+.dd-modify .md-gm-person-row .md-gm-person-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+.dd-modify .md-gm-person-row .md-gm-person-pct {
+  flex: 0 0 5.5rem;
+  width: 5.5rem !important;
+  max-width: 5.5rem;
+}
+.dd-modify .md-gm-person-row .md-gm-person-pct-suffix {
+  flex: 0 0 auto;
+  opacity: .85;
+}
+.dd-modify .md-gm-person-row .md-gm-person-remove {
+  flex: 0 0 auto;
+}
+.dd-modify #md-gm-amt {
+  width: 100%;
+  max-width: none;
+}
+
 .dd-modify .md-actions {
   grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px;
   margin-top: 10px; align-items: center;
@@ -10218,7 +10258,7 @@ html[data-look="dark"] .deal-detail-modal .gm-check-foot { color: var(--muted, #
   .deal-detail-backdrop.show { display: flex !important; }
   .deal-detail-backdrop[hidden] { display: none !important; }
 
-  .deal-detail-modal.modify-deal-wide { width: min(560px, 100%); }
+  .deal-detail-modal.modify-deal-wide { width: min(720px, 100%); } /* soft-md-gm-house-layout-card-20260921 */
   .dd-modify input[type="text"],
   .dd-modify input[type="number"],
   .dd-modify select,
@@ -74903,10 +74943,10 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     var list = allowDash ? ['—'].concat(people) : people;
     var sel = name || (allowDash ? '—' : (people[0] || ''));
     return '' +
-      '<div class="md-gm-person-row" data-role="' + escHtml(role) + '" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px">' +
-        '<select class="md-gm-person-name" style="min-width:120px">' + mdOptList(list, sel) + '</select>' +
-        '<input type="number" class="md-gm-person-pct" value="' + escHtml(pct) + '" min="0" max="100" step="0.01" style="width:72px" title="% (decimals OK)" />' +
-        '<span>%</span>' +
+      '<div class="md-gm-person-row" data-role="' + escHtml(role) + '">' +
+        '<select class="md-gm-person-name">' + mdOptList(list, sel) + '</select>' +
+        '<input type="number" class="md-gm-person-pct" value="' + escHtml(pct) + '" min="0" max="100" step="0.01" title="% (decimals OK)" />' +
+        '<span class="md-gm-person-pct-suffix">%</span>' +
         '<button type="button" class="mini-btn md-gm-person-remove" title="Remove">×</button>' +
       '</div>';
   }
@@ -74934,7 +74974,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     if (!rowsB) rowsB = mdHousePersonRowHtml(peopleB, isMkt ? (row.marketer || '') : (row.repeatRep || '—'), isMkt ? '' : 30, roleB, !isMkt);
     var housePct = Math.max(0, mdHouseRoundPct(100 - sum));
     return '' +
-      '<div id="md-gm-house-ui" data-book="' + (isMkt ? 'Marketing' : 'Deal') + '">' +
+      '<div id="md-gm-house-ui" class="md-gm-house-ui" data-book="' + (isMkt ? 'Marketing' : 'Deal') + '">' +
       '<div class="dd-k">GM $</div><div class="dd-v"><input type="number" id="md-gm-amt" value="' + escHtml(amt) + '" step="1" />' +
         '<div class="md-hint">Dollars that count toward GM (exec cleanup) · % fields below are percent only</div></div>' +
       '<div class="dd-k">' + labA + '</div><div class="dd-v" id="md-gm-role-' + roleA + '">' + rowsA +
