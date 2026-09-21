@@ -6,6 +6,7 @@
 /* soft-april-fixes-20260921 — Soft Soft April 2026 Mike-approved: South Central xl_bd_2026-04_3 internets 0→1 (Yes flag; keep accountingBilledRaw); QB stamps Carri-clear Concord BD _6/_7→16942, Morongo mkt _35→16941, Woodland mkt _37→16944, IHC mkt _38→16971; Midland Rono xl_pl_2026-04_2 YES 1/2 acct/bv 1→8000 + qbInvoice 16902 (Carri 2nd half 2026-04-22 $8k). Soft only. Never Hub. */
 /* soft-concord-apr-mkt-404020-20260921 — Concord Apr mkt 16942: Mike/Hadley lines Rec 40 + BD Zach/Aaron/Brenton 13.33/13.33/13.34 + House 20. Soft only. Never Hub. */
 /* soft-morongo-apr-mkt-602020-20260921 — Morongo Apr mkt 16941 Amy60/Aaron20/House20. Soft only. Never Hub. */
+/* soft-woodland-apr-mkt-7030-20260921 — Woodland Heights Apr mkt 16944 Stephanie70/House30. Soft only. Never Hub. */
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
 /* soft-bd-year-fractions-tentative-20260920 — Soft Soft: Provisional YTD BD deal fractions (Mike) — Brenton 6.6 · Zach 4.4 — TENTATIVE / PROVISIONAL only; split-weighted deal credit (not whole books); unconfirmed pending Randy; read-only annotation strip on Exec BD Yearly + Awards + BD Hub Comp; does NOT mutate Production/BD row SoT. Soft only. Never Hub. */
 /* soft-ihc-16972-mike-randy-5050-20260920 — Soft Soft: Indian Health Center of Santa Clara Valley / Indian Health of Santa Clara Valley QB 16972 Apr 2026 $10k Deal → Split Mike 50% / Randy 50% (bdA/bdB, no House); softGmSplitOverride+Manual; stamp qbInvoice 16972; durable after repeat GM. Soft only. Never Hub. */
@@ -56108,6 +56109,25 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     return state;
   }
 
+  function ensureWoodlandAprMktSplit7030(state) {
+    /* soft-woodland-apr-mkt-7030-20260921 — Apr Woodland Heights mkt QB 16944: Stephanie 70 / House 30. Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-woodland-apr-mkt-7030-20260921";
+    var owners = {"mode": "Marketing", "housePct": 30, "reps": [{"name": "Stephanie", "pct": 70}]};
+    state.rows.forEach(function (row) {
+      if (!row || row.example) return;
+      if (String(row.id || "") !== "xl_mkt_2026-04_37") return;
+      row.owners = JSON.parse(JSON.stringify(owners));
+      row.gmLabel = "Marketing · Stephanie 70% / House 30%";
+      row.gmMode = "Marketing";
+      row.softGmSplitOverride = true;
+      row.softGmSplitManual = true;
+      row.qbInvoice = row.qbInvoice || "16944";
+      row.softWoodlandAprMktLock = stamp;
+    });
+    return state;
+  }
+
   function ensureConcordAprMktSplit404020(state) {
     /* soft-concord-apr-mkt-404020-20260921 — Apr Concord mkt QB 16942: Mike line Recruiter Mike 40 + BD Zach/Aaron/Brenton 13.33/13.33/13.34 + House 20; Hadley line same with Hadley 40. Soft only. Never Hub. */
     if (!state || !Array.isArray(state.rows)) return state;
@@ -59410,6 +59430,7 @@ function softIsoDate(v) {
     ensureDawnStanleyMarchFee19000(s); /* soft-stanley-march-fee-ls-repair-20260921 */
     ensureConcordAprMktSplit404020(s); /* soft-concord-apr-mkt-404020-20260921 */
     ensureMorongoAprMktSplit602020(s); /* soft-morongo-apr-mkt-602020-20260921 */
+    ensureWoodlandAprMktSplit7030(s); /* soft-woodland-apr-mkt-7030-20260921 */
     ensureCopperQueen17037RandyKelley5050(s); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
     try { ensureSoft2026RepLabelsFromProduction(s); } catch (e2026RepLab) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
@@ -68478,8 +68499,11 @@ function softIsoDate(v) {
       accountingBilled: 15000,
       accountingBilledRaw: "YES",
       gmMode: "Marketing",
-      gmLabel: "Marketing · Excel board",
-      owners: {"mode": "Marketing", "housePct": 25, "reps": [{"name": "Stephanie", "pct": 50}]},
+      gmLabel: "Marketing · Stephanie 70% / House 30%",
+      owners: {"mode": "Marketing", "housePct": 30, "reps": [{"name": "Stephanie", "pct": 70}]},
+      softGmSplitOverride: true,
+      softGmSplitManual: true,
+      softWoodlandAprMktLock: "soft-woodland-apr-mkt-7030-20260921",
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 15000,
