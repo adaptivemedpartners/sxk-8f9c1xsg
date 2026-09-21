@@ -56081,10 +56081,38 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
     }
     return copy;
   }
+  
+  function ensureMoHighlandsJulyFirstBookBooked20260921(state) {
+    /* soft-mo-highlands-july-first-book-20260921 — July board first bills for Missouri Highlands Nk/N → BD booked. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = 'soft-mo-highlands-july-first-book-20260921';
+    var ids = [];
+    state.rows.forEach(function (row) {
+      if (!row || row.example) return;
+      if (String(row.bookType || '') !== 'Deal') return;
+      if (!/missouri\s+highlands/i.test(String(row.client || ''))) return;
+      if (!/\(\s*\d+\s*k\s*\/\s*\d+\s*\)/i.test(String(row.client || ''))) return;
+      var bookMo = String(row.date || '').slice(0, 7);
+      var boardMo = String(row.month || '');
+      if (!bookMo || !boardMo || bookMo !== boardMo) return; /* later installments stay recurring */
+      row.isRecurringLine = false;
+      row.recurringMonthlySplit = false;
+      row.excludeFromProductionBoard = false;
+      if (String(row.lineKind || '') === 'recurring-monthly') row.lineKind = '';
+      row.softMoHighlandsJulyFirstBook = stamp;
+      ids.push(String(row.id || ''));
+    });
+    state.softMoHighlandsJulyFirstBook = { stamp: stamp, ids: ids, at: '2026-09-21' };
+    return state;
+  }
+
   function softIsMoHighlandsMonthly(r) {
+    /* soft-mo-highlands-july-first-book-20260921 — Nk/N face is monthly only on LATER board months.
+       First billed month (book date month === board month) is BD booked, not BD recurring. */
     if (!r || !softIsBdDealRow(r)) return false;
     var c = String(r.client || '');
-    return /missouri\s+highlands/i.test(c) && /\(\s*\d+\s*k\s*\/\s*\d+\s*\)/i.test(c);
+    if (!(/missouri\s+highlands/i.test(c) && /\(\s*\d+\s*k\s*\/\s*\d+\s*\)/i.test(c))) return false;
+    return typeof softIsLaterBoardInstallment === 'function' && softIsLaterBoardInstallment(r);
   }
   function tagMoHighlandsMonthlies(s) {
     var rows = (s && Array.isArray(s.rows)) ? s.rows : (Array.isArray(s) ? s : []);
@@ -59247,6 +59275,7 @@ function softIsoDate(v) {
     ensureCullmanJan5kBrenton(s); /* soft-cullman-jan-5k-brenton-20260920 */
     ensureIhc16972MikeRandy5050(s); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
     ensureWinnMayOdPackageOnProduction20260921(s); /* soft-winn-may-od-package-on-prod-20260921 */
+    ensureMoHighlandsJulyFirstBookBooked20260921(s); /* soft-mo-highlands-july-first-book-20260921 */
     ensureCopperQueen17037RandyKelley5050(s); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
     try { ensureSoft2026RepLabelsFromProduction(s); } catch (e2026RepLab) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
