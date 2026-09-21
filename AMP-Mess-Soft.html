@@ -76402,11 +76402,51 @@ ownersDetailHtml(row) +
     var asof = String(opts.asof || softTodayIsoLocal()).slice(0, 10);
     var out = [];
     var seen = {};
+    /* soft-aging-dedupe-by-qb-20260921 — QB is the primary invoice identity; blank QB keeps client|amount faces. */
+    function faceText(v) { return String(v == null ? '' : v).trim(); }
+    function faceRichness(face) {
+      if (!face) return 0;
+      var score = 0;
+      if (faceText(face.searchRefs)) score += 4;
+      if (faceText(face.memo)) score += 4;
+      if (faceText(face.client)) score += 1;
+      if (faceText(face.date)) score += 1;
+      if (Number(face.amount) > 0) score += 1;
+      return score;
+    }
+    function mergeFace(existing, incoming) {
+      if (!existing) return incoming;
+      if (!incoming) return existing;
+      var existingSpine = existing.source === 'spine';
+      var incomingSpine = incoming.source === 'spine';
+      var winner = existing;
+      if (incomingSpine && !existingSpine) winner = incoming;
+      else if (incomingSpine === existingSpine && faceRichness(incoming) > faceRichness(existing)) winner = incoming;
+      var other = winner === existing ? incoming : existing;
+      ['searchRefs', 'memo', 'client', 'date', 'paidDate', 'status', 'cash', 'daysUnpaid', 'bucket', 'department'].forEach(function (field) {
+        if ((winner[field] == null || faceText(winner[field]) === '') && other[field] != null && faceText(other[field]) !== '') winner[field] = other[field];
+      });
+      var people = [];
+      (winner.people || []).concat(other.people || []).forEach(function (person) {
+        person = faceText(person);
+        if (person && people.indexOf(person) < 0) people.push(person);
+      });
+      if (people.length) winner.people = people;
+      /* A spine total is authoritative; otherwise retain the larger aggregated face (e.g. 17072 = $24,000). */
+      var existingAmount = Number(existing.amount) || 0;
+      var incomingAmount = Number(incoming.amount) || 0;
+      if (existingAmount || incomingAmount) winner.amount = Math.max(existingAmount, incomingAmount);
+      return winner;
+    }
     function pushFace(face) {
       if (!face) return;
-      var key = String(face.qb || face.id || '') + '|' + String(face.client || '') + '|' + String(face.amount || 0);
-      if (seen[key]) return;
-      seen[key] = true;
+      var qb = faceText(face.qb);
+      var key = qb ? 'qb|' + qb : 'blank|' + faceText(face.client) + '|' + String(Number(face.amount) || 0);
+      if (seen[key] != null) {
+        out[seen[key]] = mergeFace(out[seen[key]], face);
+        return;
+      }
+      seen[key] = out.length;
       out.push(face);
     }
     function cashFromStatus(st) {
@@ -76432,6 +76472,7 @@ ownersDetailHtml(row) +
             qb: String(inv.qbNumber || inv.qbInvoice || base.qbNumber || '').trim(),
             client: inv.client || '',
             searchRefs: inv.searchRefs || '',
+            memo: inv.memo || inv.notes || inv.description || '',
             amount: Number(inv.amount) || 0,
             openBalance: Number(inv.openBalance != null ? inv.openBalance : (cash === 'paid' ? 0 : inv.amount)) || 0,
             date: invDate,
@@ -76460,8 +76501,7 @@ ownersDetailHtml(row) +
         else if (row.qbDate) invDate = String(row.qbDate).slice(0, 10);
         else if (row.date && cash !== 'booked') invDate = String(row.date).slice(0, 10);
         if (invDate && !/^\d{4}-\d{2}-\d{2}$/.test(invDate)) invDate = '';
-        /* Prefer spine face when QB already listed */
-        if (qb && seen[qb + '|' + String(row.client || '') + '|']) return;
+        /* soft-aging-dedupe-by-qb-20260921 — pushFace merges all matching QB faces; rows remain untouched. */
         var amt = 0;
         try { amt = (typeof softProdRowAmt === 'function') ? softProdRowAmt(row) : (Number(row.fee || row.accountingBilled || 0) || 0); } catch (eA) { amt = Number(row.fee || row.accountingBilled || 0) || 0; }
         var days = (cash === 'unpaid' && invDate) ? softAgingDaysBetween(invDate, asof) : null;
@@ -76470,6 +76510,7 @@ ownersDetailHtml(row) +
           qb: qb,
           client: row.client || row.facility || '',
           searchRefs: row.searchRefs || row.dealRef || row.searchNumber || '',
+          memo: row.memo || row.notes || row.description || '',
           amount: amt,
           openBalance: cash === 'paid' ? 0 : amt,
           date: invDate,
