@@ -58017,6 +58017,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-stephanie-cullman-feb-mkt-6020-20260921 — Soft Soft: Feb Cullman Premium Stephanie 60 / Brenton 20 / House 20. Soft only. Never Hub. */
 /* soft-chd-feb-no-jan-twin-20260921 — Soft Soft: force Jan CHD month 2026-01 / 16821; Feb only 16856; strip Jan twin off Feb board. Soft only. Never Hub. */
         row.prodQbStamp = row.prodQbStamp || (forceChd ? 'soft-chd-qb-16821-16856-20260921' : 'soft-reverse-push-carri-sot-20260921');
         return;
@@ -59258,6 +59259,36 @@ function ensureCarriGmSeed(s) {
   }
   try { window.__softEnsureSoftChdQb168211685620260921 = ensureSoftChdQb168211685620260921; } catch (e6) {}
 
+
+  function ensureStephanieCullmanFebMkt6020(state) {
+    /* soft-stephanie-cullman-feb-mkt-6020-20260921 — Feb Cullman Premium xl_mkt_2026-02_32
+       Stephanie 60% / Brenton 20% / House 20% (match March Cullman mkt pattern). Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-stephanie-cullman-feb-mkt-6020-20260921";
+    var targetId = "xl_mkt_2026-02_32";
+    var flipped = 0;
+    state.rows.forEach(function (row) {
+      if (!row || String(row.id) !== targetId) return;
+      row.gmMode = "Marketing";
+      row.gmLabel = "Marketing · Stephanie 60% / Brenton 20% / House 20%";
+      row.owners = {
+        mode: "Marketing",
+        housePct: 20,
+        reps: [
+          { name: "Stephanie", pct: 60 },
+          { name: "Brenton", pct: 20 }
+        ]
+      };
+      row.softGmSplitOverride = true;
+      row.softGmSplitManual = true;
+      row.softStephanieCullmanFebMkt6020 = stamp;
+      flipped++;
+    });
+    state.stephanieCullmanFebMkt6020 = { stamp: stamp, id: targetId, flipped: flipped, at: "2026-09-21" };
+    return state;
+  }
+  try { window.__softEnsureStephanieCullmanFebMkt6020 = ensureStephanieCullmanFebMkt6020; } catch (eStefCull) {}
+
   function ensureSoftRiverviewMay16973(state) {
     /* soft-riverview-may-qb-16973-20260921 — force Riverview May Production QB 16973 on every reload.
        Soft only. Never Hub. Do not alter CHD Jan 16821 / Feb 16856. */
@@ -59770,6 +59801,7 @@ function softIsoDate(v) {
     ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
     ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
+    ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureSoftReversePushProdToSpine20260921(s); /* soft-reverse-push-carri-sot-20260921 — include QB 16973 twin */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
@@ -59850,6 +59882,7 @@ function softIsoDate(v) {
     ensureHadleyAugEcbDedupe(s); /* soft-hadley-aug-ecb-dedupe-20260920 */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
     ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
+    ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(s); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
@@ -59877,6 +59910,7 @@ function softIsoDate(v) {
     try { ensureSoft2026RepLabelsFromProduction(s); } catch (e2026RepLab) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
     ensureSoftChdQb168211685620260921(s); /* soft-chd-qb-16821-16856-20260921 */
+    ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     return s;
@@ -68136,8 +68170,8 @@ function softIsoDate(v) {
       accountingBilled: 25000,
       accountingBilledRaw: "YES",
       gmMode: "Marketing",
-      gmLabel: "Marketing · Excel board",
-      owners: {"mode": "Marketing", "housePct": 25, "reps": [{"name": "Stephanie", "pct": 50}]},
+      gmLabel: "Marketing · Stephanie 60% / Brenton 20% / House 20%",
+      owners: {"mode": "Marketing", "housePct": 20, "reps": [{"name": "Stephanie", "pct": 60}, {"name": "Brenton", "pct": 20}]},
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 25000,
