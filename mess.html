@@ -58306,6 +58306,8 @@ function ensureCarriGmSeed(s) {
       row.gmLabel = "Split · Mike 50% / Randy 50%";
       row.owners = { mode: "Split", bdA: { name: "Mike", pct: 50 }, bdB: { name: "Randy", pct: 50 } };
       row.rep = "Mike";
+      row.people = "Mike, Randy";
+      row.peopleRaw = "Mike, Randy";
       row.qbInvoice = row.qbInvoice || "16972";
       row.softGmSplitOverride = true;
       row.softGmSplitManual = true;
@@ -68034,6 +68036,8 @@ function softIsoDate(v) {
       qbInvoice: "16972",
       softGmSplitOverride: true,
       softGmSplitManual: true,
+      people: "Mike, Randy",
+      peopleRaw: "Mike, Randy",
       softIhc16972MikeRandy5050Lock: "soft-ihc-16972-mike-randy-5050-20260920",
       status: "Invoiced",
       paid: false,
@@ -74061,7 +74065,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         var clientCell = escHtml(row.client || '') + prodMonthlyBadgeHtml(row);
         tr2.innerHTML =
           '<td>' + glowHtml(escHtml(shortDate(row.date)) + (row.example ? '' : '')) + '</td>' +
-          '<td>' + whoGlow(row.rep) + '</td>' +
+          '<td>' + whoGlow(row.peopleRaw || row.people || row.rep) + '</td>' +
           '<td>' + whoGlow(row.repeatRep || '—') + '</td>' +
           '<td>' + glowHtml(refHtml) + '</td>' +
           '<td>' + glowHtml(clientCell) + '</td>' +
