@@ -56083,6 +56083,23 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   }
   
   
+  
+  function ensureNmc17070AugustBoard20260921(state) {
+    /* soft-nmc-17070-august-20260921 — NMC QB 17070 $20k All-In on August Production (not July). */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var ids = ["xl_bd_2026-07_7","xl_bd_2026-07_8","xl_mkt_2026-07_36","xl_mkt_2026-07_37"];
+    state.rows.forEach(function (row) {
+      if (!row || ids.indexOf(String(row.id || "")) < 0) return;
+      row.date = "2026-08-04";
+      row.month = "2026-08";
+      row.sourceSheet = "August 2026";
+      row.qbInvoice = "17070";
+      row.excludeFromProductionBoard = false;
+      row.softNmc17070August = "soft-nmc-17070-august-20260921";
+    });
+    return state;
+  }
+
   function ensureNmc17070ProdQbStamp20260921(state) {
     /* soft-nmc-17070-prod-qb-20260921 — stamp Soft Soft July NMC GS/URO Deal+Mkt seeds with QB 17070 ($20k All-In). */
     if (!state || !Array.isArray(state.rows)) return state;
@@ -59296,6 +59313,7 @@ function softIsoDate(v) {
     ensureWinnMayOdPackageOnProduction20260921(s); /* soft-winn-may-od-package-on-prod-20260921 */
     ensureMoHighlandsJulyFirstBookBooked20260921(s); /* soft-mo-highlands-july-first-book-20260921 */
     ensureNmc17070ProdQbStamp20260921(s); /* soft-nmc-17070-prod-qb-20260921 */
+    ensureNmc17070AugustBoard20260921(s); /* soft-nmc-17070-august-20260921 */
     ensureCopperQueen17037RandyKelley5050(s); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
     try { ensureSoft2026RepLabelsFromProduction(s); } catch (e2026RepLab) {} /* soft-2026-rep-labels-from-prod-20260921 — AFTER owner locks */
     ensureChdi16856UnassignedDedupe(s); /* soft-chdi-16856-unassigned-dedupe-20260920 */
@@ -69030,8 +69048,8 @@ function softIsoDate(v) {
       excelSeed: true,
       bookType: "Deal",
       side: "bd",
-      date: "2026-07-31",
-      month: "2026-07",
+      date: "2026-08-04",
+      month: "2026-08",
       rep: "Zach",
       repeatRep: "Nate",
       client: "NMC Health",
@@ -69051,7 +69069,7 @@ function softIsoDate(v) {
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 5000,
-      sourceSheet: "July 2026",
+      sourceSheet: "August 2026",
       sourceRow: 7,
       sourceYear: 2026,
       qbInvoice: "17070"
@@ -69062,8 +69080,8 @@ function softIsoDate(v) {
       excelSeed: true,
       bookType: "Deal",
       side: "bd",
-      date: "2026-07-31",
-      month: "2026-07",
+      date: "2026-08-04",
+      month: "2026-08",
       rep: "Zach",
       repeatRep: "Nate",
       client: "NMC Health",
@@ -69083,7 +69101,7 @@ function softIsoDate(v) {
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 5000,
-      sourceSheet: "July 2026",
+      sourceSheet: "August 2026",
       sourceRow: 8,
       sourceYear: 2026,
       qbInvoice: "17070"
@@ -69291,8 +69309,8 @@ function softIsoDate(v) {
       excelSeed: true,
       bookType: "Marketing",
       side: "bd",
-      date: "2026-07-31",
-      month: "2026-07",
+      date: "2026-08-04",
+      month: "2026-08",
       rep: "Nate",
       marketer: "Zach",
       client: "NMC Health",
@@ -69309,7 +69327,7 @@ function softIsoDate(v) {
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 5000,
-      sourceSheet: "July 2026",
+      sourceSheet: "August 2026",
       sourceRow: 36,
       sourceYear: 2026,
       qbInvoice: "17070"
@@ -69320,8 +69338,8 @@ function softIsoDate(v) {
       excelSeed: true,
       bookType: "Marketing",
       side: "bd",
-      date: "2026-07-31",
-      month: "2026-07",
+      date: "2026-08-04",
+      month: "2026-08",
       rep: "Nate",
       marketer: "Zach",
       client: "NMC Health",
@@ -69338,7 +69356,7 @@ function softIsoDate(v) {
       status: "Invoiced",
       paid: false,
       bookValueThisMonth: 5000,
-      sourceSheet: "July 2026",
+      sourceSheet: "August 2026",
       sourceRow: 37,
       sourceYear: 2026,
       qbInvoice: "17070"
