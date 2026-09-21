@@ -55535,7 +55535,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-carri-qb-cleanup-stamp-20260921 · soft-exec-ar-internet-only-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-reverse-push-spine-20260921 · soft-carri-qb-cleanup-stamp-20260921 · soft-exec-ar-internet-only-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
 
   /* soft-2026-unmapped-faces-prune-20260921 — pruned to open only (Concord 16942); panel kept; do not invent faces */
   var SOFT_UNMAPPED_2026_FACES = [
@@ -57634,6 +57634,113 @@ function ensureCarriGmSeed(s) {
   }
 
 
+
+  /* soft-reverse-push-spine-20260921 — Production → spine/invoice twins ONLY.
+     Push QB #, Paid status, paidDate, invoice date (where Production has them) onto matching
+     spine rows (carri_inv_* + search-token / Production↔spine linked pairs).
+     Do NOT invent QB for leftover Booked blanks without Production stamps.
+     Do NOT flip GM gate. Soft only. Never Hub. Spell Carri. */
+  function ensureSoftReversePushProdToSpine20260921(s) {
+    if (!s || typeof SPINE_INVOICES === 'undefined' || !Array.isArray(SPINE_INVOICES)) return s;
+    if (!s.spineOverrides || typeof s.spineOverrides !== 'object') s.spineOverrides = {};
+    var faces = {};
+    (s.rows || []).forEach(function (r) {
+      if (!r || r.example || r.carriGmSeed || r.carriBdGmSeed) return;
+      var qb = String(r.qbInvoice || r.qbNumber || '').trim();
+      if (!/^\d+$/.test(qb)) return;
+      var isPaid = !!(r.paid === true || r.status === 'Paid' || r.gmCashState === 'paid' || r.carriQbCleanupStamp || r.mike2026FocusPaid);
+      var paidDate = r.paidDate ? String(r.paidDate).slice(0, 10) : '';
+      var date = '';
+      if (r.invoiceDate) date = String(r.invoiceDate).slice(0, 10);
+      else if (r.qbDate) date = String(r.qbDate).slice(0, 10);
+      softSpineSearchToks(r.searchRefs || r.dealRef || '').forEach(function (t) {
+        if (!faces[t]) faces[t] = { qbs: {}, paid: false, paidDate: '', date: '', stamped: false };
+        faces[t].qbs[qb] = true;
+        if (isPaid) faces[t].paid = true;
+        if (paidDate) faces[t].paidDate = paidDate;
+        if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) faces[t].date = date;
+        if (r.carriQbCleanupStamp || r.prodQbStamp === 'soft-carri-qb-cleanup-stamp-20260921') faces[t].stamped = true;
+      });
+    });
+    var tokFace = {};
+    var multiTok = 0;
+    Object.keys(faces).forEach(function (t) {
+      var ks = Object.keys(faces[t].qbs);
+      if (ks.length === 1) {
+        tokFace[t] = { qb: ks[0], paid: faces[t].paid, paidDate: faces[t].paidDate, date: faces[t].date, stamped: faces[t].stamped };
+      } else if (ks.length > 1) {
+        multiTok++;
+      }
+    });
+    var changed = 0, already = 0, multiSkip = 0, noFace = 0;
+    var changedIds = [], alreadyIds = [], sampleCheck = {};
+    var stampWant = typeof SOFT_CARRI_QB_CLEANUP_STAMP === 'object' ? SOFT_CARRI_QB_CLEANUP_STAMP : {};
+    SPINE_INVOICES.forEach(function (inv) {
+      if (!inv || !inv.id) return;
+      var toks = softSpineSearchToks(inv.searchRefs || '');
+      var idTok = String(inv.id || '').replace(/^carri_inv_/i, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (idTok) toks.push(idTok);
+      var qbsSeen = {};
+      toks.forEach(function (t) {
+        if (tokFace[t]) qbsSeen[tokFace[t].qb] = tokFace[t];
+      });
+      var qkeys = Object.keys(qbsSeen);
+      if (!qkeys.length) { noFace++; return; }
+      if (qkeys.length > 1) { multiSkip++; return; }
+      var face = qbsSeen[qkeys[0]];
+      var ov = s.spineOverrides[inv.id] || {};
+      var before = [String(inv.qbNumber || ''), String(ov.qbNumber || ''), String(ov.status || inv.status || ''), String(ov.paidDate || inv.paidDate || ''), String(ov.date || inv.date || '')].join('|');
+      inv.qbNumber = face.qb;
+      ov.qbNumber = face.qb;
+      if (face.paid) {
+        inv.status = 'Paid';
+        ov.status = 'Paid';
+        ov.amountPaid = Number(ov.amount != null ? ov.amount : inv.amount) || 0;
+        ov.openBalance = 0;
+      }
+      if (face.paidDate) {
+        inv.paidDate = face.paidDate;
+        ov.paidDate = face.paidDate;
+      }
+      if (face.date) {
+        inv.date = face.date;
+        ov.date = face.date;
+      }
+      ov.reversePushSpine = 'soft-reverse-push-spine-20260921';
+      ov.reversePushNote = 'Production \u2192 spine twin sync 2026-09-21';
+      s.spineOverrides[inv.id] = ov;
+      var after = [String(inv.qbNumber || ''), String(ov.qbNumber || ''), String(ov.status || inv.status || ''), String(ov.paidDate || inv.paidDate || ''), String(ov.date || inv.date || '')].join('|');
+      if (before !== after) { changed++; changedIds.push(inv.id); }
+      else { already++; alreadyIds.push(inv.id); }
+      if (stampWant[inv.id]) {
+        sampleCheck[inv.id] = {
+          qb: String(ov.qbNumber || inv.qbNumber || ''),
+          status: String(ov.status || inv.status || ''),
+          paidDate: ov.paidDate || inv.paidDate || null,
+          date: ov.date || inv.date || null,
+          fromProd: true
+        };
+      }
+    });
+    /* Leftover Booked blanks without Production QB stay untouched (intentional). */
+    s.softReversePushSpine = {
+      stamp: 'soft-reverse-push-spine-20260921',
+      changed: changed,
+      already: already,
+      multiSkip: multiSkip,
+      multiTok: multiTok,
+      noFace: noFace,
+      changedIds: changedIds,
+      alreadyIds: alreadyIds.slice(0, 40),
+      sampleCheck: sampleCheck,
+      gmGate: 'OFF',
+      at: '2026-09-21'
+    };
+    try { window.__softReversePushSpine = s.softReversePushSpine; } catch (eW) {}
+    return s;
+  }
+
+
   /* soft-aging-exec-pre2026-ors8432-nate-20260920 — durable: mark invoice-date year <=2025 Paid (no delete).
      Clears pre-2026 aging clutter; never touches year 2026; skip if date missing. */
   function ensureSoftPre2026AgingPaid(s) {
@@ -58994,7 +59101,7 @@ function softIsoDate(v) {
     ensureSoftProdQbFromCarriSeeds(s);
     ensureSpineBookedFromCarriQb(s);
     ensureSpineBookedBuckets(s);
-    ensureMike2026FocusPaid(s); ensureCarriQbCleanupStamp20260921(s); /* soft-carri-qb-cleanup-stamp-20260921 */
+    ensureMike2026FocusPaid(s); ensureCarriQbCleanupStamp20260921(s); /* soft-carri-qb-cleanup-stamp-20260921 */ ensureSoftReversePushProdToSpine20260921(s); /* soft-reverse-push-spine-20260921 */
     ensureSoftPre2026AgingPaid(s); /* soft-aging-exec-pre2026-ors8432-nate-20260920 */
     ensureSoftProdPaidFromSpineSoT(s);
     dedupeBdRepeatClones(s);
@@ -70234,7 +70341,7 @@ function softIsoDate(v) {
     ensureSoftProdQbFromCarriSeeds(seeded);
     ensureSpineBookedFromCarriQb(seeded);
     ensureSpineBookedBuckets(seeded);
-    ensureMike2026FocusPaid(seeded); ensureCarriQbCleanupStamp20260921(seeded); /* soft-carri-qb-cleanup-stamp-20260921 */
+    ensureMike2026FocusPaid(seeded); ensureCarriQbCleanupStamp20260921(seeded); /* soft-carri-qb-cleanup-stamp-20260921 */ ensureSoftReversePushProdToSpine20260921(seeded); /* soft-reverse-push-spine-20260921 */
     ensureSoftProdPaidFromSpineSoT(seeded);
     dedupeBdRepeatClones(seeded);
     return seeded;
@@ -71989,7 +72096,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureSoftRepeatGm601030(state); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
     try { ensureSoftRepOwnerAutofix(state); } catch (eRepAf2) {}
     ensureHendrickSepAaron(state); /* soft-hendrick-sep-aaron-lock-20260920 — one-off AFTER repeat */
-    ensureMike2026FocusPaid(state); ensureCarriQbCleanupStamp20260921(state); /* soft-carri-qb-cleanup-stamp-20260921 */
+    ensureMike2026FocusPaid(state); ensureCarriQbCleanupStamp20260921(state); /* soft-carri-qb-cleanup-stamp-20260921 */ ensureSoftReversePushProdToSpine20260921(state); /* soft-reverse-push-spine-20260921 */
     ensureSoftPre2026AgingPaid(state);
     ensureSoftProdPaidFromSpineSoT(state);
     ensureIhc16972MikeRandy5050(state); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
@@ -72687,7 +72794,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       paintSpineGmBuckets(inv);
       toast('<strong>Partial pay</strong><br>Amount paid ' + money2(amountPaid) + ' · open balance ' + money2(openBalance) + '<br>Status stays Invoiced · cash status stamped on linked rows.');
     }
-    try { ensureSoftProdQbFromCarriSeeds(state); ensureSpineBookedFromCarriQb(state); ensureSpineBookedBuckets(state); ensureMike2026FocusPaid(state); ensureCarriQbCleanupStamp20260921(state); /* soft-carri-qb-cleanup-stamp-20260921 */ ensureSoftPre2026AgingPaid(state); ensureSoftProdPaidFromSpineSoT(state); } catch (eSync) {}
+    try { ensureSoftProdQbFromCarriSeeds(state); ensureSpineBookedFromCarriQb(state); ensureSpineBookedBuckets(state); ensureMike2026FocusPaid(state); ensureCarriQbCleanupStamp20260921(state); /* soft-carri-qb-cleanup-stamp-20260921 */ ensureSoftReversePushProdToSpine20260921(state); /* soft-reverse-push-spine-20260921 */ ensureSoftPre2026AgingPaid(state); ensureSoftProdPaidFromSpineSoT(state); } catch (eSync) {}
     saveState();
     renderSpine();
     try { renderProduction(); renderBdGm(); renderRecGm(); renderExecGm(); renderCommission(); renderFanout(); renderGmMoney(); } catch (e) {}
@@ -72733,7 +72840,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         }
       }
     }
-    try { ensureSoftProdQbFromCarriSeeds(state); ensureSpineBookedFromCarriQb(state); ensureSpineBookedBuckets(state); ensureMike2026FocusPaid(state); ensureCarriQbCleanupStamp20260921(state); /* soft-carri-qb-cleanup-stamp-20260921 */ ensureSoftPre2026AgingPaid(state); ensureSoftProdPaidFromSpineSoT(state); } catch (eSyncSave) {}
+    try { ensureSoftProdQbFromCarriSeeds(state); ensureSpineBookedFromCarriQb(state); ensureSpineBookedBuckets(state); ensureMike2026FocusPaid(state); ensureCarriQbCleanupStamp20260921(state); /* soft-carri-qb-cleanup-stamp-20260921 */ ensureSoftReversePushProdToSpine20260921(state); /* soft-reverse-push-spine-20260921 */ ensureSoftPre2026AgingPaid(state); ensureSoftProdPaidFromSpineSoT(state); } catch (eSyncSave) {}
     saveState();
     toast('QB / cash saved (stub) · open balance ' + money2(cash.openBalance) + ' · no live QB');
     renderSpine();
