@@ -56091,6 +56091,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
        but loadState() prefers localStorage amp_soft_mess_book_to_gm_v62. Save/re-fan Fee→GM$ clobber left LS fee at 0,
        so hard refresh still showed $0. Force excelSeed Placement fees back from seed when LS fee is empty/0;
        hard-lock xl_pl_2026-03_6 Dawn Stanley South Georgia to 19000. Soft only. Never Hub. */
+/* soft-may-sc-bill-on-531-parse-fix-20260921 — May 15 South Central BD: Bill on 5/31 parsed as acct/bv 5 → 4000 (init+FM). Soft only. Never Hub. */
     if (!state || !Array.isArray(state.rows)) return state;
     var seedById = {};
     try {
@@ -68555,14 +68556,14 @@ function softIsoDate(v) {
       initiation: 2500,
       firstMonthRetainer: 1500,
       internets: 0,
-      accountingBilled: 5,
+      accountingBilled: 4000,
       accountingBilledRaw: "Bill on 5/31",
       gmMode: "Whole",
       gmLabel: "Whole · Randy 100%",
       owners: {"mode": "Whole", "primary": "Randy"},
       status: "Invoiced",
       paid: false,
-      bookValueThisMonth: 5,
+      bookValueThisMonth: 4000,
       sourceSheet: "May 2026",
       sourceRow: 5,
       sourceYear: 2026
