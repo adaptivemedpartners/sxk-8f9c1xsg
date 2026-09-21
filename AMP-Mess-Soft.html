@@ -3,6 +3,7 @@
 <head>
 <script>
 /* soft-march-walk-20260921 soft-cullman-mkt-60-20-20-20260921 — Soft Soft March 2026 Production walk (Jan/Feb style): QB stamps from Carri spine on March excel seeds (Cullman OBG 16897 / PHE 16903 / Basila 16894 / Freeman 16900; Blue Sky 16899; Family Health 16933; Helen Newberry 16934; Midland Rono 16901; Mangold Jones 16935; Cullman mkt 16898; Dawn Stanley PUD already 16936); Midland YES 1/2 acct/bv 1→8000; Excel SoT Dawn Stanley fee FO→19000. Soft only. Never Hub. */
+/* soft-april-fixes-20260921 — Soft Soft April 2026 Mike-approved: South Central xl_bd_2026-04_3 internets 0→1 (Yes flag; keep accountingBilledRaw); QB stamps Carri-clear Concord BD _6/_7→16942, Morongo mkt _35→16941, Woodland mkt _37→16944, IHC mkt _38→16971; Midland Rono xl_pl_2026-04_2 YES 1/2 acct/bv 1→8000 + qbInvoice 16902 (Carri 2nd half 2026-04-22 $8k). Soft only. Never Hub. */
 /* SOFT PARALLEL — separate storage keys; never collide with live Mess */
 /* soft-bd-year-fractions-tentative-20260920 — Soft Soft: Provisional YTD BD deal fractions (Mike) — Brenton 6.6 · Zach 4.4 — TENTATIVE / PROVISIONAL only; split-weighted deal credit (not whole books); unconfirmed pending Randy; read-only annotation strip on Exec BD Yearly + Awards + BD Hub Comp; does NOT mutate Production/BD row SoT. Soft only. Never Hub. */
 /* soft-ihc-16972-mike-randy-5050-20260920 — Soft Soft: Indian Health Center of Santa Clara Valley / Indian Health of Santa Clara Valley QB 16972 Apr 2026 $10k Deal → Split Mike 50% / Randy 50% (bdA/bdB, no House); softGmSplitOverride+Manual; stamp qbInvoice 16972; durable after repeat GM. Soft only. Never Hub. */
@@ -68031,7 +68032,7 @@ function softIsoDate(v) {
       specialties: "FP",
       initiation: 2500,
       firstMonthRetainer: 1500,
-      internets: 0,
+      internets: 1,
       accountingBilled: 4000,
       accountingBilledRaw: "YES",
       gmMode: "Whole",
@@ -68142,6 +68143,8 @@ function softIsoDate(v) {
       sourceSheet: "April 2026",
       sourceRow: 6,
       sourceYear: 2026
+    ,
+      qbInvoice: "16942"
     });
     rows.push({
       id: "xl_bd_2026-04_7",
@@ -68173,6 +68176,8 @@ function softIsoDate(v) {
       sourceSheet: "April 2026",
       sourceRow: 7,
       sourceYear: 2026
+    ,
+      qbInvoice: "16942"
     });
     rows.push({
       id: "xl_bd_2026-04_8",
@@ -68226,17 +68231,19 @@ function softIsoDate(v) {
       physician: "Janet Rono",
       specialties: "APP/ NP",
       fee: 8000,
-      accountingBilled: 1,
+      accountingBilled: 8000,
       accountingBilledRaw: "YES 1/2",
       gmMode: "Whole",
       gmLabel: "Whole · Stephanie 100%",
       owners: {"mode": "Whole", "primary": "Stephanie"},
       status: "Invoiced",
       paid: false,
-      bookValueThisMonth: 1,
+      bookValueThisMonth: 8000,
       sourceSheet: "April 2026",
       sourceRow: 2,
       sourceYear: 2026
+    ,
+      qbInvoice: "16902"
     });
     rows.push({
       id: "xl_mkt_2026-04_32",
@@ -68356,6 +68363,8 @@ function softIsoDate(v) {
       sourceSheet: "April 2026",
       sourceRow: 35,
       sourceYear: 2026
+    ,
+      qbInvoice: "16941"
     });
     rows.push({
       id: "xl_mkt_2026-04_36",
@@ -68415,6 +68424,8 @@ function softIsoDate(v) {
       sourceSheet: "April 2026",
       sourceRow: 37,
       sourceYear: 2026
+    ,
+      qbInvoice: "16944"
     });
     rows.push({
       id: "xl_mkt_2026-04_38",
@@ -68443,6 +68454,8 @@ function softIsoDate(v) {
       sourceSheet: "April 2026",
       sourceRow: 38,
       sourceYear: 2026
+    ,
+      qbInvoice: "16971"
     });
     rows.push({
       id: "xl_bd_2026-05_2",
