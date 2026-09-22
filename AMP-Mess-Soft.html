@@ -55626,7 +55626,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-reverse-push-carri-sot-20260921 · soft-reverse-push-spine-20260921 · soft-carri-qb-cleanup-stamp-20260921 · soft-exec-ar-internet-only-20260921 · soft-spine-drop-ballad-16333-sample-20260921 · soft-gm-prod-qb-one-face-20260921 · soft-drop-steph-aug-17880-carri-20260921 · soft-drop-steph-jan-ravuri-carri-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-reverse-push-carri-sot-20260921 · soft-reverse-push-spine-20260921 · soft-carri-qb-cleanup-stamp-20260921 · soft-exec-ar-internet-only-20260921 · soft-spine-drop-ballad-16333-sample-20260921 · soft-gm-prod-qb-one-face-20260921 · soft-drop-steph-aug-17880-carri-20260921 · soft-drop-steph-jan-ravuri-carri-20260921 · soft-prod-sole-sot-gm-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
 
   /* soft-2026-unmapped-faces-prune-20260921 — pruned to open only (Concord 16942); panel kept; do not invent faces */
   var SOFT_UNMAPPED_2026_FACES = [
@@ -58085,6 +58085,7 @@ function ensureCarriGmSeed(s) {
 /* soft-prod-spine-owners-live-20260921 — Soft Soft: Modify save re-runs ensureSpineOwnersFromProduction + renderSpine. Soft only. Never Hub. */
 /* soft-prod-gm-feed-hybrid-20260921 — Soft Soft: Production→GM hybrid — claim forward, protect unclaimed Carri GM. Soft only. Never Hub. */
 /* soft-prod-gm-feed-live-20260921 — Soft Soft: Production→GM feed ON (skip Carri GM seed gate). Soft only. Never Hub. */
+/* soft-prod-sole-sot-gm-20260921 — Soft Soft: Production board = sole Rec/BD GM SoT; Carri seeds hide whenever matching Production should paint (no manual claim lock). Soft only. Never Hub. */
 /* soft-recgm-carri-repeat-row-20260921 — Soft Soft: Carri REPEAT → Rec GM Repeat row (Winn PD8448 Nate $600). Soft only. Never Hub. */
 /* soft-winn-jul21-nate-repeat-30-20260921 — Soft Soft: Winn Jul 21 Repeat Brenton60/Nate30/House10 → Nate Rec GM. Soft only. Never Hub. */
 /* soft-jul-kittitas-internet-exec-recurring-20260921 — Soft Soft: Kittitas Jul 1 Internets $790 off BD → exec recurring. Soft only. Never Hub. */
@@ -59546,6 +59547,8 @@ function ensureCarriGmSeed(s) {
     return state;
   }
   function softGmProdQbPaintAllowed(row) {
+    /* soft-gm-prod-qb-one-face-20260921 + soft-prod-sole-sot-gm-20260921 — reinforce: hide Carri when any
+       Production feed row claims same month+numeric QB (Production SoT; do not weaken). Soft only. Never Hub. */
     if (!row) return false;
     if (row.softGmProdQbDuplicateHidden) return false;
     if (row.carriGmSeed || row.carriBdGmSeed) {
@@ -60170,10 +60173,11 @@ function ensureCarriGmSeed(s) {
 
 
   function softProdGmFeedLiveOn() {
-    /* soft-prod-gm-feed-hybrid-20260921 — Production→GM feed ON with manual-GM protect.
-       Forward: Modify/save on Production (softGmSplitManual|Override|softProdGmFeedClaim) claims that deal onto GM.
-       Protect: Carri GM lines stay until a Production twin claims them — no mass overwrite of GM-board fixes.
-       Set state.softProdGmFeedLive = false to re-freeze fully on Carri seeds. Soft only. Never Hub. */
+    /* soft-prod-sole-sot-gm-20260921 — Production→GM feed ON; Production board is sole Rec/BD GM SoT.
+       Paint: softGmProdRowShouldPaintGm Production faces always paint. Carri seeds hide when a matching
+       Production twin should paint (no manual claim lock required). softGmProdQbPaintAllowed still hides
+       Carri when Production claims same month+QB. Set state.softProdGmFeedLive = false to re-freeze
+       fully on Carri seeds. Soft only. Never Hub. */
     try {
       if (typeof state !== 'undefined' && state && state.softProdGmFeedLive === false) return false;
     } catch (eFeed) {}
@@ -60231,31 +60235,38 @@ function ensureCarriGmSeed(s) {
     return false;
   }
   function softRecGmFindClaimingProdTwin(carriRow) {
+    /* soft-prod-sole-sot-gm-20260921 — claim = Production twin that should paint (no manual lock). Soft only. Never Hub. */
     if (!carriRow || !state || !Array.isArray(state.rows)) return null;
     for (var i = 0; i < state.rows.length; i++) {
       var r = state.rows[i];
       if (!r || r.carriGmSeed || r.carriBdGmSeed || r.example) continue;
-      if (!softGmRowIsManualLock(r)) continue;
+      if (typeof softGmProdRowShouldPaintGm === 'function') {
+        if (!softGmProdRowShouldPaintGm(r)) continue;
+      } else if (!softGmRowIsManualLock(r)) {
+        continue;
+      }
       if (softRecGmRowsMatchTwin(carriRow, r)) return r;
     }
     return null;
   }
   function softGmProdRowShouldPaintGm(prodRow) {
-    /* soft-midland-ravuri-gm-paint-20260921 — Production face that must paint on Rec/BD GM:
-       numeric-QB prod feed OR real on-board Placement/Marketing/Deal (not recurring/off-board). Soft only. Never Hub. */
+    /* soft-midland-ravuri-gm-paint-20260921 + soft-prod-sole-sot-gm-20260921 — Production face that must paint on Rec/BD GM:
+       on-board Placement/Marketing/Deal (numeric-QB prod feed OR excel face). Off-board / Exec recurring
+       (excludeFromProductionBoard, e.g. xl_pl_2026-04_2 April Rono) never paints as Production GM. Soft only. Never Hub. */
     if (!prodRow || prodRow.example || prodRow.carriGmSeed || prodRow.carriBdGmSeed || prodRow.spineBridge || prodRow.carriQbSeed) return false;
+    if (prodRow.excludeFromProductionBoard) return false;
+    if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(prodRow)) return false;
     if (typeof softGmIsProdFeedRow === 'function' && softGmIsProdFeedRow(prodRow)) return true;
     var bt = prodRow.bookType;
     if (bt !== 'Placement' && bt !== 'Marketing' && bt !== 'Deal') return false;
-    if (prodRow.excludeFromProductionBoard) return false;
-    if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(prodRow)) return false;
     return true;
   }
   try { window.__softGmProdRowShouldPaintGm = softGmProdRowShouldPaintGm; } catch (ePaintWin) {}
   function softRecGmFindProtectedCarriTwin(prodRow) {
+    /* soft-prod-sole-sot-gm-20260921 — obsolete hybrid protect; Production paint wins; never hide Production for Carri. Soft only. Never Hub. */
     if (!prodRow || !state || !Array.isArray(state.rows)) return null;
-    if (softGmRowIsManualLock(prodRow)) return null; /* Production claimed — do not defer to Carri */
-    if (typeof softGmProdRowShouldPaintGm === 'function' && softGmProdRowShouldPaintGm(prodRow)) return null; /* soft-midland-ravuri-gm-paint-20260921 — Production SoT paints; keep Carri protect only when no Production face should paint */
+    if (typeof softGmProdRowShouldPaintGm === 'function' && softGmProdRowShouldPaintGm(prodRow)) return null;
+    if (softGmRowIsManualLock(prodRow)) return null;
     for (var i = 0; i < state.rows.length; i++) {
       var r = state.rows[i];
       if (!r || !r.carriGmSeed || r.example) continue;
@@ -60264,19 +60275,25 @@ function ensureCarriGmSeed(s) {
     return null;
   }
   function softBdGmFindClaimingProdTwin(carriRow) {
+    /* soft-prod-sole-sot-gm-20260921 — claim = Production twin that should paint (no manual lock). Soft only. Never Hub. */
     if (!carriRow || !state || !Array.isArray(state.rows)) return null;
     for (var i = 0; i < state.rows.length; i++) {
       var r = state.rows[i];
       if (!r || r.carriBdGmSeed || r.carriGmSeed || r.example) continue;
-      if (!softGmRowIsManualLock(r)) continue;
+      if (typeof softGmProdRowShouldPaintGm === 'function') {
+        if (!softGmProdRowShouldPaintGm(r)) continue;
+      } else if (!softGmRowIsManualLock(r)) {
+        continue;
+      }
       if (softRecGmRowsMatchTwin(carriRow, r)) return r;
     }
     return null;
   }
   function softBdGmFindProtectedCarriTwin(prodRow) {
+    /* soft-prod-sole-sot-gm-20260921 — obsolete hybrid protect on BD; Production paint wins. Soft only. Never Hub. */
     if (!prodRow || !state || !Array.isArray(state.rows)) return null;
+    if (typeof softGmProdRowShouldPaintGm === 'function' && softGmProdRowShouldPaintGm(prodRow)) return null;
     if (softGmRowIsManualLock(prodRow)) return null;
-    if (typeof softGmProdRowShouldPaintGm === 'function' && softGmProdRowShouldPaintGm(prodRow)) return null; /* soft-midland-ravuri-gm-paint-20260921 — BD twin: Production wins */
     for (var i = 0; i < state.rows.length; i++) {
       var r = state.rows[i];
       if (!r || !r.carriBdGmSeed || r.example) continue;
@@ -60285,9 +60302,9 @@ function ensureCarriGmSeed(s) {
     return null;
   }
   function ensureSoftProdGmFeedLive(state) {
-    /* soft-prod-gm-feed-hybrid-20260921 — default ON + hybrid protect. Soft only. Never Hub. */
+    /* soft-prod-sole-sot-gm-20260921 — default ON; Production sole Rec/BD GM SoT (not hybrid-manual-protect). Soft only. Never Hub. */
     if (!state) return state;
-    var stamp = 'soft-prod-gm-feed-hybrid-20260921';
+    var stamp = 'soft-prod-sole-sot-gm-20260921';
     if (state.softProdGmFeedLive === false) {
       /* explicit off preserved */
     } else {
@@ -60296,18 +60313,40 @@ function ensureCarriGmSeed(s) {
     if (!state.softReversePushSpine || typeof state.softReversePushSpine !== 'object') {
       state.softReversePushSpine = {};
     }
-    state.softReversePushSpine.gmGate = state.softProdGmFeedLive ? 'ON-HYBRID' : 'OFF';
+    state.softReversePushSpine.gmGate = state.softProdGmFeedLive ? 'ON-PRODUCTION-SOLE-SOT' : 'OFF';
     state.softReversePushSpine.prodGmFeed = stamp;
     state.softProdGmFeedLiveMeta = {
       stamp: stamp,
       on: !!state.softProdGmFeedLive,
-      mode: 'hybrid-manual-protect',
+      mode: 'production-sole-sot',
       at: '2026-09-21'
     };
     try { window.__softProdGmFeedLiveOn = softProdGmFeedLiveOn; } catch (eW) {}
     return state;
   }
   try { window.__softEnsureSoftProdGmFeedLive = ensureSoftProdGmFeedLive; } catch (eEns) {}
+
+  function ensureSoftProdSoleSotGm20260921(state) {
+    /* soft-prod-sole-sot-gm-20260921 — force Production sole SoT meta + feed live. Soft only. Never Hub. */
+    if (!state) return state;
+    var stamp = 'soft-prod-sole-sot-gm-20260921';
+    if (state.softProdGmFeedLive !== false) state.softProdGmFeedLive = true;
+    if (!state.softReversePushSpine || typeof state.softReversePushSpine !== 'object') {
+      state.softReversePushSpine = {};
+    }
+    state.softReversePushSpine.gmGate = state.softProdGmFeedLive ? 'ON-PRODUCTION-SOLE-SOT' : 'OFF';
+    state.softReversePushSpine.prodGmFeed = stamp;
+    state.softProdGmFeedLiveMeta = {
+      stamp: stamp,
+      on: !!state.softProdGmFeedLive,
+      mode: 'production-sole-sot',
+      at: '2026-09-21'
+    };
+    state.softProdSoleSotGm = { stamp: stamp, mode: 'production-sole-sot', at: '2026-09-21' };
+    try { window.__softEnsureSoftProdSoleSotGm20260921 = ensureSoftProdSoleSotGm20260921; } catch (eSole) {}
+    return state;
+  }
+  try { window.__softEnsureSoftProdSoleSotGm20260921 = ensureSoftProdSoleSotGm20260921; } catch (eSole2) {}
 
   function recGmHasCarriSeed(year) {
     var y = String(year || "2026");
@@ -60320,17 +60359,16 @@ function ensureCarriGmSeed(s) {
     if (typeof softGmProdQbPaintAllowed === 'function' && !softGmProdQbPaintAllowed(row)) return false; /* soft-gm-prod-qb-one-face-20260921 */
     var y = String(year || "2026");
     if (!row.month || String(row.month).slice(0, 4) !== y) return false;
-    /* soft-prod-gm-feed-hybrid-20260921 — claim-based Production feed; protect unclaimed Carri GM */
+    /* soft-prod-sole-sot-gm-20260921 — Production always paints when shouldPaint; Carri only if no claiming Production twin */
     if (typeof softProdGmFeedLiveOn === 'function' && softProdGmFeedLiveOn()) {
       if (row.example) return false;
       if (row.carriGmSeed) {
-        /* Keep Carri GM face until a locked Production twin claims this deal */
+        /* Hide Carri whenever matching Production face should paint (no manual lock) */
         return !softRecGmFindClaimingProdTwin(row);
       }
-      /* Production: show when claimed/manual, or when no Carri twin (new / gap). Hide while Carri still protected. */
-      if (softGmRowIsManualLock(row)) return true;
-      if (softRecGmFindProtectedCarriTwin(row)) return false;
-      return true;
+      if (typeof softGmProdRowShouldPaintGm === 'function' && softGmProdRowShouldPaintGm(row)) return true;
+      /* Off-board / non-paint Production (e.g. Exec recurring April Rono) does not paint as Production GM */
+      return false;
     }
     if (recGmHasCarriSeed(y)) return !!row.carriGmSeed;
     if (row.carriGmSeed) return false;
@@ -60352,15 +60390,14 @@ function ensureCarriGmSeed(s) {
     if (typeof softGmProdQbPaintAllowed === 'function' && !softGmProdQbPaintAllowed(row)) return false; /* soft-gm-prod-qb-one-face-20260921 */
     var y = String(year || "2026");
     if (!row.month || String(row.month).slice(0, 4) !== y) return false;
-    /* soft-prod-gm-feed-hybrid-20260921 — same hybrid protect on BD GM */
+    /* soft-prod-sole-sot-gm-20260921 — same sole-SoT rules on BD GM */
     if (typeof softProdGmFeedLiveOn === 'function' && softProdGmFeedLiveOn()) {
       if (row.example) return false;
       if (row.carriBdGmSeed) {
         return !softBdGmFindClaimingProdTwin(row);
       }
-      if (softGmRowIsManualLock(row)) return true;
-      if (softBdGmFindProtectedCarriTwin(row)) return false;
-      return true;
+      if (typeof softGmProdRowShouldPaintGm === 'function' && softGmProdRowShouldPaintGm(row)) return true;
+      return false;
     }
     if (bdGmHasCarriSeed(y)) return !!row.carriBdGmSeed;
     if (row.carriBdGmSeed) return false;
@@ -60433,6 +60470,7 @@ function softIsoDate(v) {
     ensureWinnJul21NateRepeat30(s); /* soft-winn-jul21-nate-repeat-30-20260921 */
     ensureCullman17105ProdStamp(s); /* soft-cullman-17105-prod-stamp-20260921 */
     ensureSoftProdGmFeedLive(s); /* soft-prod-gm-feed-live-20260921 */
+    ensureSoftProdSoleSotGm20260921(s); /* soft-prod-sole-sot-gm-20260921 */
     ensureSoftDropStephJanRavuriCarri20260921(s); /* soft-drop-steph-jan-ravuri-carri-20260921 */
     ensureSoftDropStephAug17880Carri20260921(s); /* soft-drop-steph-aug-17880-carri-20260921 */
     ensureSoftGmProdQbOneFace20260921(s); /* soft-gm-prod-qb-one-face-20260921 */
@@ -60577,6 +60615,7 @@ function softIsoDate(v) {
     ensureSoftDropStephAug17880Carri20260921(state); /* soft-drop-steph-aug-17880-carri-20260921 */
     ensureSoftGmProdQbOneFace20260921(state); /* soft-gm-prod-qb-one-face-20260921 — persist feed/paint lock on every allowed write */
     try { ensureSoftRonoAprOffProduction20260921(state); } catch (eRonoSave) {} /* soft-rono-apr-exec-only-20260921 */
+    try { ensureSoftProdSoleSotGm20260921(state); } catch (eSoleSave) {} /* soft-prod-sole-sot-gm-20260921 */
       var payload = JSON.stringify(state);
       localStorage.setItem(LS_KEY, payload);
       var check = localStorage.getItem(LS_KEY);
@@ -71835,7 +71874,9 @@ function softIsoDate(v) {
         client: prodHot.getAttribute('data-prod-client') || '',
         searchRef: prodHot.getAttribute('data-prod-ref') || '',
         rowId: prodHot.getAttribute('data-prod-row') || '',
-        dealRef: prodHot.getAttribute('data-prod-deal') || ''
+        dealRef: prodHot.getAttribute('data-prod-deal') || '',
+        month: prodHot.getAttribute('data-prod-month') || '',
+        qbNumber: prodHot.getAttribute('data-prod-qb') || ''
       });
       return;
     }
@@ -73517,6 +73558,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureSoftRiverviewMay16973(state); /* soft-riverview-may-qb-16973-20260921 */
     ensureSoftMidlandRavuriJanPlacement20260921(state); /* soft-midland-ravuri-jan-placement-20260921 */
     ensureSoftRonoAprOffProduction20260921(state); /* soft-rono-apr-exec-only-20260921 */
+    ensureSoftProdSoleSotGm20260921(state); /* soft-prod-sole-sot-gm-20260921 */
     ensureKalyaniJulExcelDedupe(state); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(state); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
     try { ensureSoftRepOwnerAutofix(state); } catch (eRepAf2) {}
@@ -73621,27 +73663,76 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     return '<span class="spine-status-chip ' + s + '">' + escHtml(st || 'Booked') + '</span>';
   }
 
+  /* soft-acct-prod-bind-20260922 — Soft Soft Accounting: bind spine/fan buckets + Production jump to Production-board rows, not Carri Whole seeds. Soft only. Never Hub. */
+  function softAcctIsProdBoardRow(r) {
+    if (!r) return false;
+    if (typeof softGmProdRowShouldPaintGm === 'function') return !!softGmProdRowShouldPaintGm(r);
+    if (r.example || r.carriGmSeed || r.carriBdGmSeed || r.carriQbSeed || r.excludeFromProductionBoard) return false;
+    var bt = r.bookType;
+    return bt === 'Placement' || bt === 'Marketing' || bt === 'Deal';
+  }
+  function softAcctIsCarriSeedRow(r) {
+    return !!(r && (r.carriGmSeed || r.carriBdGmSeed || r.carriQbSeed));
+  }
+  function softAcctPickAmong(cands) {
+    if (!cands || !cands.length) return null;
+    var i, r;
+    for (i = 0; i < cands.length; i++) {
+      r = cands[i];
+      if (softAcctIsProdBoardRow(r)) return r;
+    }
+    for (i = 0; i < cands.length; i++) {
+      r = cands[i];
+      if (r && !softAcctIsCarriSeedRow(r)) return r;
+    }
+    return cands[0] || null;
+  }
+  function softAcctPreferProdOverCarriHit(hit) {
+    /* If direct link/sample hit is a Carri seed, prefer a Production-board twin by QB or sampleId. */
+    if (!hit || !softAcctIsCarriSeedRow(hit) || !state || !Array.isArray(state.rows)) return hit;
+    var qb = String(hit.qbInvoice || hit.qbNumber || '').trim();
+    var sid = hit.sampleId != null && String(hit.sampleId).trim() !== '' ? String(hit.sampleId) : '';
+    var twins = state.rows.filter(function (r) {
+      if (!r || r === hit || !softAcctIsProdBoardRow(r)) return false;
+      if (/^\d+$/.test(qb)) {
+        var rqb = String(r.qbInvoice || r.qbNumber || '').trim();
+        if (rqb === qb) return true;
+      }
+      if (sid && String(r.sampleId || '') === sid) return true;
+      return false;
+    });
+    return softAcctPickAmong(twins) || hit;
+  }
   function findRowForSpineInvoice(inv) {
     if (!inv) return null;
     var row = null;
+    var cands;
     if (inv.linkRowId) {
-      row = state.rows.find(function (r) { return r.id === inv.linkRowId; });
-      if (row) return row;
+      row = state.rows.find(function (r) { return r && r.id === inv.linkRowId; }) || null;
+      if (row) {
+        row = softAcctPreferProdOverCarriHit(row);
+        return row;
+      }
     }
     /* soft-spine-prod-owners-first-20260920 — only match sampleId when both sides are truthy (avoid undefined===undefined → first seed row) */
     var sid = inv.sampleId != null && String(inv.sampleId).trim() !== '' ? String(inv.sampleId) : '';
     if (sid) {
-      row = state.rows.find(function (r) { return r && String(r.sampleId || '') === sid; });
-      if (row) return row;
+      cands = state.rows.filter(function (r) { return r && String(r.sampleId || '') === sid; });
+      row = softAcctPickAmong(cands);
+      if (row) {
+        row = softAcctPreferProdOverCarriHit(row);
+        return row;
+      }
     }
-    /* Prefer QB # match when present */
+    /* Prefer QB # match when present — Production board over Carri Whole seed (soft-acct-prod-bind-20260922) */
     var qb = String(inv.qbNumber || '').trim();
     if (/^\d+$/.test(qb)) {
-      row = state.rows.find(function (r) {
+      cands = state.rows.filter(function (r) {
         if (!r) return false;
         var rqb = String(r.qbInvoice || r.qbNumber || '').trim();
         return rqb === qb;
       });
+      row = softAcctPickAmong(cands);
       if (row) return row;
     }
     var amt = Number(inv.amount) || 0;
@@ -73657,15 +73748,19 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         if (!rrefs) return false;
         return rrefs.indexOf(primaryRef) >= 0 || (r.dealRef && primaryRef.indexOf(String(r.dealRef).toLowerCase()) >= 0);
       });
-      if (hits.length === 1) return hits[0];
+      if (hits.length) {
+        row = softAcctPickAmong(hits);
+        if (row) return row;
+      }
     }
-    row = state.rows.find(function (r) {
+    cands = state.rows.filter(function (r) {
+      if (!r) return false;
       var rrefs = String(r.searchRefs || r.dealRef || '').toLowerCase();
       var ram = Number(r.accountingBilled != null ? r.accountingBilled : (r.fee || 0)) || 0;
       if (amt && ram === amt && rrefs && refs && (rrefs.indexOf(refs.split(',')[0].trim()) >= 0 || refs.indexOf(String(r.dealRef || '').toLowerCase()) >= 0)) return true;
       return false;
     });
-    return row || null;
+    return softAcctPickAmong(cands);
   }
 
   function ensureBridgeRowForSpine(inv) {
@@ -73729,22 +73824,30 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     var copied = 0;
     SPINE_INVOICES.forEach(function (inv) {
       if (!inv || !inv.id) return;
-      /* Low-risk only: strong link (linkRowId / sampleId / QB #) — not fuzzy amount/ref */
+      /* Low-risk only: strong link (linkRowId / sampleId / QB #) — not fuzzy amount/ref.
+         soft-acct-prod-bind-20260922 — prefer Production-board row over Carri Whole seed. */
       var row = null;
+      var cands;
       if (inv.linkRowId) {
         row = state.rows.find(function (r) { return r && r.id === inv.linkRowId; }) || null;
+        if (row && typeof softAcctPreferProdOverCarriHit === 'function') row = softAcctPreferProdOverCarriHit(row);
       }
       if (!row) {
         var sid = inv.sampleId != null && String(inv.sampleId).trim() !== '' ? String(inv.sampleId) : '';
-        if (sid) row = state.rows.find(function (r) { return r && String(r.sampleId || '') === sid; }) || null;
+        if (sid) {
+          cands = state.rows.filter(function (r) { return r && String(r.sampleId || '') === sid; });
+          row = (typeof softAcctPickAmong === 'function') ? softAcctPickAmong(cands) : (cands[0] || null);
+          if (row && typeof softAcctPreferProdOverCarriHit === 'function') row = softAcctPreferProdOverCarriHit(row);
+        }
       }
       if (!row) {
         var qb = String(inv.qbNumber || '').trim();
         if (/^\d+$/.test(qb)) {
-          row = state.rows.find(function (r) {
+          cands = state.rows.filter(function (r) {
             if (!r) return false;
             return String(r.qbInvoice || r.qbNumber || '').trim() === qb;
-          }) || null;
+          });
+          row = (typeof softAcctPickAmong === 'function') ? softAcctPickAmong(cands) : (cands[0] || null);
         }
       }
       if (!row) return;
@@ -73758,7 +73861,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       state.spineOverrides[inv.id] = ov;
       copied++;
     });
-    state.softSpineOwnersFromProduction = { stamp: 'soft-spine-prod-owners-first-20260920', copied: copied, at: '2026-09-20' };
+    state.softSpineOwnersFromProduction = { stamp: 'soft-acct-prod-bind-20260922', copied: copied, at: '2026-09-22' };
     return state;
   }
   try { window.__softEnsureSpineOwnersFromProduction = ensureSpineOwnersFromProduction; } catch (eEsp) {}
@@ -73810,11 +73913,21 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
   try { window.__softFindRowForSpineInvoice = findRowForSpineInvoice; } catch (eFr) {}
   try { window.__softEnsureSpineOwnersFromProduction = ensureSpineOwnersFromProduction; } catch (eEsp2) {}
 
+  /* soft-acct-sample-label-scrub-20260922 */
   function paintSpineGmBuckets(inv) {
     var el = document.getElementById('spine-gm-buckets');
     if (!el) return;
     if (!inv) {
       el.innerHTML = '<div class="spine-empty">Select or Mark paid an invoice to preview fan-out into GM.</div>';
+      return;
+    }
+    /* soft-acct-exec-internet-fan-20260922 — excludeFromBdGm: never paint BD person % (reads as internet GM) */
+    if (inv.excludeFromBdGm) {
+      el.innerHTML = '<div class="spine-empty">Exec Internet only — no BD buckets</div>' +
+        '<p class="sub" style="margin-top:8px">Internal fan for face <strong>' + escHtml(inv.sampleId) + '</strong> · ' +
+        money2(inv.amount) + ' · status ' + spineStatusChip(inv.status) +
+        ' · <em>Internets excluded from BD GM pots</em>' +
+        ' · client face stays clean (no splits).</p>';
       return;
     }
     var lines = spineBucketLines(inv).slice(0, 4);
@@ -73827,9 +73940,8 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       return '<div class="gm-bucket' + (house ? ' house' : '') + '"><span class="who">' + escHtml(l.owner) +
         ' · ' + l.pct + '%</span><span class="amt">' + money2(l.amount) + '</span></div>';
     }).join('') + '</div>' +
-      '<p class="sub" style="margin-top:8px">Internal fan for SAMPLE <strong>' + escHtml(inv.sampleId) + '</strong> · ' +
+      '<p class="sub" style="margin-top:8px">Internal fan for face <strong>' + escHtml(inv.sampleId) + '</strong> · ' +
       money2(inv.amount) + ' · status ' + spineStatusChip(inv.status) +
-      (inv.excludeFromBdGm ? ' · <em>Internets excluded from BD GM pots</em>' : '') +
       ' · client face stays clean (no splits).</p>';
   }
 
@@ -73847,7 +73959,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     var voidBadge = inv.voided ? ' <span class="badge draft">VOID</span>' : '';
     el.innerHTML =
       '<div class="kv">' +
-        '<span>Invoice # (QB)</span><span><strong>' + escHtml(inv.qbNumber || '— not entered') + '</strong> · SAMPLE face ' + escHtml(inv.sampleId || inv.id) + voidBadge + '</span>' +
+        '<span>Invoice # (QB)</span><span><strong>' + escHtml(inv.qbNumber || '— not entered') + '</strong> · face ' + escHtml(inv.sampleId || inv.id) + voidBadge + '</span>' +
         '<span>Client</span><span>' + escHtml(inv.client) + mismatch + '</span>' +
         '<span>Searches</span><span>' + escHtml(inv.searchRefs) + '</span>' +
         '<span>Invoice amount</span><span>' + money2(inv.amount) + '</span>' +
@@ -73868,7 +73980,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
         (function () {
           var bits = [];
           var prow = null;
-          try { prow = matchProductionDealForRef({ client: inv.client, searchRef: inv.searchRefs }); } catch (e1) { prow = null; }
+          try { prow = matchProductionDealForRef({ client: inv.client, searchRef: inv.searchRefs, qbNumber: inv.qbNumber, month: (inv.date || '').slice(0, 7), rowId: inv.linkRowId }); } catch (e1) { prow = null; }
           if (prow) bits.push(productionHotlinkBtnHtml(prow, inv.searchRefs, 'spine-prod-hotlink'));
           var st = matchRecurringStreamForRef({ client: inv.client, searchRef: inv.searchRefs });
           if (st) {
@@ -73986,7 +74098,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
           g.searches.forEach(function (s) {
             if (!signalProd) {
               var pm = null;
-              try { pm = matchProductionDealForRef({ client: g.client, searchRef: s.searchRefs, searchPrimary: s.searchPrimary, dealRef: s.searchPrimary }); } catch (eP) { pm = null; }
+              try { pm = matchProductionDealForRef({ client: g.client, searchRef: s.searchRefs, searchPrimary: s.searchPrimary, dealRef: s.searchPrimary, month: s.month || (s.date || '').slice(0, 7) || '', qbNumber: s.qbNumber || s.qbInvoice || '' }); } catch (eP) { pm = null; }
               if (pm) { signalProd = pm; signalProdSearch = s; }
             }
             if (signalStream) return;
@@ -74006,7 +74118,7 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
           var sel = ui.selectedSearchId === s.id ? ' selected' : '';
           var meta = spineCondenseNote(s);
           var prodM = null;
-          try { prodM = matchProductionDealForRef({ client: g.client, searchRef: s.searchRefs, searchPrimary: s.searchPrimary, dealRef: s.searchPrimary }); } catch (e2) { prodM = null; }
+          try { prodM = matchProductionDealForRef({ client: g.client, searchRef: s.searchRefs, searchPrimary: s.searchPrimary, dealRef: s.searchPrimary, month: s.month || (s.date || '').slice(0, 7) || '', qbNumber: s.qbNumber || s.qbInvoice || '' }); } catch (e2) { prodM = null; }
           var recM = matchRecurringStreamForRef({ client: g.client, searchRef: s.searchRefs, searchPrimary: s.searchPrimary });
           var hotBtns = '';
           if (prodM) hotBtns += productionHotlinkBtnHtml(prodM, s.searchPrimary || s.searchRefs, 'spine-prod-hotlink');
@@ -82638,18 +82750,62 @@ ownersDetailHtml(row) +
     setTimeout(applyRecurringHotlinkFocus, 120);
   }
   function matchProductionDealForRef(opts) {
+    /* soft-acct-prod-bind-20260922 — Production jump: board rows only; QB/month; Placement|Marketing|Deal. Soft only. Never Hub. */
     opts = opts || {};
     var rows = state.rows || [];
+    function isProdBoard(r) {
+      if (typeof softAcctIsProdBoardRow === 'function') return softAcctIsProdBoardRow(r);
+      if (typeof softGmProdRowShouldPaintGm === 'function') return !!softGmProdRowShouldPaintGm(r);
+      if (!r || r.example || r.carriGmSeed || r.carriBdGmSeed || r.carriQbSeed || r.excludeFromProductionBoard) return false;
+      var bt0 = r.bookType;
+      return bt0 === 'Placement' || bt0 === 'Marketing' || bt0 === 'Deal';
+    }
+    function isAllowedBook(r) {
+      var bt = r && r.bookType;
+      return bt === 'Placement' || bt === 'Marketing' || bt === 'Deal';
+    }
+    function pickAmong(cands) {
+      if (typeof softAcctPickAmong === 'function') return softAcctPickAmong(cands);
+      return (cands && cands[0]) || null;
+    }
     if (opts.rowId) {
+      var byId = null;
       for (var i = 0; i < rows.length; i++) {
-        if (rows[i] && rows[i].id === opts.rowId) return rows[i];
+        if (rows[i] && rows[i].id === opts.rowId) { byId = rows[i]; break; }
+      }
+      if (byId && isProdBoard(byId)) return byId;
+      /* Carri seed / off-board rowId: fall through to QB / refs / client */
+    }
+    var qbWant = String(opts.qbNumber || opts.qb || '').trim();
+    if (/^\d+$/.test(qbWant)) {
+      var byQb = rows.filter(function (r) {
+        if (!isProdBoard(r)) return false;
+        return String(r.qbInvoice || r.qbNumber || '').trim() === qbWant;
+      });
+      if (byQb.length) {
+        var wantMonthQ = String(opts.month || '').trim();
+        var poolQ = byQb;
+        if (wantMonthQ) {
+          var byMoQ = byQb.filter(function (r) { return String(r.month || '') === wantMonthQ; });
+          if (byMoQ.length) poolQ = byMoQ;
+        }
+        if (poolQ.length > 1 && opts.client) {
+          var clientNq = (typeof invCheckNormClient === 'function') ? invCheckNormClient(opts.client) : String(opts.client || '').toLowerCase().trim();
+          var byCliQ = poolQ.filter(function (r) {
+            var cn = (typeof invCheckNormClient === 'function') ? invCheckNormClient(r.client) : String(r.client || '').toLowerCase().trim();
+            return cn === clientNq;
+          });
+          if (byCliQ.length) poolQ = byCliQ;
+        }
+        var hitQ = pickAmong(poolQ);
+        if (hitQ) return hitQ;
       }
     }
     var refBits = [opts.searchRef, opts.searchPrimary, opts.dealRef].filter(Boolean).join(',');
     var toks = (typeof invCheckTokensFromRefs === 'function') ? invCheckTokensFromRefs(refBits) : {};
     var byRef = [];
     rows.forEach(function (r) {
-      if (!r || r.bookType !== 'Deal') return;
+      if (!r || !isProdBoard(r) || !isAllowedBook(r)) return;
       var rtoks = (typeof invCheckTokensFromRow === 'function') ? invCheckTokensFromRow(r) : {};
       var hit = Object.keys(toks).some(function (t) { return t && rtoks[t]; });
       if (hit) byRef.push(r);
@@ -82667,32 +82823,38 @@ ownersDetailHtml(row) +
       if (exact.length === 1) return exact[0];
       if (wantMonth) {
         var byMo = (exact.length ? exact : byRef).filter(function (r) { return String(r.month || '') === wantMonth; });
-        if (byMo.length) return byMo[0];
+        if (byMo.length) return pickAmong(byMo);
       }
-      return (exact[0] || byRef[0]);
+      return pickAmong(exact.length ? exact : byRef);
     }
     var clientN = (typeof invCheckNormClient === 'function') ? invCheckNormClient(opts.client) : String(opts.client || '').toLowerCase().trim();
     if (!clientN) return null;
     var byClient = rows.filter(function (r) {
-      if (!r || r.bookType !== 'Deal') return false;
+      if (!r || !isProdBoard(r) || !isAllowedBook(r)) return false;
       var cn = (typeof invCheckNormClient === 'function') ? invCheckNormClient(r.client) : String(r.client || '').toLowerCase().trim();
       return cn === clientN;
     });
     if (byClient.length === 1) return byClient[0];
     if (byClient.length > 1 && opts.month) {
       var byClientMo = byClient.filter(function (r) { return String(r.month || '') === String(opts.month); });
-      if (byClientMo.length) return byClientMo[0];
+      if (byClientMo.length) return pickAmong(byClientMo);
     }
+    if (byClient.length) return pickAmong(byClient);
     return null;
   }
   function productionHotlinkBtnHtml(row, searchRef, cls) {
+    /* soft-acct-prod-bind-20260922 — emit month + QB for Production jump */
     if (!row) return '';
     var ref = searchRef || row.dealRef || row.searchRefs || '';
+    var mo = String(row.month || (row.date || '').slice(0, 7) || '');
+    var qb = String(row.qbInvoice || row.qbNumber || '').trim();
     return '<button type="button" class="mini-btn ' + (cls || 'spine-prod-hotlink') + '" data-open-production="1"' +
       ' data-prod-row="' + escHtml(row.id || '') + '"' +
       ' data-prod-client="' + escHtml(row.client || '') + '"' +
       ' data-prod-ref="' + escHtml(ref) + '"' +
       ' data-prod-deal="' + escHtml(row.dealRef || '') + '"' +
+      ' data-prod-month="' + escHtml(mo) + '"' +
+      ' data-prod-qb="' + escHtml(qb) + '"' +
       ' title="Open in Production (edit the deal)">Production →</button>';
   }
   function applyProductionHotlinkFocus() {
@@ -84344,11 +84506,15 @@ ownersDetailHtml(row) +
     var how = m.how === 'client_specialty' ? ' · client+spec' : '';
     var body = chip + '<div class="ic-muted">' + ref + how + '</div>' +
       '<div class="ic-prod-go">Production →</div>';
+    var moIc = String(r.month || (r.date || '').slice(0, 7) || '');
+    var qbIc = String(r.qbInvoice || r.qbNumber || '').trim();
     return '<button type="button" class="ic-prod-hotlink" data-open-production="1"' +
       ' data-prod-row="' + escHtml(r.id || '') + '"' +
       ' data-prod-client="' + escHtml(r.client || '') + '"' +
       ' data-prod-ref="' + escHtml(r.dealRef || r.searchRefs || '') + '"' +
       ' data-prod-deal="' + escHtml(r.dealRef || '') + '"' +
+      ' data-prod-month="' + escHtml(moIc) + '"' +
+      ' data-prod-qb="' + escHtml(qbIc) + '"' +
       ' title="Open in Production (edit the deal)">' + body + '</button>';
   }
   function invCheckInvLabel(inv) {
@@ -85416,7 +85582,9 @@ ownersDetailHtml(row) +
         client: prodHot.getAttribute("data-prod-client") || "",
         searchRef: prodHot.getAttribute("data-prod-ref") || "",
         rowId: prodHot.getAttribute("data-prod-row") || "",
-        dealRef: prodHot.getAttribute("data-prod-deal") || ""
+        dealRef: prodHot.getAttribute("data-prod-deal") || "",
+        month: prodHot.getAttribute("data-prod-month") || "",
+        qbNumber: prodHot.getAttribute("data-prod-qb") || ""
       };
       try {
         if (typeof window.__softOpenProductionForRef === "function") {
