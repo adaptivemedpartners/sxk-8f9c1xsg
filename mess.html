@@ -58033,6 +58033,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-cullman-17105-prod-stamp-20260921 — Soft Soft: both Cullman Aug Platinum rows QB 17105 Paid; two faces kept. Soft only. Never Hub. */
 /* soft-recgm-carri-mkt-qb-dedupe-20260921 — Soft Soft: Rec GM collapse Carri MARKETING twins by QB (Cullman 17105). Soft only. Never Hub. */
 /* soft-fanlog-real-20260921 — Soft Soft: real fan-out log + query (__softFanLogQuery). Soft only. Never Hub. */
 /* soft-prod-spine-owners-live-20260921 — Soft Soft: Modify save re-runs ensureSpineOwnersFromProduction + renderSpine. Soft only. Never Hub. */
@@ -59286,6 +59287,40 @@ function ensureCarriGmSeed(s) {
 
 
 
+
+  function ensureCullman17105ProdStamp(state) {
+    /* soft-cullman-17105-prod-stamp-20260921 — Cullman Aug Platinum BOTH Production rows
+       xl_mkt_2026-08_36 (FPOB) + xl_mkt_2026-08_37 (MFM): QB 17105 Paid. Two deals stay two.
+       Rec GM keeps two Carri faces (collapse removed). Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-cullman-17105-prod-stamp-20260921";
+    var ids = { "xl_mkt_2026-08_36": 1, "xl_mkt_2026-08_37": 1 };
+    var flipped = 0;
+    state.rows.forEach(function (row) {
+      if (!row) return;
+      var id = String(row.id || "");
+      var hit = !!ids[id];
+      if (!hit) {
+        if (row.bookType !== "Marketing") return;
+        if (String(row.month || "") !== "2026-08") return;
+        if (!/cullman/i.test(String(row.client || ""))) return;
+        if (!/platinum/i.test(String(row.campaign || ""))) return;
+        var amt = Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
+        if (Math.abs(amt - 29800) > 1) return;
+      }
+      row.qbInvoice = "17105";
+      row.qbNumber = "17105";
+      row.status = "Paid";
+      row.paid = true;
+      if (!row.paidDate) row.paidDate = "2026-08-31";
+      row.softCullman17105Stamp = stamp;
+      flipped++;
+    });
+    state.cullman17105ProdStamp = { stamp: stamp, flipped: flipped, qb: "17105", at: "2026-09-21" };
+    return state;
+  }
+  try { window.__softEnsureCullman17105ProdStamp = ensureCullman17105ProdStamp; } catch (eC17105) {}
+
   function ensureWinnJul21NateRepeat30(state) {
     /* soft-winn-jul21-nate-repeat-30-20260921 — Winn Community Jul 21 FM $2000 Repeat
        Brenton 60% BD / Nate 30% repeat recruiter / House 10%. Fixes empty repeatRep + Whole Brenton
@@ -60043,6 +60078,7 @@ function softIsoDate(v) {
     ensureStephanieCullmanFebMkt6020(s); /* soft-stephanie-cullman-feb-mkt-6020-20260921 */
     ensureJulKittitasInternetExecRecurring(s); /* soft-jul-kittitas-internet-exec-recurring-20260921 */
     ensureWinnJul21NateRepeat30(s); /* soft-winn-jul21-nate-repeat-30-20260921 */
+    ensureCullman17105ProdStamp(s); /* soft-cullman-17105-prod-stamp-20260921 */
     ensureSoftProdGmFeedLive(s); /* soft-prod-gm-feed-live-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureSoftReversePushProdToSpine20260921(s); /* soft-reverse-push-carri-sot-20260921 — include QB 16973 twin */
@@ -70850,11 +70886,15 @@ function softIsoDate(v) {
       internets: 0,
       accountingBilled: 29800,
       accountingBilledRaw: "YES",
+      qbInvoice: "17105",
+      qbNumber: "17105",
+      paidDate: "2026-08-31",
+      softCullman17105Stamp: "soft-cullman-17105-prod-stamp-20260921",
       gmMode: "Marketing",
       gmLabel: "Marketing · Excel board",
       owners: {"mode": "Marketing", "housePct": 25, "reps": [{"name": "Stephanie", "pct": 50}]},
-      status: "Invoiced",
-      paid: false,
+      status: "Paid",
+      paid: true,
       bookValueThisMonth: 29800,
       sourceSheet: "August 2026",
       sourceRow: 36,
@@ -70878,11 +70918,15 @@ function softIsoDate(v) {
       internets: 0,
       accountingBilled: 29800,
       accountingBilledRaw: "YES",
+      qbInvoice: "17105",
+      qbNumber: "17105",
+      paidDate: "2026-08-31",
+      softCullman17105Stamp: "soft-cullman-17105-prod-stamp-20260921",
       gmMode: "Marketing",
       gmLabel: "Marketing · Excel board",
       owners: {"mode": "Marketing", "housePct": 25, "reps": [{"name": "Stephanie", "pct": 50}]},
-      status: "Invoiced",
-      paid: false,
+      status: "Paid",
+      paid: true,
       bookValueThisMonth: 29800,
       sourceSheet: "August 2026",
       sourceRow: 37,
@@ -79134,21 +79178,14 @@ ownersDetailHtml(row) +
     });
     recGmApplyUniquePlaceCounts(placeCounts, placeCountEvents);
 
-    var mktCollapsePaint = (typeof softRecGmMarketingCollapseByQb === 'function')
-      ? softRecGmMarketingCollapseByQb(year)
-      : { suppress: {}, collapsedAmt: {} };
     state.rows.forEach(function (row) {
       if (!row || row.bookType !== 'Marketing') return;
       if (!recGmIncludeRow(row, year)) return;
       if (!recGmIsBooked(row)) return;
-      if (row.carriGmSeed && mktCollapsePaint.suppress[String(row.id)]) return;
       var mi = monthIndex(row.month);
       if (mi < 0) return;
       var amt = Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
-      if (row.carriGmSeed && mktCollapsePaint.collapsedAmt[String(row.id)] != null) {
-        amt = Number(mktCollapsePaint.collapsedAmt[String(row.id)]) || amt;
-      }
-      var paid = recGmIsPaid(row) || softRecGmCarriApplyPaid(row);
+      var paid = recGmIsPaid(row);
       var onBoard = recGmIsBoardMoney(row);
       var stackId = row.gmLineKey || row.id;
       if (filter === 'all') {
