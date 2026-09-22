@@ -58033,6 +58033,7 @@ function ensureCarriGmSeed(s) {
       if (have && have !== want && !forceChd) { skipped.push({ id: id, have: have, want: want }); return; }
       if (have === want) {
         already++;
+/* soft-recgm-carri-mkt-qb-dedupe-20260921 — Soft Soft: Rec GM collapse Carri MARKETING twins by QB (Cullman 17105). Soft only. Never Hub. */
 /* soft-fanlog-real-20260921 — Soft Soft: real fan-out log + query (__softFanLogQuery). Soft only. Never Hub. */
 /* soft-prod-spine-owners-live-20260921 — Soft Soft: Modify save re-runs ensureSpineOwnersFromProduction + renderSpine. Soft only. Never Hub. */
 /* soft-prod-gm-feed-hybrid-20260921 — Soft Soft: Production→GM hybrid — claim forward, protect unclaimed Carri GM. Soft only. Never Hub. */
@@ -79133,14 +79134,21 @@ ownersDetailHtml(row) +
     });
     recGmApplyUniquePlaceCounts(placeCounts, placeCountEvents);
 
+    var mktCollapsePaint = (typeof softRecGmMarketingCollapseByQb === 'function')
+      ? softRecGmMarketingCollapseByQb(year)
+      : { suppress: {}, collapsedAmt: {} };
     state.rows.forEach(function (row) {
       if (!row || row.bookType !== 'Marketing') return;
       if (!recGmIncludeRow(row, year)) return;
       if (!recGmIsBooked(row)) return;
+      if (row.carriGmSeed && mktCollapsePaint.suppress[String(row.id)]) return;
       var mi = monthIndex(row.month);
       if (mi < 0) return;
       var amt = Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
-      var paid = recGmIsPaid(row);
+      if (row.carriGmSeed && mktCollapsePaint.collapsedAmt[String(row.id)] != null) {
+        amt = Number(mktCollapsePaint.collapsedAmt[String(row.id)]) || amt;
+      }
+      var paid = recGmIsPaid(row) || softRecGmCarriApplyPaid(row);
       var onBoard = recGmIsBoardMoney(row);
       var stackId = row.gmLineKey || row.id;
       if (filter === 'all') {
