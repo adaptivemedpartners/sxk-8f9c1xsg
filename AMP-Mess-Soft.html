@@ -2,11 +2,15 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-bibb-17114-bd-booked-20260922 — Soft Soft (Mike confirmed Randy): Bibb Medical Center booked 9/16 QB 17114 / FP8463 $4990 initiation+first monthly was incorrectly moved to BD Recurring by soft-hendrick-bibb-sep-exec-recurring. UNDO for soft_prod_bibb_fp8463_17114_2026-09 ONLY → standard Production / BD Booked (clear excludeFromProductionBoard + isRecurringLine + recurringMonthlySplit). Keep soft_exec_bibb_17082_2026-09 Exec BD recurring. Soft only. Never Hub. */
 /* soft-bibb-17114-prod-seat-20260922 — Soft Soft: seat Production Deal Bibb Medical Center Sep 2026 QB 17114 / FP8463 $4990 Repeat Brenton60/Nate30/House10 so Accounting jump+Save/refan bind (soft-acct-prod-bind). Soft only. Never Hub. Do NOT alter Carri 17114 / CARRI_QB_SPINE / Carri GM seeds. */
-/* soft-hendrick-bibb-sep-exec-recurring-20260922 — Soft Soft: Bibb QB 17082 $1995 (9-1 monthly) → Exec BD recurring; Hendrick ex_spine_17089 $2000 (9-1) + Bibb soft_prod 17114 $4990 OFF standard Production → Exec recurring only (excludeFromProductionBoard + isRecurringLine; Rono/Kittitas pattern). Leave Hendrick Exec BD recurring owners/Aaron. Do NOT delete Carri spine 17114 / CARRI_QB_SPINE / Carri GM seeds. Soft only. Never Hub. */
+/* soft-hendrick-bibb-sep-exec-recurring-20260922 — Soft Soft: Bibb QB 17082 $1995 (9-1 monthly) → Exec BD recurring; Hendrick ex_spine_17089 $2000 (9-1) OFF standard Production → Exec recurring only. Bibb soft_prod 17114 $4990 NO LONGER targeted (see soft-bibb-17114-bd-booked-20260922 → BD Booked). Leave Hendrick Exec BD recurring owners/Aaron. Do NOT delete Carri spine 17114 / CARRI_QB_SPINE / Carri GM seeds. Soft only. Never Hub. */
+/* soft-bibb-91-restore-exec-recurring-20260922 — Soft Soft: RESTORE Bibb Medical Center 9-1 (2026-09-01) QB 17082 $1995 as Exec BD recurring only (soft_exec_bibb_17082_2026-09); clear softDelete tombstone; excludeFromProductionBoard + isRecurringLine so standard Production HIDES it. Do NOT delete. Do NOT touch Hendrick / Concord CD8439 / other deals. Soft only. Never Hub. */
 /* soft-march-walk-20260921 soft-cullman-mkt-60-20-20-20260921 — Soft Soft March 2026 Production walk (Jan/Feb style): QB stamps from Carri spine on March excel seeds (Cullman OBG 16897 / PHE 16903 / Basila 16894 / Freeman 16900; Blue Sky 16899; Family Health 16933; Helen Newberry 16934; Midland Rono 16901; Mangold Jones 16935; Cullman mkt 16898; Dawn Stanley PUD already 16936); Midland YES 1/2 acct/bv 1→8000; Excel SoT Dawn Stanley fee FO→19000. Soft only. Never Hub. */
 /* soft-rono-apr-exec-only-20260921 — Soft Soft: Midland Janet Rono April xl_pl_2026-04_2 (YES 1/2, date Mar / board Apr) off Production → Exec placement-recurring / half-billing-installment; broaden softIsRecurringOffProductionBoard for accountingBilledRaw 1/2; durable ensure. Keep March xl_pl_2026-03_4 on Production. Soft only. Never Hub. */
 /* soft-april-fixes-20260921 — Soft Soft April 2026 Mike-approved: South Central xl_bd_2026-04_3 internets 0→1 (Yes flag; keep accountingBilledRaw); QB stamps Carri-clear Concord BD _6/_7→16942, Morongo mkt _35→16941, Woodland mkt _37→16944, IHC mkt _38→16971; Midland Rono xl_pl_2026-04_2 YES 1/2 acct/bv 1→8000 + qbInvoice 16902 (Carri 2nd half 2026-04-22 $8k). Soft only. Never Hub. */
+/* soft-concord-cd8439-save-refan-20260922 — CD8439 Apr Concord BD twin GM align + save/refan unblock */
+/* soft-concord-cd8439-persist-20260922 — CD8439 Modify save persist: lock Whole ZH/AW/BM; block Carri park Mike repeatRep + standing 60/30/10 clobber after refresh. Soft only. Never Hub. */
 /* soft-concord-apr-mkt-404020-20260921 — Concord Apr mkt 16942: Mike/Hadley lines Rec 40 + BD Zach/Aaron/Brenton 13.33/13.33/13.34 + House 20. Soft only. Never Hub. */
 /* soft-morongo-apr-mkt-602020-20260921 — Morongo Apr mkt 16941 Amy60/Aaron20/House20. Soft only. Never Hub. */
 /* soft-woodland-apr-mkt-7030-20260921 — Woodland Heights Apr mkt 16944 Stephanie70/House30. Soft only. Never Hub. */
@@ -55628,7 +55632,7 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   'use strict';
 
   var LS_KEY = 'amp_soft_mess_book_to_gm_v62'; /* soft-prod-iv-harden-20260919 — schema additive deletedRowIds/deletedInvoiceIds; no key bump */
-  var CHIP = 'soft-hendrick-bibb-sep-exec-recurring-20260922 · soft-bibb-17114-prod-seat-20260922 · soft-reverse-push-carri-sot-20260921 · soft-reverse-push-spine-20260921 · soft-carri-qb-cleanup-stamp-20260921 · soft-exec-ar-internet-only-20260921 · soft-spine-drop-ballad-16333-sample-20260921 · soft-gm-prod-qb-one-face-20260921 · soft-drop-steph-aug-17880-carri-20260921 · soft-drop-steph-jan-ravuri-carri-20260921 · soft-prod-sole-sot-gm-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
+  var CHIP = 'soft-concord-cd8439-persist-20260922 · soft-concord-cd8439-save-refan-20260922 · soft-bibb-17114-bd-booked-20260922 · soft-bibb-91-restore-exec-recurring-20260922 · soft-hendrick-bibb-sep-exec-recurring-20260922 · soft-bibb-17114-prod-seat-20260922 · soft-reverse-push-carri-sot-20260921 · soft-reverse-push-spine-20260921 · soft-carri-qb-cleanup-stamp-20260921 · soft-exec-ar-internet-only-20260921 · soft-spine-drop-ballad-16333-sample-20260921 · soft-gm-prod-qb-one-face-20260921 · soft-drop-steph-aug-17880-carri-20260921 · soft-drop-steph-jan-ravuri-carri-20260921 · soft-prod-sole-sot-gm-20260921'; /* soft-map-nisarq-date-2024-20260921 · soft-2026-rep-labels-from-prod-20260921 · stacked prior */ /* soft-2026-rep-labels-from-prod-20260921 · soft-kalyani-jul-excel-dedupe-20260920 · stacked prior */ /*  soft-bd-year-fractions-tentative-20260920 ·soft-kalyani-jul-excel-dedupe-20260920 · soft-midland-17004-mkt-stephanie-7030-20260920 · stacked prior */ /* soft-midland-17004-mkt-stephanie-7030-20260920 · soft-chdi-16856-unassigned-dedupe-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-ors8432-spine-nate-20260920 */ /* soft-ihc-16972-mike-randy-5050-20260920 · soft-2026-unmapped-faces-panel-20260920 · soft-spine-prod-owners-first-20260920 · soft-aging-exec-pre2026-ors8432-nate-20260920 · soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */ /* soft-comp-gm-tabs-20260920 · soft-comp-gm-splits-xlsx-20260920 · soft-exec-ar-house-hover-20260920 · soft-repeat-gm-60-30-10-20260920 · soft-exec-ar-live-20260920 · soft-jan-booked-only-20260920 · soft-writeoff-in-modify-20260920 · soft-hadley-aug-ecb-dedupe-20260920 · soft-rep-owner-autofix-20260920 · soft-chd-aug-mkt-dedupe-20260920 · soft-hendrick-sep-aaron-lock-20260920 · soft-boot-pills-unblock-20260920 */
 
   /* soft-2026-unmapped-faces-prune-20260921 — pruned to open only (Concord 16942); panel kept; do not invent faces */
   var SOFT_UNMAPPED_2026_FACES = [
@@ -56193,6 +56197,22 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
       excelRow.searchRefs = String(excelRow.searchRefs) + ', ' + carriRow.dealRef;
     }
     if (!excelRow.bhSearch && carriRow.bhSearch) excelRow.bhSearch = carriRow.bhSearch;
+    /* soft-concord-cd8439-persist-20260922 — never re-park Carri recruiter (Mike) onto locked CD8439 twin;
+       carri_CD8439 $0 park was setting repeatRep→Mike → standing 60/30/10 clobber after Modify save. */
+    var _cd8439Locked = !!(excelRow.softConcordCd8439Locked || excelRow.softConcordCd8439Persist ||
+      excelRow.softConcordCd8439SaveRefan ||
+      (String(excelRow.id || '') === 'xl_bd_2026-04_6') ||
+      ((excelRow.softGmSplitOverride || excelRow.softGmSplitManual) &&
+        /\bCD8439\b|\bCD-8439\b/i.test([excelRow.dealRef, excelRow.searchRefs, excelRow.id].join('|'))));
+    if (_cd8439Locked) {
+      if (excelRow.owners && excelRow.owners.Repeat) {
+        try { delete excelRow.owners.Repeat; } catch (eRepDel) { excelRow.owners.Repeat = ''; }
+      }
+      if (excelRow.owners && excelRow.owners.recruiterIfRepeat) {
+        try { delete excelRow.owners.recruiterIfRepeat; } catch (eRecDel) { excelRow.owners.recruiterIfRepeat = ''; }
+      }
+      return;
+    }
     var rr = softShortRepName(carriRow.rep);
     if (rr && softIsRecruiterRep(rr)) {
       if (!excelRow.repeatRep || softShortRepName(excelRow.repeatRep) === rr || !String(excelRow.repeatRep).trim()) {
@@ -56337,6 +56357,70 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
         row.softConcordAprMktLock = stamp;
       }
     });
+    return state;
+  }
+
+
+  function ensureSoftConcordCd8439SaveRefan20260922(state) {
+    /* soft-concord-cd8439-save-refan-20260922 + soft-concord-cd8439-persist-20260922 —
+       Concord Apr 27 Production twin xl_bd_2026-04_6 (search CD8439) was corrupted: Carri park
+       enrich (carri_CD8439 Mike Freeman) set repeatRep/Mike → softApplyStandingRepeatGm601030
+       treated New ZH/AW/BM as Repeat 60/30/10, wrong vs good twin xl_bd_2026-04_7. Modify Save&re-fan
+       wrote LS then reload enrich+standing clobbered again (CD8439-only; Coleman etc OK).
+       ALWAYS re-apply Whole Zach/Aaron/Brenton when id/CD8439 match OR softConcordCd8439Locked /
+       softGmSplitOverride / lastModifyNote lock; set softGmSplitManual+Override so standing skip sticks;
+       softConcordCd8439Locked blocks Carri enrich. Do NOT mutate xl_bd_2026-04_7. Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-concord-cd8439-persist-20260922";
+    var priorStamp = "soft-concord-cd8439-save-refan-20260922";
+    var goodOwners = {"mode": "Whole", "primary": "Zach/Aaron/Brenton"};
+    var flipped = [];
+    var twinId = "";
+    state.rows.forEach(function (row) {
+      if (!row || row.example) return;
+      if (row.carriGmSeed || row.carriBdGmSeed || row.carriBackfill) return;
+      var id = String(row.id || "");
+      if (id === "xl_bd_2026-04_7") return; /* good twin — leave untouched */
+      var hay = [id, row.dealRef, row.searchRefs, row.client, row.qbInvoice].map(function (x) { return String(x == null ? "" : x); }).join("|");
+      var isCd8439 = id === "xl_bd_2026-04_6" || /\bCD8439\b|\bCD-8439\b/i.test(hay);
+      var locked = !!(row.softConcordCd8439Locked || row.softConcordCd8439Persist ||
+        row.softConcordCd8439SaveRefan || row.softGmSplitOverride || row.softGmSplitManual ||
+        (row.lastModifyNote && isCd8439));
+      if (!isCd8439 && !locked) return;
+      if (!isCd8439) return;
+      if (!/Concord/i.test(String(row.client || ""))) return;
+      if (String(row.bookType || "") !== "Deal") return;
+      if (!(String(row.date || "").slice(0, 10) === "2026-04-27" || String(row.month || "") === "2026-04")) return;
+      twinId = twinId || id;
+      /* Always re-apply — never stamp-once skip (enrich can re-park Mike between ensures). */
+      row.rep = "Zach/Aaron/Brenton";
+      row.repeatRep = "";
+      row.repeatOrNew = "New";
+      row.owners = JSON.parse(JSON.stringify(goodOwners));
+      row.gmMode = "Whole";
+      row.gmLabel = "Whole · Zach/Aaron/Brenton 100%";
+      row.softGmSplitOverride = true;
+      row.softGmSplitManual = true;
+      row.softConcordCd8439Locked = true;
+      row.softConcordCd8439Persist = stamp;
+      if (row.softRepeatGm601030) delete row.softRepeatGm601030;
+      if (row.owners && row.owners.Repeat) delete row.owners.Repeat;
+      if (row.owners && row.owners.recruiterIfRepeat) delete row.owners.recruiterIfRepeat;
+      row.dealRef = row.dealRef || "CD8439";
+      var refs = String(row.searchRefs || "");
+      if (!/\bCD8439\b/i.test(refs.replace(/-/g, ""))) {
+        row.searchRefs = refs ? (refs + ", CD8439") : "CD8439, CD-8439";
+      }
+      row.qbInvoice = row.qbInvoice || "16942";
+      if (!(Number(row.accountingBilled) > 0)) row.accountingBilled = 9000;
+      if (!(Number(row.bookValueThisMonth) > 0)) row.bookValueThisMonth = Number(row.accountingBilled) || 9000;
+      row.softConcordCd8439SaveRefan = priorStamp;
+      flipped.push(id);
+    });
+    state.softConcordCd8439Persist = { stamp: stamp, prior: priorStamp, flipped: flipped, goodTwin: "xl_bd_2026-04_7", cdRow: twinId || "xl_bd_2026-04_6", at: "2026-09-22" };
+    state.softConcordCd8439SaveRefan = { stamp: priorStamp, persist: stamp, flipped: flipped, goodTwin: "xl_bd_2026-04_7", cdRow: twinId || "xl_bd_2026-04_6", at: "2026-09-22" };
+    try { window.__softEnsureSoftConcordCd8439SaveRefan20260922 = ensureSoftConcordCd8439SaveRefan20260922; } catch (eW) {}
+    try { window.__softEnsureSoftConcordCd8439Persist20260922 = ensureSoftConcordCd8439SaveRefan20260922; } catch (eW2) {}
     return state;
   }
 
@@ -56488,6 +56572,8 @@ wireMode('sbl_bm_gm_mode', null, 'bm-split', function (mode) {
   function softIsRecurringOffProductionBoard(row) {
     if (!row) return false;
     if (row.excludeFromProductionBoard) return true;
+    /* soft-bibb-91-restore-exec-recurring-20260922 — Exec-only seats must stay off standard Production even if exclude flag was stripped */
+    if (row.softBibb91ExecRecurring || row.softExecRecurringSeat) return true;
     /* soft-jan-booked-only-20260920 — carriBackfill month-stamps / rolling tracker not Production books */
     if (typeof softIsCarriBackfillOffProductionBoard === 'function' && softIsCarriBackfillOffProductionBoard(row)) return true;
     if (row.bookType === 'Marketing' && row.isRecurringLine && row.marketingInstallment) return true;
@@ -59789,8 +59875,13 @@ function ensureCarriGmSeed(s) {
       row.softRepeatGm601030 = stamp;
       row.softBibb17114ProdSeat = stamp;
       row.prodQbStamp = stamp;
-      /* soft-hendrick-bibb-sep-exec-recurring-20260922 — do NOT strip excludeFromProductionBoard;
-         17114 initiation+monthly is Exec recurring only (not standard Production). */
+      /* soft-bibb-17114-bd-booked-20260922 — 17114 is standard Production / BD Booked (not Exec recurring) */
+      if (row.excludeFromProductionBoard) delete row.excludeFromProductionBoard;
+      if (row.isRecurringLine) delete row.isRecurringLine;
+      if (row.recurringMonthlySplit) delete row.recurringMonthlySplit;
+      if (row.softExecRecurringSeat) delete row.softExecRecurringSeat;
+      if (String(row.lineKind || "") === "recurring-monthly") delete row.lineKind;
+      row.softIsProductionVisibleRow = true;
       /* never mark as Carri seed */
       if (row.carriGmSeed) delete row.carriGmSeed;
       if (row.carriBdGmSeed) delete row.carriBdGmSeed;
@@ -59880,13 +59971,14 @@ function ensureCarriGmSeed(s) {
 
 
   function ensureSoftHendrickBibbSepExecRecurring20260922(state) {
-    /* soft-hendrick-bibb-sep-exec-recurring-20260922 — Soft Soft (Mike 2026-09-22):
+    /* soft-hendrick-bibb-sep-exec-recurring-20260922 — Soft Soft (Mike 2026-09-22; amended soft-bibb-17114-bd-booked-20260922):
        1) Bibb QB 17082 ~$1995 (dated 2026-09-01 monthly progressive) → Exec BD recurring face
           (create soft_exec_bibb_17082_2026-09 if missing; never touch Carri BD GM seeds).
+          soft-bibb-91-restore-exec-recurring also owns 17082 — leave that intent intact.
        2) Hendrick ex_spine_17089 (9-1 $2000) OFF standard Production → Exec BD recurring
           (excludeFromProductionBoard only; keep Aaron/owners/isRecurringLine — already Exec-correct).
-       3) Bibb soft_prod_bibb_fp8463_17114_2026-09 ($4990 initiation+first monthly) OFF standard
-          Production → Exec recurring (excludeFromProductionBoard + isRecurringLine).
+       Do NOT target soft_prod_bibb_fp8463_17114_2026-09 / QB 17114 $4990 — that booked 9/16 deal
+       stays standard Production / BD Booked (soft-bibb-17114-bd-booked-20260922).
        Do NOT delete Carri spine 17114 / CARRI_QB_SPINE / Carri GM. Soft only. Never Hub. */
     if (!state || !Array.isArray(state.rows)) return state;
     var stamp = "soft-hendrick-bibb-sep-exec-recurring-20260922";
@@ -59936,22 +60028,8 @@ function ensureCarriGmSeed(s) {
       }
     }
 
-    /* --- Bibb $4990 seat / initiation+monthly → Exec only --- */
-    for (i = 0; i < state.rows.length; i++) {
-      row = state.rows[i];
-      if (!row || isCarriSeed(row) || row.example) continue;
-      var idB = String(row.id || "");
-      var qbB = qbOf(row);
-      var amtB = feeOf(row);
-      var isBibb4990 = (idB === "soft_prod_bibb_fp8463_17114_2026-09") ||
-        (qbB === "17114" && /bibb/i.test(String(row.client || "")) &&
-          String(row.month || "") === "2026-09" && Math.abs(amtB - 4990) < 0.5 &&
-          !row.spineBridge);
-      if (!isBibb4990) continue;
-      if (markExecRecurringDeal(row, null)) {
-        flipped.push(idB || ("bibb-17114#" + i));
-      }
-    }
+    /* --- Bibb $4990 / QB 17114 — NO LONGER flipped here (soft-bibb-17114-bd-booked-20260922) --- */
+    /* soft_prod_bibb_fp8463_17114_2026-09 stays Production / BD Booked; do not markExecRecurringDeal. */
 
     /* --- Bibb 17082 $1995 (9-1 monthly) → ensure Exec BD recurring face --- */
     var bibb1995Id = "soft_exec_bibb_17082_2026-09";
@@ -60059,8 +60137,8 @@ function ensureCarriGmSeed(s) {
       created: created,
       targets: {
         hendrick91: "ex_spine_17089",
-        bibb1995: bibb1995Id,
-        bibb4990: "soft_prod_bibb_fp8463_17114_2026-09"
+        bibb1995: bibb1995Id
+        /* bibb4990 / 17114 intentionally omitted — soft-bibb-17114-bd-booked-20260922 */
       },
       at: "2026-09-22"
     };
@@ -60068,6 +60146,311 @@ function ensureCarriGmSeed(s) {
     return state;
   }
   try { window.__softEnsureSoftHendrickBibbSepExecRecurring20260922 = ensureSoftHendrickBibbSepExecRecurring20260922; } catch (eHendrickBibbEns) {}
+
+  function ensureSoftBibb17114BdBooked20260922(state) {
+    /* soft-bibb-17114-bd-booked-20260922 — Soft Soft (Mike confirmed with Randy 2026-09-22):
+       Bibb Medical Center booked 9/16 (soft_prod_bibb_fp8463_17114_2026-09 / QB 17114 / FP8463 $4990
+       initiation+first monthly) was incorrectly moved to Exec BD Recurring by
+       soft-hendrick-bibb-sep-exec-recurring. UNDO for THIS row only → standard Production / BD Booked.
+       Clear excludeFromProductionBoard, isRecurringLine, recurringMonthlySplit, recurring-monthly
+       lineKind, softExecRecurringSeat. Keep qbInvoice 17114, $4990, Brenton/Nate/House, FP8463.
+       Do NOT touch soft_exec_bibb_17082_2026-09 (Bibb 9-1 $1995 Exec BD recurring) or Hendrick faces.
+       Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-bibb-17114-bd-booked-20260922";
+    var targetId = "soft_prod_bibb_fp8463_17114_2026-09";
+    var qb = "17114";
+
+    function feeOf(row) {
+      return Number(row.accountingBilled != null ? row.accountingBilled : (row.bookValueThisMonth != null ? row.bookValueThisMonth : row.fee)) || 0;
+    }
+    function qbOf(row) {
+      return String(row.qbInvoice || row.qbNumber || "").trim();
+    }
+    function isTarget(row) {
+      if (!row || row.example) return false;
+      if (row.carriGmSeed || row.carriBdGmSeed || row.carriQbSeed || row.spineBridge) return false;
+      var id = String(row.id || "");
+      if (id === targetId) return true;
+      if (id === "soft_exec_bibb_17082_2026-09") return false;
+      if (qbOf(row) !== qb) return false;
+      if (!/bibb/i.test(String(row.client || ""))) return false;
+      var d = String(row.date || "").slice(0, 10);
+      if (d === "2026-09-16") return true;
+      if (String(row.month || "") === "2026-09" && Math.abs(feeOf(row) - 4990) < 0.5) return true;
+      return false;
+    }
+    function clearRecurringFlags(row) {
+      var before = {
+        excludeFromProductionBoard: !!row.excludeFromProductionBoard,
+        isRecurringLine: !!row.isRecurringLine,
+        recurringMonthlySplit: !!row.recurringMonthlySplit,
+        lineKind: row.lineKind || null,
+        softExecRecurringSeat: !!row.softExecRecurringSeat,
+        softHendrickBibbSepExecRecurring: row.softHendrickBibbSepExecRecurring || null
+      };
+      if (row.excludeFromProductionBoard) delete row.excludeFromProductionBoard;
+      if (row.isRecurringLine) delete row.isRecurringLine;
+      if (row.recurringMonthlySplit) delete row.recurringMonthlySplit;
+      if (row.softExecRecurringSeat) delete row.softExecRecurringSeat;
+      if (String(row.lineKind || "") === "recurring-monthly") delete row.lineKind;
+      /* drop prior hendrick stamp on this face so classification is BD booked */
+      if (row.softHendrickBibbSepExecRecurring) delete row.softHendrickBibbSepExecRecurring;
+      row.softIsProductionVisibleRow = true;
+      row.softProdSeat = true;
+      row.bookType = row.bookType || "Deal";
+      row.side = row.side || "bd";
+      row.softBibb17114BdBooked = stamp;
+      /* keep money / owners / QB / FP8463 */
+      if (!row.qbInvoice) row.qbInvoice = qb;
+      if (!row.qbNumber) row.qbNumber = qb;
+      if (!row.dealRef) row.dealRef = "FP8463";
+      var after = {
+        excludeFromProductionBoard: !!row.excludeFromProductionBoard,
+        isRecurringLine: !!row.isRecurringLine,
+        recurringMonthlySplit: !!row.recurringMonthlySplit,
+        lineKind: row.lineKind || null,
+        softExecRecurringSeat: !!row.softExecRecurringSeat,
+        softHendrickBibbSepExecRecurring: row.softHendrickBibbSepExecRecurring || null
+      };
+      return { before: before, after: after, changed: JSON.stringify(before) !== JSON.stringify(after) };
+    }
+
+    var touched = [];
+    var i, row;
+    for (i = 0; i < state.rows.length; i++) {
+      row = state.rows[i];
+      if (!isTarget(row)) continue;
+      if (!row.id) row.id = targetId;
+      var diff = clearRecurringFlags(row);
+      touched.push({
+        id: String(row.id),
+        qb: qbOf(row),
+        amount: feeOf(row),
+        date: String(row.date || "").slice(0, 10),
+        before: diff.before,
+        after: diff.after,
+        changed: diff.changed
+      });
+    }
+
+    state.softBibb17114BdBooked = {
+      stamp: stamp,
+      targetId: targetId,
+      touched: touched,
+      at: "2026-09-22"
+    };
+    try { window.__softBibb17114BdBooked = state.softBibb17114BdBooked; } catch (eW) {}
+    return state;
+  }
+  try { window.__softEnsureSoftBibb17114BdBooked20260922 = ensureSoftBibb17114BdBooked20260922; } catch (eBibb17114Bd) {}
+
+
+
+
+  function ensureSoftBibb91RestoreExecRecurring20260922(state) {
+    /* soft-bibb-91-restore-exec-recurring-20260922 — Soft Soft (Mike urgent 2026-09-22):
+       Bibb Medical Center 9-1 (2026-09-01) monthly progressive QB 17082 $1995 was softDeleted
+       entirely (missing Exec BD recurring AND Production). RECREATE soft_exec_bibb_17082_2026-09
+       as Exec BD recurring Sep ONLY. Clear tombstone. Never softDelete again.
+       Do NOT touch Hendrick / soft-concord-cd8439 / soft_prod_bibb 17114 / other deals. Soft only. Never Hub. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var stamp = "soft-bibb-91-restore-exec-recurring-20260922";
+    var targetId = "soft_exec_bibb_17082_2026-09";
+    var qb = "17082";
+    var amt = 1995;
+    if (typeof softEnsureTombstoneMaps === "function") softEnsureTombstoneMaps(state);
+    else {
+      if (!state.deletedRowIds || typeof state.deletedRowIds !== "object") state.deletedRowIds = {};
+    }
+    var tombsCleared = [];
+    function clearTomb(id) {
+      id = String(id || "");
+      if (!id || !state.deletedRowIds) return;
+      if (state.deletedRowIds[id]) {
+        delete state.deletedRowIds[id];
+        tombsCleared.push(id);
+      }
+    }
+    clearTomb(targetId);
+    /* also clear any tombstone whose why/note points at this Bibb 9-1 / 17082 face */
+    Object.keys(state.deletedRowIds || {}).forEach(function (k) {
+      var meta = state.deletedRowIds[k];
+      var blob = k + " " + (meta && (meta.why || "")) + " " + (meta && (meta.note || "")) + " " + (meta && (meta.keep || ""));
+      if (/soft_exec_bibb_17082|bibb.*17082|17082.*bibb|bibb.*9-1|9-1.*bibb/i.test(blob)) clearTomb(k);
+    });
+
+    function feeOf(row) {
+      return Number(row.accountingBilled != null ? row.accountingBilled : (row.bookValueThisMonth != null ? row.bookValueThisMonth : row.fee)) || 0;
+    }
+    function qbOf(row) {
+      return String(row.qbInvoice || row.qbNumber || row.sampleId || "").trim();
+    }
+    function isCarriSeed(row) {
+      return !!(row && (row.carriGmSeed || row.carriBdGmSeed || row.carriQbSeed));
+    }
+    function markExecOnly(row) {
+      if (!row) return;
+      row.bookType = "Deal";
+      row.side = "bd";
+      row.excludeFromProductionBoard = true;
+      row.isRecurringLine = true;
+      row.recurringMonthlySplit = true;
+      if (!row.lineKind || row.lineKind === "internet") row.lineKind = "recurring-monthly";
+      row.softExecRecurringSeat = true;
+      row.softBibb91ExecRecurring = stamp;
+      if (row.carriGmSeed) delete row.carriGmSeed;
+      if (row.carriBdGmSeed) delete row.carriBdGmSeed;
+      if (row.carriQbSeed) delete row.carriQbSeed;
+    }
+
+    var existing = null;
+    var i, row;
+    for (i = 0; i < state.rows.length; i++) {
+      row = state.rows[i];
+      if (!row || isCarriSeed(row) || row.example) continue;
+      if (String(row.id || "") === targetId) { existing = row; break; }
+    }
+    if (!existing) {
+      for (i = 0; i < state.rows.length; i++) {
+        row = state.rows[i];
+        if (!row || isCarriSeed(row) || row.example) continue;
+        /* do NOT claim soft_prod_bibb_fp8463_17114 ($4990) or other Bibb faces */
+        if (String(row.id || "") === "soft_prod_bibb_fp8463_17114_2026-09") continue;
+        if (qbOf(row) === qb && /bibb/i.test(String(row.client || "")) &&
+            (String(row.date || "").slice(0, 10) === "2026-09-01" ||
+              (String(row.month || "") === "2026-09" && Math.abs(feeOf(row) - amt) < 0.5))) {
+          existing = row;
+          break;
+        }
+      }
+    }
+
+    var created = false, updated = false;
+    if (!existing) {
+      var neu = {
+        id: targetId,
+        example: false,
+        excelSeed: true,
+        softExecRecurringSeat: true,
+        bookType: "Deal",
+        side: "bd",
+        date: "2026-09-01",
+        month: "2026-09",
+        rep: "Brenton",
+        repeatRep: "Nate",
+        client: "Bibb Medical Center",
+        dealRef: "EM8446",
+        searchRefs: "EM8446",
+        repeatOrNew: "Repeat",
+        searches: 1,
+        specialties: "EM · Multi monthly progressive",
+        initiation: 0,
+        firstMonthRetainer: amt,
+        monthlyAmount: amt,
+        internets: 0,
+        accountingBilled: amt,
+        accountingBilledRaw: "yes",
+        bookValueThisMonth: amt,
+        qbInvoice: qb,
+        qbNumber: qb,
+        sampleId: qb,
+        status: "Invoiced",
+        paid: false,
+        sourceSheet: "September 2026",
+        sourceYear: 2026,
+        invoiceNarrative: "17082 Multi search monthly progressive fee (Exec BD recurring · restored)"
+      };
+      if (typeof softBuildRepeatGm601030Owners === "function") {
+        neu.owners = softBuildRepeatGm601030Owners("Brenton", "Nate");
+      } else {
+        neu.owners = {
+          mode: "Split",
+          bdA: { name: "Brenton", pct: 60 },
+          recruiter: { name: "Nate", pct: 30 },
+          housePct: 10
+        };
+      }
+      neu.gmMode = "Split";
+      try {
+        neu.gmLabel = (typeof gmLabelFromOwners === "function")
+          ? gmLabelFromOwners(neu.owners)
+          : "Split · Brenton 60% / Nate 30% / House 10%";
+      } catch (eGl) {
+        neu.gmLabel = "Split · Brenton 60% / Nate 30% / House 10%";
+      }
+      neu.softGmSplitOverride = true;
+      neu.softGmSplitManual = true;
+      markExecOnly(neu);
+      state.rows.push(neu);
+      existing = neu;
+      created = true;
+    } else {
+      if (!existing.id) existing.id = targetId;
+      clearTomb(String(existing.id || targetId));
+      existing.date = "2026-09-01";
+      existing.month = "2026-09";
+      existing.client = existing.client || "Bibb Medical Center";
+      existing.qbInvoice = qb;
+      existing.qbNumber = existing.qbNumber || qb;
+      if (!existing.sampleId) existing.sampleId = qb;
+      existing.dealRef = existing.dealRef || "EM8446";
+      existing.searchRefs = existing.searchRefs || existing.dealRef || "EM8446";
+      if (Math.abs(feeOf(existing) - amt) > 0.5) {
+        existing.accountingBilled = amt;
+        existing.bookValueThisMonth = amt;
+        existing.firstMonthRetainer = amt;
+        existing.monthlyAmount = amt;
+      }
+      if (!existing.owners) {
+        if (typeof softBuildRepeatGm601030Owners === "function") {
+          existing.owners = softBuildRepeatGm601030Owners("Brenton", "Nate");
+        } else {
+          existing.owners = {
+            mode: "Split",
+            bdA: { name: "Brenton", pct: 60 },
+            recruiter: { name: "Nate", pct: 30 },
+            housePct: 10
+          };
+        }
+        existing.gmMode = "Split";
+        existing.gmLabel = "Split · Brenton 60% / Nate 30% / House 10%";
+        existing.softGmSplitOverride = true;
+        existing.softGmSplitManual = true;
+      }
+      var before = [existing.excludeFromProductionBoard, existing.isRecurringLine, existing.lineKind, feeOf(existing)].join("|");
+      markExecOnly(existing);
+      var after = [existing.excludeFromProductionBoard, existing.isRecurringLine, existing.lineKind, feeOf(existing)].join("|");
+      updated = before !== after;
+    }
+
+    state.softBibb91RestoreExecRecurring = {
+      stamp: stamp,
+      id: existing && existing.id ? String(existing.id) : targetId,
+      qbInvoice: qb,
+      amount: amt,
+      date: "2026-09-01",
+      month: "2026-09",
+      excludeFromProductionBoard: true,
+      isRecurringLine: true,
+      lineKind: "recurring-monthly",
+      created: created,
+      updated: updated,
+      tombsCleared: tombsCleared,
+      productionVisible: false,
+      execBdRecurring: true,
+      at: "2026-09-22"
+    };
+    try { window.__softBibb91RestoreExecRecurring = state.softBibb91RestoreExecRecurring; } catch (eW) {}
+    return state;
+  }
+  try { window.__softEnsureSoftBibb91RestoreExecRecurring20260922 = ensureSoftBibb91RestoreExecRecurring20260922; } catch (eBibb91) {}
+
+
+
+
+
+
 
 
 
@@ -60340,6 +60723,9 @@ function ensureCarriGmSeed(s) {
     if (!row) return false;
     /* soft-spine-prod-owners-first-20260920 — Bib lock before override skip */
     if (softRowTiedToQb17082(row)) return softApplyBib17082NateLock(row);
+    /* soft-concord-cd8439-persist-20260922 — locked CD8439 never takes standing 60/30/10 */
+    if (row.softConcordCd8439Locked || row.softConcordCd8439Persist || row.softConcordCd8439SaveRefan) return false;
+    if (String(row.id || '') === 'xl_bd_2026-04_6') return false;
     if (row.softGmSplitOverride || row.softGmSplitManual) return false;
     /* Skip Carri amount-sliced GM seeds (already $plit) unless 17082 */
     if (row.carriGmSeed || row.carriBdGmSeed) return false;
@@ -60392,7 +60778,9 @@ function ensureCarriGmSeed(s) {
       /* soft-spine-prod-owners-first-20260920 — Bib lock always re-applied; other overrides skip standing repeat */
       if (softRowTiedToQb17082(row)) {
         changed = softApplyBib17082NateLock(row);
-      } else if (row.softGmSplitOverride || row.softGmSplitManual) {
+      } else if (row.softGmSplitOverride || row.softGmSplitManual ||
+                 row.softConcordCd8439Locked || row.softConcordCd8439Persist ||
+                 row.softConcordCd8439SaveRefan || String(row.id || '') === 'xl_bd_2026-04_6') {
         skipped++;
         return;
       } else if (softIsProductionVisibleRow(row) || softIsDealLikeForRepAutofix(row)) {
@@ -60846,6 +61234,7 @@ function softIsoDate(v) {
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureSoftBibb17114ProdSeat20260922(s); /* soft-bibb-17114-prod-seat-20260922 */
     ensureSoftHendrickBibbSepExecRecurring20260922(s); /* soft-hendrick-bibb-sep-exec-recurring-20260922 */
+    ensureSoftBibb17114BdBooked20260922(s); /* soft-bibb-17114-bd-booked-20260922 — AFTER hendrick so 17114 stays BD Booked */
     ensureSoftReversePushProdToSpine20260921(s); /* soft-reverse-push-carri-sot-20260921 — include QB 16973 twin */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(s); /* soft-repeat-gm-60-30-10-20260920 */
@@ -60853,6 +61242,7 @@ function softIsoDate(v) {
     ensureSoftDropStephAug17880Carri20260921(s); /* soft-drop-steph-aug-17880-carri-20260921 */
     ensureSoftGmProdQbOneFace20260921(s); /* soft-gm-prod-qb-one-face-20260921 — final GM paint lock after ensure mutations */
     softApplyRowTombstones(s); /* soft-prod-iv-harden-20260919 — after ensure* so reseed cannot revive deletes */
+    ensureSoftBibb91RestoreExecRecurring20260922(s); /* soft-bibb-91-restore-exec-recurring-20260922 — AFTER tombstones so softDelete cannot keep Bibb 9-1 dead */
     if (!Array.isArray(s.fanLog)) s.fanLog = [];
     if (!Array.isArray(s.commissionLines)) s.commissionLines = [];
     if (!s.execMode) s.execMode = 'combined';
@@ -60949,6 +61339,9 @@ function softIsoDate(v) {
     ensureNmc17070ProdQbStamp20260921(s); /* soft-nmc-17070-prod-qb-20260921 */
     ensureDawnStanleyMarchFee19000(s); /* soft-stanley-march-fee-ls-repair-20260921 */
     ensureConcordAprMktSplit404020(s); /* soft-concord-apr-mkt-404020-20260921 */
+    ensureSoftConcordCd8439SaveRefan20260922(s); /* soft-concord-cd8439-save-refan-20260922 */
+    ensureSoftBibb91RestoreExecRecurring20260922(s); /* soft-bibb-91-restore-exec-recurring-20260922 · final after Concord */
+    ensureSoftBibb17114BdBooked20260922(s); /* soft-bibb-17114-bd-booked-20260922 · final after peers */
     ensureMorongoAprMktSplit602020(s); /* soft-morongo-apr-mkt-602020-20260921 */
     ensureWoodlandAprMktSplit7030(s); /* soft-woodland-apr-mkt-7030-20260921 */
     ensureIhcAprMktSplit8020(s); /* soft-ihc-apr-mkt-8020-20260921 */
@@ -60963,6 +61356,8 @@ function softIsoDate(v) {
     ensureWinnJul21NateRepeat30(s); /* soft-winn-jul21-nate-repeat-30-20260921 */
     ensureSoftRiverviewMay16973(s); /* soft-riverview-may-qb-16973-20260921 */
     ensureKalyaniJulExcelDedupe(s); /* soft-kalyani-jul-excel-dedupe-20260920 */
+    ensureSoftConcordCd8439SaveRefan20260922(s); /* soft-concord-cd8439-persist-20260922 · FINAL after enrich/repeat/autofix */
+    ensureSoftBibb17114BdBooked20260922(s); /* soft-bibb-17114-bd-booked-20260922 · keep after Concord persist */
     return s;
   }
   function loadState() {
@@ -60989,6 +61384,9 @@ function softIsoDate(v) {
     try { ensureSoftProdSoleSotGm20260921(state); } catch (eSoleSave) {} /* soft-prod-sole-sot-gm-20260921 */
     try { ensureSoftBibb17114ProdSeat20260922(state); } catch (eBibbSeatSave) {} /* soft-bibb-17114-prod-seat-20260922 */
     try { ensureSoftHendrickBibbSepExecRecurring20260922(state); } catch (eHendrickBibbSepSave) {} /* soft-hendrick-bibb-sep-exec-recurring-20260922 */
+    try { ensureSoftBibb17114BdBooked20260922(state); } catch (eBibb17114BdSave) {} /* soft-bibb-17114-bd-booked-20260922 */
+    try { ensureSoftConcordCd8439SaveRefan20260922(state); } catch (eConcordCd8439Save) {} /* soft-concord-cd8439-persist-20260922 */
+    try { ensureSoftBibb91RestoreExecRecurring20260922(state); } catch (eBibb91Save) {} /* soft-bibb-91-restore-exec-recurring-20260922 */
       var payload = JSON.stringify(state);
       localStorage.setItem(LS_KEY, payload);
       var check = localStorage.getItem(LS_KEY);
@@ -72063,6 +72461,26 @@ function softIsoDate(v) {
       invoiceNarrative: '17089 2nd+ monthly (locked SAMPLE)'
     });
     rows.push({
+      id: 'soft_exec_bibb_17082_2026-09', example: false, excelSeed: true, softExecRecurringSeat: true,
+      sampleId: '17082', bookType: 'Deal', side: 'bd',
+      date: '2026-09-01', month: '2026-09',
+      rep: 'Brenton', repeatRep: 'Nate', client: 'Bibb Medical Center',
+      dealRef: 'EM8446', searchRefs: 'EM8446',
+      repeatOrNew: 'Repeat', searches: 1, specialties: 'EM · Multi monthly progressive',
+      initiation: 0, firstMonthRetainer: 1995, monthlyAmount: 1995, internets: 0,
+      accountingBilled: 1995, accountingBilledRaw: 'yes', bookValueThisMonth: 1995,
+      qbInvoice: '17082', qbNumber: '17082',
+      gmMode: 'Split', gmLabel: 'Split · Brenton 60% / Nate 30% / House 10%',
+      owners: { mode: 'Split', bdA: { name: 'Brenton', pct: 60 }, recruiter: { name: 'Nate', pct: 30 }, housePct: 10 },
+      softGmSplitOverride: true, softGmSplitManual: true,
+      status: 'Invoiced', paid: false,
+      isRecurringLine: true, recurringMonthlySplit: true, lineKind: 'recurring-monthly',
+      excludeFromProductionBoard: true,
+      softBibb91ExecRecurring: 'soft-bibb-91-restore-exec-recurring-20260922',
+      invoiceNarrative: '17082 Multi search monthly progressive fee (Exec BD recurring · restored)'
+    });
+
+    rows.push({
       id: 'ex_spine_17078', example: false, spineBridge: true, sampleId: '17078',
       bookType: 'Marketing', side: 'bd',
       date: '2026-08-24', month: '2026-08',
@@ -73933,10 +74351,15 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
     ensureSoftRonoAprOffProduction20260921(state); /* soft-rono-apr-exec-only-20260921 */
     ensureSoftBibb17114ProdSeat20260922(state); /* soft-bibb-17114-prod-seat-20260922 */
     ensureSoftHendrickBibbSepExecRecurring20260922(state); /* soft-hendrick-bibb-sep-exec-recurring-20260922 */
+    ensureSoftBibb17114BdBooked20260922(state); /* soft-bibb-17114-bd-booked-20260922 */
+    ensureSoftConcordCd8439SaveRefan20260922(state); /* soft-concord-cd8439-persist-20260922 */
+    ensureSoftBibb91RestoreExecRecurring20260922(state); /* soft-bibb-91-restore-exec-recurring-20260922 */
     ensureSoftProdSoleSotGm20260921(state); /* soft-prod-sole-sot-gm-20260921 */
     ensureKalyaniJulExcelDedupe(state); /* soft-kalyani-jul-excel-dedupe-20260920 */
     ensureSoftRepeatGm601030(state); /* soft-repeat-gm-60-30-10-20260920 — BEFORE one-off locks */
     try { ensureSoftRepOwnerAutofix(state); } catch (eRepAf2) {}
+    ensureSoftConcordCd8439SaveRefan20260922(state); /* soft-concord-cd8439-persist-20260922 · FINAL after enrich/repeat/autofix */
+    ensureSoftBibb17114BdBooked20260922(state); /* soft-bibb-17114-bd-booked-20260922 · keep after Concord persist */
     ensureHendrickSepAaron(state); /* soft-hendrick-sep-aaron-lock-20260920 — one-off AFTER repeat */
     ensureMike2026FocusPaid(state); ensureCarriQbCleanupStamp20260921(state); /* soft-carri-qb-cleanup-stamp-20260921 */ ensureSoftCarriClearQbStamps20260921(state); /* soft-reverse-push-carri-sot-20260921 */ ensureSoftReversePushProdToSpine20260921(state); /* soft-reverse-push-carri-sot-20260921 */
     ensureSoftPre2026AgingPaid(state);
@@ -76668,8 +77091,14 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       if (out.length) return out;
     }
     /* Whole / missing BD shape → defaults 60 / 30 → House 10 */
+    /* soft-concord-cd8439-save-refan-20260922 — New + no repeatRep: Whole face is 100% primary / House 0 (not fake Repeat 30) */
     var prim = row.rep || (ow.mode === 'Whole' ? ow.primary : '') || '';
     var repR = row.repeatRep || '—';
+    if (String(row.repeatOrNew || '') === 'New' && !String(row.repeatRep || '').trim()) {
+      out.push({ name: prim || 'Unassigned', pct: 100, role: 'bd_primary' });
+      out.push({ name: '—', pct: 0, role: 'repeat_recruiter' });
+      return out;
+    }
     out.push({ name: prim || 'Unassigned', pct: 60, role: 'bd_primary' });
     out.push({ name: repR || '—', pct: 30, role: 'repeat_recruiter' });
     return out;
@@ -76706,7 +77135,17 @@ document.getElementById('form-bd-allin').addEventListener('submit', function (e)
       else if (r.role === roleB) rowsB += mdHousePersonRowHtml(peopleB, r.name, r.pct, roleB, !isMkt);
     });
     if (!rowsA) rowsA = mdHousePersonRowHtml(peopleA, isMkt ? (row.rep || '') : (row.rep || ''), isMkt ? '' : 60, roleA, false);
-    if (!rowsB) rowsB = mdHousePersonRowHtml(peopleB, isMkt ? (row.marketer || '') : (row.repeatRep || '—'), isMkt ? '' : 30, roleB, !isMkt);
+    /* soft-concord-cd8439-save-refan-20260922 — do not stack default Repeat 30% when people already ≥100 (blocks Save & re-fan);
+       New deals with no repeatRep default Repeat seat to 0% leftover, not 30. */
+    if (!rowsB) {
+      var defBPct = isMkt ? '' : 30;
+      if (!isMkt) {
+        if (sum >= 100.0001) defBPct = 0;
+        else if (String(row.repeatOrNew || '') === 'New' && !String(row.repeatRep || '').trim()) defBPct = 0;
+      }
+      rowsB = mdHousePersonRowHtml(peopleB, isMkt ? (row.marketer || '') : (row.repeatRep || '—'), defBPct, roleB, !isMkt);
+      sum = mdHouseRoundPct(sum + (Number(defBPct) || 0));
+    }
     var housePct = Math.max(0, mdHouseRoundPct(100 - sum));
     return '' +
       '<div id="md-gm-house-ui" class="md-gm-house-ui" data-book="' + (isMkt ? 'Marketing' : 'Deal') + '">' +
