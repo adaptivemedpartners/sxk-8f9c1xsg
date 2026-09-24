@@ -2,6 +2,8 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-clientkey-casefold-20260924 — GM Money client-card grouping key case-insensitive (trim+collapse+lower); prevents Cullman REgional vs Regional split. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
+/* soft-client-case-normalize-20260924 — Normalize stored client/clientName spellings that differ only by capitalization/whitespace to one master (prefer proper Title Case over REgional-style glitches; else most common). ensureSoftClientCaseNormalize20260924 on normalize/save/boot. Runtime casefold key kept. Also restore Production BD+Marketing client||type rollup (regressed by soft-rollup-gmoney-only). GM Money inv-dedupe under same casefolded client. Preserves soft-gmoney-tab-cache + tier-pay. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-rollup-gmoney-only-20260924 — Same-client same-type BD+Marketing rollup (client||type, no month) ONLY on GM Money (Unpaid / This paycheck / YTD). Production board reverted to individual deal rows (no collapsing). Prior soft-bd-mkt-rollup-nomonth-20260924 / soft-bd-mkt-rollup-restore-20260924 / soft-bd-mkt-client-rollup-20260924 kept as history. Does NOT break soft-gmoney-tab-cache-20260924 or soft-gm-total-label-tier-pay-20260924. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gmoney-tab-cache-20260924 — GM Money tab switch perf: cache gmMoneyCollectProdLines by year+paidDate fingerprint; render only active tab on tab click; skip full saveState on tab-only; reuse paid collect inside paycheck Est. pay. Prior soft-gmoney-paycheck-ytd-tabs-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-bd-mkt-rollup-nomonth-20260924 — Production BD+Marketing display rollup: drop month from group key; same normalized client + same deal type collapse across months into one expandable parent (children keep month/date/amounts). Prior soft-bd-mkt-rollup-restore-20260924 / soft-bd-mkt-client-rollup-20260924 kept. Does NOT touch soft-gmoney-tab-cache-20260924. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -66389,7 +66391,7 @@ function ensureCarriGmSeed(s) {
     /* soft-bd-mkt-client-rollup-20260924 — persist expand map only; display rollup is render-time. */
     if (!state) return state;
     if (!state.softBdMktRollupExpanded || typeof state.softBdMktRollupExpanded !== 'object') state.softBdMktRollupExpanded = {};
-    state.softBdMktClientRollupStamp = 'soft-rollup-gmoney-only-20260924';
+    state.softBdMktClientRollupStamp = 'soft-client-case-normalize-20260924';
     return state;
   }
 
@@ -66794,6 +66796,7 @@ function softIsoDate(v) {
     dedupeBdRepeatClones(s);
     tagMoHighlandsMonthlies(s);     tagSoftEcbSplitAndSecondBills(s);     tagSoftRecurringOffProductionBoard(s); /* soft-prod-recurring-off-board-20260920 */ /* soft-prod-ecb-secondbill-20260920 */
     ensureSoftCarriCashFlip20260924(s); /* soft-carri-cashflip-20260924 · after off-board tag */
+    try { ensureSoftClientCaseNormalize20260924(s); } catch (eClientCaseNorm) {} /* soft-client-case-normalize-20260924 */
     ensureSoftBdMktClientRollup20260924(s); /* soft-bd-mkt-client-rollup-20260924 */
     ensureSoftRecurringGmMonthOverride20260924(s); /* soft-recurring-gm-month-override-20260924 */
     ensureSoftMidlandRavuriJanPlacement20260921(s); /* soft-midland-ravuri-jan-placement-20260921 */
@@ -66974,6 +66977,7 @@ function softIsoDate(v) {
     try { ensureSoftBibb91RestoreExecRecurring20260922(state); } catch (eBibb91Save) {} /* soft-bibb-91-restore-exec-recurring-20260922 */
     try { ensureSoftCarriPaidDateBackfill20260924(state); } catch (eCarriPdSave) {} /* soft-carri-paiddate-backfill-20260924 */
     try { ensureSoftCarriCashFlip20260924(state); } catch (eCarriCashFlipSave) {} /* soft-carri-cashflip-20260924 */
+    try { ensureSoftClientCaseNormalize20260924(state); } catch (eClientCaseNormSave) {} /* soft-client-case-normalize-20260924 */
     try { ensureSoftRecurringGmMonthOverride20260924(state); } catch (eRecGmOvSave) {} /* soft-recurring-gm-month-override-20260924 */
       var payload = JSON.stringify(state);
       localStorage.setItem(LS_KEY, payload);
@@ -80445,6 +80449,7 @@ aForm.addEventListener('submit', function (e) {
     ensureSoftProdPaidFromSpineSoT(state);
     ensureSoftCarriPaidDateBackfill20260924(state); /* soft-carri-paiddate-backfill-20260924 */
     ensureSoftCarriCashFlip20260924(state); /* soft-carri-cashflip-20260924 */
+    try { ensureSoftClientCaseNormalize20260924(state); } catch (eClientCaseNormBoot) {} /* soft-client-case-normalize-20260924 */
     ensureSoftRecurringGmMonthOverride20260924(state); /* soft-recurring-gm-month-override-20260924 */
     ensureIhc16972MikeRandy5050(state); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
     ensureWinnMayOdPackageOnProduction20260921(state); /* soft-winn-may-od-package-on-prod-20260921 */
@@ -82982,6 +82987,153 @@ aForm.addEventListener('submit', function (e) {
 
 
 
+
+  function softClientCasefoldKey(name) {
+    /* soft-clientkey-casefold-20260924 — trim + collapse whitespace + lower */
+    return String(name || '').trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+  function softClientProperScore(s) {
+    /* Higher = better master spelling. Penalize mid-token ALLCAPS-then-lower (REgional)
+       and long ALLCAPS tokens; short ALLCAPS / (ECB) acronyms are neutral. */
+    var score = 0;
+    var str = String(s || '');
+    if (/[A-Z]{2,}[a-z]/.test(str)) score -= 100;
+    var words = str.split(/\s+/);
+    for (var i = 0; i < words.length; i++) {
+      var w = words[i];
+      if (!w) continue;
+      var bare = w.replace(/^\(+|\)+$/g, '');
+      if (/^[A-Z][a-z]+[A-Z][a-z]+$/.test(w)) score += 5; /* LifeSpan-style brand */
+      else if (bare.length <= 4 && bare === bare.toUpperCase() && /[A-Z]/.test(bare)) score += 0; /* acronym */
+      else if (bare.length > 4 && bare === bare.toUpperCase() && /[A-Z]/.test(bare)) score -= 5; /* long ALLCAPS */
+      else if (w.length > 1 && w.charAt(0) === w.charAt(0).toUpperCase() && w.slice(1) === w.slice(1).toLowerCase() && /[a-z]/.test(w.slice(1))) score += 3;
+      else if (w.length > 1 && w.charAt(0) === w.charAt(0).toUpperCase()) score += 1;
+    }
+    return score;
+  }
+  function softClientPickMasterSpelling(spellings) {
+    /* Prefer most common among clean spellings; drop REgional-style glitches when a clean
+       alternative exists; tie-break higher proper/Title Case, then longer. Always collapsed whitespace. */
+    var counts = {};
+    (spellings || []).forEach(function (raw) {
+      var s = String(raw || '').trim().replace(/\s+/g, ' ');
+      if (!s) return;
+      counts[s] = (counts[s] || 0) + 1;
+    });
+    var keys = Object.keys(counts);
+    if (!keys.length) return '';
+    var hasClean = keys.some(function (s) { return softClientProperScore(s) >= 0; });
+    var pool = hasClean ? keys.filter(function (s) { return softClientProperScore(s) >= 0; }) : keys.slice();
+    var best = pool[0];
+    pool.forEach(function (s) {
+      var c = counts[s], bc = counts[best];
+      var p = softClientProperScore(s), bp = softClientProperScore(best);
+      if (c > bc || (c === bc && p > bp) || (c === bc && p === bp && s.length > best.length)) best = s;
+    });
+    return best;
+  }
+  function softClientCaseMasterMapFromState(state) {
+    var buckets = {};
+    function take(v) {
+      if (typeof v !== 'string') return;
+      var raw = v;
+      var s = raw.trim().replace(/\s+/g, ' ');
+      if (!s) return;
+      var k = softClientCasefoldKey(s);
+      if (!buckets[k]) buckets[k] = [];
+      buckets[k].push(s);
+    }
+    function walk(o, depth) {
+      if (!o || depth > 12) return;
+      if (Array.isArray(o)) {
+        for (var i = 0; i < o.length; i++) walk(o[i], depth + 1);
+        return;
+      }
+      if (typeof o !== 'object') return;
+      Object.keys(o).forEach(function (k) {
+        var v = o[k];
+        if (k === 'client' || k === 'clientName') take(v);
+        else if (v && typeof v === 'object') walk(v, depth + 1);
+      });
+    }
+    walk(state, 0);
+    var map = {};
+    Object.keys(buckets).forEach(function (k) {
+      var master = softClientPickMasterSpelling(buckets[k]);
+      if (master) map[k] = master;
+    });
+    return map;
+  }
+  function ensureSoftClientCaseNormalize20260924(state) {
+    /* soft-client-case-normalize-20260924 — Rewrite client/clientName strings that differ
+       only by capitalization/whitespace to one master spelling (prefer proper Title Case
+       over glitches like REgional; else most common). Idempotent via stamp + per-run report.
+       Soft Soft Desktop FoT. Never Hub. Spell Carri. */
+    if (!state || typeof state !== 'object') return state;
+    var STAMP = 'soft-client-case-normalize-20260924';
+    var map = softClientCaseMasterMapFromState(state);
+    var rewritten = 0;
+    var groups = [];
+    Object.keys(map).forEach(function (k) {
+      /* only report groups that actually had variant spellings or whitespace drift */
+    });
+    var variantSeen = {};
+    function rewrite(o, depth) {
+      if (!o || depth > 12) return;
+      if (Array.isArray(o)) {
+        for (var i = 0; i < o.length; i++) rewrite(o[i], depth + 1);
+        return;
+      }
+      if (typeof o !== 'object') return;
+      Object.keys(o).forEach(function (k) {
+        var v = o[k];
+        if ((k === 'client' || k === 'clientName') && typeof v === 'string' && v.trim()) {
+          var folded = softClientCasefoldKey(v);
+          var master = map[folded];
+          if (master && v !== master) {
+            if (!variantSeen[folded]) {
+              variantSeen[folded] = { master: master, from: {} };
+            }
+            variantSeen[folded].from[v] = (variantSeen[folded].from[v] || 0) + 1;
+            o[k] = master;
+            rewritten++;
+          } else if (master && v === master) {
+            /* still record master presence for report completeness */
+            if (!variantSeen[folded]) variantSeen[folded] = { master: master, from: {} };
+          }
+        } else if (v && typeof v === 'object') {
+          rewrite(v, depth + 1);
+        }
+      });
+    }
+    rewrite(state, 0);
+    /* Build groups list only where >1 spelling OR whitespace was folded */
+    var groupList = [];
+    Object.keys(variantSeen).forEach(function (k) {
+      var g = variantSeen[k];
+      var fromKeys = Object.keys(g.from || {});
+      var nFrom = 0;
+      fromKeys.forEach(function (f) { nFrom += g.from[f]; });
+      if (fromKeys.length || nFrom) {
+        groupList.push({ fold: k, master: g.master, variants: g.from, rewritten: nFrom });
+      }
+    });
+    state.softClientCaseNormalizeStamp = STAMP;
+    state.softClientCaseNormalizeLast = {
+      stamp: STAMP,
+      at: '2026-09-24',
+      rewritten: rewritten,
+      groups: groupList.length,
+      detail: groupList
+    };
+    try {
+      window.__softClientCaseNormalize20260924 = STAMP;
+      window.__softClientCaseNormalizeLast = state.softClientCaseNormalizeLast;
+      window.__softClientCasefoldKey = softClientCasefoldKey;
+    } catch (eW) {}
+    return state;
+  }
+
   /* soft-bd-mkt-client-rollup-20260924 — display-only client+type rollup for BD deals + Marketing tables */
   function softBdMktNormClientKey(client) {
     var s = String(client || '').toLowerCase();
@@ -83043,11 +83195,11 @@ aForm.addEventListener('submit', function (e) {
   function softBdMktEnsureRollupState(s) {
     if (!s) return s;
     if (!s.softBdMktRollupExpanded || typeof s.softBdMktRollupExpanded !== 'object') s.softBdMktRollupExpanded = {};
-    s.softBdMktClientRollupStamp = 'soft-rollup-gmoney-only-20260924';
+    s.softBdMktClientRollupStamp = 'soft-client-case-normalize-20260924';
     return s;
   }
   function softBdMktGroupVisibleRows(list) {
-    /* soft-rollup-gmoney-only-20260924 — client||type key (NO month); used by GM Money BD+Marketing rollup only (Production no longer collapses) */
+    /* soft-client-case-normalize-20260924 — client||type key (NO month); Production + GM Money BD+Marketing rollup; casefold via softBdMktNormClientKey */
     var groups = [];
     var map = {};
     (list || []).forEach(function (row) {
@@ -83069,6 +83221,8 @@ aForm.addEventListener('submit', function (e) {
   try { window.__softBdMktRollupRestore20260924 = 'soft-bd-mkt-rollup-restore-20260924'; } catch (eR3) {}
   try { window.__softBdMktRollupNomonth20260924 = 'soft-bd-mkt-rollup-nomonth-20260924'; } catch (eR3b) {}
   try { window.__softRollupGmoneyOnly20260924 = 'soft-rollup-gmoney-only-20260924'; } catch (eR3c) {}
+  try { window.__softClientCaseNormalize20260924 = 'soft-client-case-normalize-20260924'; } catch (eR3d) {}
+  try { window.__softClientkeyCasefold20260924 = 'soft-clientkey-casefold-20260924'; } catch (eR3e) {}
   try { window.__softGmMoneyTabCache20260924 = 'soft-gmoney-tab-cache-20260924'; } catch (eR4) {}
 
 
@@ -83130,7 +83284,7 @@ aForm.addEventListener('submit', function (e) {
   }, true);
 
   function renderProduction() {
-    /* soft-rollup-gmoney-only-20260924 — Production board: individual deal rows only (NO BD/Marketing rollup). Rollup lives on GM Money report. Placement unchanged. */
+    /* soft-client-case-normalize-20260924 — Production BD+Marketing client||type rollup restored; Placement unchanged. */
     softBdMktEnsureRollupState(state);
     var filter = document.getElementById('prod-month').value;
     var bdBody = document.querySelector('#tbl-bd tbody');
@@ -83344,12 +83498,19 @@ aForm.addEventListener('submit', function (e) {
     /* Placements — no rollup */
     plList.forEach(appendPlacementRow);
 
-    /* soft-rollup-gmoney-only-20260924 — Marketing + BD: one row per deal (no client||type collapse on Production) */
-    mktList.forEach(function (r) { appendMarketingRow(r); });
-    bdList.forEach(function (r) { appendBdRow(r); });
+    /* soft-client-case-normalize-20260924 — restore Production BD+Marketing client||type rollup (regressed by soft-rollup-gmoney-only). Casefold via softBdMktNormClientKey / normalized client names. */
+    softBdMktGroupVisibleRows(mktList).forEach(function (g) {
+      if (g.rows.length >= 2) appendMarketingRollup(g);
+      else appendMarketingRow(g.rows[0]);
+    });
+    softBdMktGroupVisibleRows(bdList).forEach(function (g) {
+      if (g.rows.length >= 2) appendBdRollup(g);
+      else appendBdRow(g.rows[0]);
+    });
 
-    state.softBdMktClientRollupLast = { stamp: 'soft-rollup-gmoney-only-20260924', filter: filter, shown: shown, rollup: { groups: 0, linesIn: 0, linesOut: 0, scope: 'gmoney-only' }, at: '2026-09-24' };
-    document.getElementById('prod-stat').textContent = shown + ' rows' + (filter !== 'all' ? ' · ' + filter : '');
+    state.softBdMktClientRollupLast = { stamp: 'soft-client-case-normalize-20260924', filter: filter, shown: shown, rollup: rollupMeta, scope: 'production+gmoney', at: '2026-09-24' };
+    var rollNote = rollupMeta.groups ? (' · rollup ' + rollupMeta.linesIn + '→' + rollupMeta.linesOut + ' (' + rollupMeta.groups + ' groups)') : '';
+    document.getElementById('prod-stat').textContent = shown + ' rows' + (filter !== 'all' ? ' · ' + filter : '') + rollNote;
     if (!bdBody.children.length) bdBody.innerHTML = '<tr><td colspan="13" class="empty">No BD Deal rows for this filter</td></tr>';
     if (!mktBody.children.length) mktBody.innerHTML = '<tr><td colspan="9" class="empty">No Marketing rows for this filter</td></tr>';
     if (!plBody.children.length) plBody.innerHTML = '<tr><td colspan="10" class="empty">No placement rows for this filter</td></tr>';
@@ -89936,17 +90097,47 @@ ownersDetailHtml(row) +
     };
   }
   function groupGmMoneyLines(lines, amountKey) {
+    /* soft-clientkey-casefold-20260924 — group by casefolded client key; display master casing.
+       soft-client-case-normalize-20260924 — skip duplicate same-inv lines under same client (Cullman 17105 ×2). */
     var groups = { Placement: {}, Marketing: {}, Deal: {} };
     var order = { Placement: [], Marketing: [], Deal: [] };
+    var seenInv = {};
     lines.forEach(function (line) {
       var bt = line.bookType || inferGmMoneyBookType(line);
       if (!groups[bt]) bt = 'Deal';
-      var client = line.client || '—';
-      if (!groups[bt][client]) {
-        groups[bt][client] = { client: client, lines: [], total: 0, example: false, refs: {} };
-        order[bt].push(client);
+      var clientRaw = line.client || '—';
+      var clientKey = (typeof softClientCasefoldKey === 'function')
+        ? softClientCasefoldKey(clientRaw)
+        : String(clientRaw || '').trim().replace(/\s+/g, ' ').toLowerCase();
+      if (!clientKey) clientKey = '—';
+      var invKey = String(line.inv || '').trim();
+      if (invKey && invKey !== '—') {
+        var dupKey = bt + '|' + clientKey + '|' + invKey;
+        if (seenInv[dupKey]) return;
+        seenInv[dupKey] = true;
       }
-      var card = groups[bt][client];
+      if (!groups[bt][clientKey]) {
+        var display = clientRaw;
+        try {
+          if (state && state.softClientCaseNormalizeLast && state.softClientCaseNormalizeLast.detail) {
+            /* prefer normalized master if present on line already */
+          }
+        } catch (eDisp) {}
+        display = String(clientRaw || '—').trim().replace(/\s+/g, ' ') || '—';
+        groups[bt][clientKey] = { client: display, clientKey: clientKey, lines: [], total: 0, example: false, refs: {} };
+        order[bt].push(clientKey);
+      }
+      var card = groups[bt][clientKey];
+      /* Prefer longer / proper display name as more arrive */
+      var cand = String(clientRaw || '').trim().replace(/\s+/g, ' ');
+      if (cand && (typeof softClientProperScore === 'function')) {
+        if (softClientProperScore(cand) > softClientProperScore(card.client) ||
+            (softClientProperScore(cand) === softClientProperScore(card.client) && cand.length > String(card.client || '').length)) {
+          card.client = cand;
+        }
+      } else if (cand && cand.length > String(card.client || '').length) {
+        card.client = cand;
+      }
       card.lines.push(line);
       card.total += Number(line[amountKey] != null ? line[amountKey] : line.amount) || 0;
       if (line.example) card.example = true;
