@@ -2,6 +2,7 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-bd-group-parent-20260924 — BD same-client same-category expandable parent (mirror Marketing Cullman Platinum): softBdMktNormClientKey strips trailing search/PO codes (MM8461/FPOB8462) left outside (INITIATION)/(MONTHLY) so Cullman BD faces share one parent; deal-type reads INITIATION face → bd-initiation; parent $ = child sum; hotlink + no inv-only dedupe. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-client-group-view-20260924 — Polish BD+Marketing grouped-by-client UI to Mike-approved sketch: collapsed parent = client · type · N packages · owner · $sum (▸); expanded = same parent (▾) + nested child rows (DATE/MEMO with FPOB·MFM / INV / SIDE / PAID / $). Shared QB faces stay on BOTH children. Header "Marketing · N clients · $total". Sticky expand via localStorage. Production + GM Money same-client same-type. Builds on soft-mkt-group-restore (no inv-only dedupe). Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-clientkey-casefold-20260924 — GM Money client-card grouping key case-insensitive (trim+collapse+lower); prevents Cullman REgional vs Regional split. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-mkt-group-restore-20260924 — Fix over-aggressive GM Money inv-dedupe after casefold: same QB inv (e.g. Cullman Platinum 17105) must NOT drop distinct packages (FPOB vs MFM). Dedupe only duplicate emissions of same production rowId+person. Keep Production + GM Money same-client same-type expandable rollup (children preserved). Preserves soft-client-names-clean / case-normalize / casefold / gmoney-tab-cache / tier-pay. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -66396,7 +66397,7 @@ function ensureCarriGmSeed(s) {
       try { state.softBdMktRollupExpanded = (typeof softBdMktLoadExpandedLs === 'function') ? softBdMktLoadExpandedLs() : {}; }
       catch (eLs0) { state.softBdMktRollupExpanded = {}; }
     }
-    state.softBdMktClientRollupStamp = 'soft-client-group-view-20260924';
+    state.softBdMktClientRollupStamp = 'soft-bd-group-parent-20260924';
     return state;
   }
 
@@ -83377,7 +83378,8 @@ aForm.addEventListener('submit', function (e) {
     try {
       /* soft-mkt-group-restore-20260924 — do not clobber newer rollup stamp with names-clean stamp */
       if (!state.softBdMktClientRollupStamp) state.softBdMktClientRollupStamp = STAMP;
-      else if (String(state.softBdMktClientRollupStamp).indexOf('soft-client-group-view') < 0 &&
+      else if (String(state.softBdMktClientRollupStamp).indexOf('soft-bd-group-parent') < 0 &&
+               String(state.softBdMktClientRollupStamp).indexOf('soft-client-group-view') < 0 &&
                String(state.softBdMktClientRollupStamp).indexOf('soft-mkt-group-restore') < 0 &&
                String(state.softBdMktClientRollupStamp).indexOf('soft-client-case-normalize') < 0) {
         state.softBdMktClientRollupStamp = STAMP;
@@ -83394,10 +83396,14 @@ aForm.addEventListener('submit', function (e) {
 
   /* soft-bd-mkt-client-rollup-20260924 — display-only client+type rollup for BD deals + Marketing tables */
   function softBdMktNormClientKey(client) {
+    /* soft-bd-group-parent-20260924 — also strip trailing search/PO codes (MM8461, FPOB8462, PD8420)
+       left outside (INITIATION)/(MONTHLY)/(Standard) parens so Cullman BD faces share one parent like Marketing Platinum. */
     var s = String(client || '').toLowerCase();
     s = s.replace(/\s*\([^)]*\)\s*/g, ' ');
+    s = s.replace(/\b[a-z]{1,8}\d{3,6}\b/g, ' ');
     s = s.replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
     s = s.replace(/\bregional medical center\b/g, ' ').replace(/\bmedical center\b/g, ' ').replace(/\bregional\b/g, ' ');
+    s = s.replace(/^(initiation|monthly|retainer)\s+/, '').replace(/\s+(initiation|monthly|retainer)$/, '');
     s = s.replace(/\s+/g, ' ').trim();
     return s;
   }
@@ -83413,13 +83419,16 @@ aForm.addEventListener('submit', function (e) {
       if (camp) return 'mkt-' + camp.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
       return 'mkt-package';
     }
+    /* soft-bd-group-parent-20260924 — BD category from amounts OR (INITIATION)/(MONTHLY) face labels so same-client same-category roll up */
     var init = Number(row.initiation) || 0;
     var ret = Number(row.firstMonthRetainer) || 0;
     var lab = String(row.repeatOrNew || row.repeatRep || '').toLowerCase();
+    var faceBlob = String(row.client || '') + ' ' + String(row.gmLabel || '') + ' ' + String(row.lineKind || '');
     if (init > 0 && ret > 0) return 'bd-initiation-monthly';
     if (init > 0) return 'bd-initiation';
     if (ret > 0) return 'bd-monthly';
-    if (/monthly|retainer/i.test(String(row.client || '') + ' ' + String(row.gmLabel || ''))) return 'bd-monthly';
+    if (/monthly|retainer/i.test(faceBlob)) return 'bd-monthly';
+    if (/initiation/i.test(faceBlob)) return 'bd-initiation';
     if (lab.indexOf('repeat') >= 0) return 'bd-repeat';
     if (lab.indexOf('new') >= 0) return 'bd-new';
     return 'bd-deal';
@@ -83442,13 +83451,30 @@ aForm.addEventListener('submit', function (e) {
     return key;
   }
   function softBdMktRollupDisplayClient(rows) {
+    /* soft-bd-group-parent-20260924 — parent label = clean client (drop face parens + search codes); children keep full face on expand */
     if (!rows || !rows.length) return '';
     var best = String(rows[0].client || '');
     rows.forEach(function (r) {
       var c = String(r.client || '');
       if (c.length > best.length) best = c;
     });
-    return best.replace(/\s*\(\s*\d+\s*k\s*\/\s*\d+\s*\)\s*/i, '').trim() || best;
+    var cleaned = best
+      .replace(/\s*\([^)]*\)\s*/g, ' ')
+      .replace(/\b[A-Za-z]{1,8}\d{3,6}\b/g, ' ')
+      .replace(/\s*\(\s*\d+\s*k\s*\/\s*\d+\s*\)\s*/ig, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return cleaned || best;
+  }
+  function softBdMktFaceLabelFromClient(client) {
+    /* Child subtitle: INITIATION/MONTHLY/Standard + search code (MM8461) — mirrors Marketing FPOB/MFM */
+    var raw = String(client || '');
+    var bits = [];
+    var mFace = raw.match(/\(\s*(INITIATION|MONTHLY|STANDARD|PREMIUM|PLATINUM)[^)]*\)/i);
+    if (mFace) bits.push(mFace[1].charAt(0).toUpperCase() + mFace[1].slice(1).toLowerCase());
+    var codes = raw.match(/\b[A-Za-z]{1,8}\d{3,6}\b/g);
+    if (codes) codes.forEach(function (c) { if (bits.indexOf(c) < 0) bits.push(c); });
+    return bits.join(' · ');
   }
   function softBdMktLoadExpandedLs() {
     /* soft-client-group-view-20260924 — sticky expand preference (optional) */
@@ -83475,7 +83501,7 @@ aForm.addEventListener('submit', function (e) {
         });
       } catch (eMerge) {}
     }
-    s.softBdMktClientRollupStamp = 'soft-client-group-view-20260924';
+    s.softBdMktClientRollupStamp = 'soft-bd-group-parent-20260924';
     return s;
   }
   function softBdMktGroupVisibleRows(list) {
@@ -83506,6 +83532,7 @@ aForm.addEventListener('submit', function (e) {
   try { window.__softClientNamesClean20260924 = 'soft-client-names-clean-20260924'; } catch (eR3f) {}
   try { window.__softMktGroupRestore20260924 = 'soft-mkt-group-restore-20260924'; } catch (eR3g) {}
   try { window.__softClientGroupView20260924 = 'soft-client-group-view-20260924'; } catch (eR3h) {}
+  try { window.__softBdGroupParent20260924 = 'soft-bd-group-parent-20260924'; } catch (eR3i) {}
   try { window.__softGmMoneyTabCache20260924 = 'soft-gmoney-tab-cache-20260924'; } catch (eR4) {}
 
 
@@ -83797,7 +83824,7 @@ aForm.addEventListener('submit', function (e) {
       else appendBdRow(g.rows[0]);
     });
 
-    state.softBdMktClientRollupLast = { stamp: 'soft-client-group-view-20260924', filter: filter, shown: shown, rollup: rollupMeta, scope: 'production+gmoney', at: '2026-09-24' };
+    state.softBdMktClientRollupLast = { stamp: 'soft-bd-group-parent-20260924', filter: filter, shown: shown, rollup: rollupMeta, scope: 'production+gmoney', at: '2026-09-24' };
     var rollNote = rollupMeta.groups ? (' · rollup ' + rollupMeta.linesIn + '→' + rollupMeta.linesOut + ' (' + rollupMeta.groups + ' groups)') : '';
     document.getElementById('prod-stat').textContent = shown + ' rows' + (filter !== 'all' ? ' · ' + filter : '') + rollNote;
     if (!bdBody.children.length) bdBody.innerHTML = '<tr><td colspan="13" class="empty">No BD Deal rows for this filter</td></tr>';
@@ -90318,6 +90345,11 @@ ownersDetailHtml(row) +
           var spec = String(row.specialties || '').trim();
           if (spec && memo.toLowerCase().indexOf(spec.toLowerCase()) < 0) memo += ' · ' + spec;
         }
+        /* soft-bd-group-parent-20260924 — BD face (INITIATION/MONTHLY + MM8461) on child memo when specialties empty */
+        if (row && row.bookType === 'Deal' && typeof softBdMktFaceLabelFromClient === 'function') {
+          var faceLab = softBdMktFaceLabelFromClient(row.client || bl.client || '');
+          if (faceLab && memo.toLowerCase().indexOf(faceLab.toLowerCase()) < 0) memo += ' · ' + faceLab;
+        }
         var inv = (row && (row.qbInvoice || row.inv)) || '—';
         var idBase = 'board_' + (kind === 'paid' ? 'p_' : 'u_') + String(bl.rowId || 'x') + '_' + String(person || '').replace(/\W+/g, '_');
         /* soft-rollup-gmoney-only-20260924 — carry month + deal-type for GM Money BD/Mkt rollup only */
@@ -90560,7 +90592,12 @@ ownersDetailHtml(row) +
     function renderClientTypeGroupChips(card, bookType, mode, asof) {
       /* soft-client-group-view-20260924 — sketch: one expandable parent per client (+ type). Collapsed = clean scan; expanded = child DETAIL rows. Shared QB stays on every child. */
       var clientName = (card && card.client) || '—';
-      var ck = (typeof softBdMktNormClientKey === 'function') ? softBdMktNormClientKey(clientName) : String(clientName || '').toLowerCase();
+      /* soft-bd-group-parent-20260924 — parent chip shows clean client (Cullman), not Cullman (INITIATION) FPOB8462 */
+      if (typeof softBdMktRollupDisplayClient === 'function' && card && card.lines && card.lines.length) {
+        var clean = softBdMktRollupDisplayClient(card.lines);
+        if (clean) clientName = clean;
+      }
+      var ck = (typeof softBdMktNormClientKey === 'function') ? softBdMktNormClientKey((card && card.client) || clientName) : String(clientName || '').toLowerCase();
       var map = {};
       var order = [];
       (card.lines || []).forEach(function (r) {
