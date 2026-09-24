@@ -2,6 +2,8 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-gmoney-tab-cache-20260924 — GM Money tab switch perf: cache gmMoneyCollectProdLines by year+paidDate fingerprint; render only active tab on tab click; skip full saveState on tab-only; reuse paid collect inside paycheck Est. pay. Prior soft-gmoney-paycheck-ytd-tabs-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
+/* soft-bd-mkt-rollup-restore-20260924 — Re-affirm Production BD+Marketing client/type display rollup (Cullman Platinum etc.): group key includes month; ensure Soft Soft renderProduction rollup path; prior soft-bd-mkt-client-rollup-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gmoney-paycheck-ytd-tabs-20260924 — Fix This-paycheck + YTD tabs: renderGmMoneyPaycheck Est. pay used win.end (Date).slice → TypeError; aborted paycheck fill and skipped YTD. Use win.endIso; isolate unpaid/paycheck/ytd in try/catch. Prior soft-gm-total-label-tier-pay-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gm-total-label-tier-pay-20260924 — GM Money: label Paycheck total→GM total; Soft Soft pay = SOFT_COMP_GM_SPLITS.paidOfCollectedTiers bucket walk (payment can split across two rates); person→tier Hadley/Amy/Nate=recruitingSpecialist 10/14/18/22/26 · Stephanie=senior 12/16/20/24/28 · Mike=principal 14/18/22/26/30 (NOT Hub GM_ACTUAL_TIERS). Est. pay on This-paycheck + YTD when person filtered. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-paid-action-date-picker-20260924 — Invoice spine Mark paid: confirm modal with <input type="date"> default America/Chicago today, editable; stores user ISO as row.paidDate + spineOverrides.paidDate (not click timestamp). GM Money gmRowPaidIso prefers paidDate. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -66385,7 +66387,7 @@ function ensureCarriGmSeed(s) {
     /* soft-bd-mkt-client-rollup-20260924 — persist expand map only; display rollup is render-time. */
     if (!state) return state;
     if (!state.softBdMktRollupExpanded || typeof state.softBdMktRollupExpanded !== 'object') state.softBdMktRollupExpanded = {};
-    state.softBdMktClientRollupStamp = 'soft-bd-mkt-client-rollup-20260924';
+    state.softBdMktClientRollupStamp = 'soft-bd-mkt-rollup-restore-20260924';
     return state;
   }
 
@@ -83039,19 +83041,21 @@ aForm.addEventListener('submit', function (e) {
   function softBdMktEnsureRollupState(s) {
     if (!s) return s;
     if (!s.softBdMktRollupExpanded || typeof s.softBdMktRollupExpanded !== 'object') s.softBdMktRollupExpanded = {};
-    s.softBdMktClientRollupStamp = 'soft-bd-mkt-client-rollup-20260924';
+    s.softBdMktClientRollupStamp = 'soft-bd-mkt-rollup-restore-20260924';
     return s;
   }
   function softBdMktGroupVisibleRows(list) {
+    /* soft-bd-mkt-rollup-restore-20260924 — month-scoped key so same-client same-type collapse per month (Cullman-style); never flatten across months when filter=all */
     var groups = [];
     var map = {};
     (list || []).forEach(function (row) {
       if (!row) return;
       var ck = softBdMktNormClientKey(row.client);
       var tk = softBdMktDealTypeKey(row);
-      var gkey = ck + '||' + tk;
+      var mk = String(row.month || '').slice(0, 7);
+      var gkey = mk + '||' + ck + '||' + tk;
       if (!map[gkey]) {
-        map[gkey] = { key: gkey, clientKey: ck, typeKey: tk, rows: [] };
+        map[gkey] = { key: gkey, clientKey: ck, typeKey: tk, monthKey: mk, rows: [] };
         groups.push(map[gkey]);
       }
       map[gkey].rows.push(row);
@@ -83060,6 +83064,8 @@ aForm.addEventListener('submit', function (e) {
   }
   try { window.__softBdMktNormClientKey = softBdMktNormClientKey; } catch (eR1) {}
   try { window.__softBdMktDealTypeKey = softBdMktDealTypeKey; } catch (eR2) {}
+  try { window.__softBdMktRollupRestore20260924 = 'soft-bd-mkt-rollup-restore-20260924'; } catch (eR3) {}
+  try { window.__softGmMoneyTabCache20260924 = 'soft-gmoney-tab-cache-20260924'; } catch (eR4) {}
 
 
   document.addEventListener('click', function (ev) {
@@ -83113,7 +83119,7 @@ aForm.addEventListener('submit', function (e) {
   }, true);
 
   function renderProduction() {
-    /* soft-bd-mkt-client-rollup-20260924 — BD + Marketing: collapse ≥2 same-client same-type lines into summed parent; expand for detail. Placement unchanged. */
+    /* soft-bd-mkt-rollup-restore-20260924 + soft-bd-mkt-client-rollup-20260924 — BD + Marketing: collapse ≥2 same-client same-type lines into summed parent (month-scoped key); expand for detail. Placement unchanged. */
     softBdMktEnsureRollupState(state);
     var filter = document.getElementById('prod-month').value;
     var bdBody = document.querySelector('#tbl-bd tbody');
@@ -83332,7 +83338,7 @@ aForm.addEventListener('submit', function (e) {
       else appendBdRow(g.rows[0]);
     });
 
-    state.softBdMktClientRollupLast = { stamp: 'soft-bd-mkt-client-rollup-20260924', filter: filter, shown: shown, rollup: rollupMeta, at: '2026-09-24' };
+    state.softBdMktClientRollupLast = { stamp: 'soft-bd-mkt-rollup-restore-20260924', filter: filter, shown: shown, rollup: rollupMeta, at: '2026-09-24' };
     var rollNote = rollupMeta.groups ? (' · rollup ' + rollupMeta.linesIn + '→' + rollupMeta.linesOut + ' (' + rollupMeta.groups + ' groups)') : '';
     document.getElementById('prod-stat').textContent = shown + ' rows' + (filter !== 'all' ? ' · ' + filter : '') + rollNote;
     if (!bdBody.children.length) bdBody.innerHTML = '<tr><td colspan="13" class="empty">No BD Deal rows for this filter</td></tr>';
@@ -89736,14 +89742,75 @@ ownersDetailHtml(row) +
     try { if (typeof collectBdGmCreditLines === 'function') addAll(collectBdGmCreditLines(person, year)); } catch (eB) {}
     return lines;
   }
+  /* soft-gmoney-tab-cache-20260924 — cache paid/unpaid board lines; invalidate when year or paidDate/source fingerprint changes */
+  var __softGmMoneyCollectCache = { fp: '', year: '', paid: null, unpaid: null };
+  var __softGmMoneyPanelCache = { fp: '', unpaid: false, paycheck: false, ytd: false };
+  function softGmMoneyInvalidateCollectCache() {
+    __softGmMoneyCollectCache = { fp: '', year: '', paid: null, unpaid: null };
+    __softGmMoneyPanelCache = { fp: '', unpaid: false, paycheck: false, ytd: false };
+  }
+  function softGmMoneyCollectFp(year) {
+    var rows = (state && state.rows) || [];
+    var n = rows.length;
+    var sig = 0;
+    for (var i = 0; i < n; i++) {
+      var r = rows[i];
+      if (!r) continue;
+      var pd = String(r.paidDate || '');
+      var st = String(r.status || '');
+      var qb = String(r.qbInvoice || r.qbNumber || '');
+      sig = (sig + ((pd.charCodeAt(0) || 0) * (i + 1)) + ((st.charCodeAt(0) || 0) * (i + 3)) + ((qb.charCodeAt(0) || 0) * (i + 5)) + ((Number(r.accountingBilled) || Number(r.fee) || 0) | 0)) | 0;
+    }
+    var stubN = 0;
+    try { stubN = ((typeof gmMoneySeed === 'function' ? gmMoneySeed() : (state && state.gmMoneySeed)) || {}).paycheckLines || []; stubN = stubN.length; } catch (eS) { stubN = 0; }
+    var ovN = 0;
+    try { ovN = Object.keys((state && state.spineOverrides) || {}).length; } catch (eO) { ovN = 0; }
+    return String(year || '') + '|' + n + '|' + sig + '|' + stubN + '|' + ovN;
+  }
+  function softGmMoneyViewFp(ui, win) {
+    ui = ui || {};
+    var endIso = (win && win.endIso) ? String(win.endIso) : String(ui.asof || '');
+    return softGmMoneyCollectFp(ui.year) + '|' + String(ui.side || '') + '|' + String(ui.person || '') + '|' + String(ui.asof || '') + '|' + endIso;
+  }
+  function softGmMoneyPersistTabOnly() {
+    /* Avoid full saveState (ensures + JSON.stringify entire board) on every tab click — same class of lag as Accounting Find rehydration. */
+    try {
+      var ui = gmMoneyUi();
+      var raw = localStorage.getItem(LS_KEY);
+      if (!raw) { saveState(); return; }
+      var obj = JSON.parse(raw);
+      if (!obj || typeof obj !== 'object') { saveState(); return; }
+      obj.gmMoneyUi = obj.gmMoneyUi || {};
+      obj.gmMoneyUi.tab = ui.tab;
+      obj.gmMoneyUi.side = ui.side;
+      obj.gmMoneyUi.person = ui.person;
+      obj.gmMoneyUi.asof = ui.asof;
+      obj.gmMoneyUi.year = ui.year;
+      localStorage.setItem(LS_KEY, JSON.stringify(obj));
+    } catch (eLight) {
+      try { saveState(); } catch (eFull) {}
+    }
+  }
+  try { window.softGmMoneyInvalidateCollectCache = softGmMoneyInvalidateCollectCache; } catch (eInv) {}
+
   function gmMoneyCollectProdLines(kind) {
     /* soft-gmoney-board-paid-pull-20260924 — GM Money paid/unpaid = same Rec/BD GM board credit lines, filtered to paid|unpaid (spine cash SoT). Not a divergent Production-only path. */
+    /* soft-gmoney-tab-cache-20260924 — return cached paid/unpaid arrays when year+paidDate fingerprint unchanged */
     var out = [];
     var year = '2026';
     try {
       if (typeof gmMoneyUi === 'function') year = String(gmMoneyUi().year || softGmMoneyDefaultAsof().slice(0, 4));
       else year = String(softGmMoneyDefaultAsof().slice(0, 4));
     } catch (eY) {}
+    try {
+      var fp = softGmMoneyCollectFp(year);
+      if (__softGmMoneyCollectCache.fp === fp && __softGmMoneyCollectCache.year === year) {
+        if (kind === 'paid' && __softGmMoneyCollectCache.paid) return __softGmMoneyCollectCache.paid.slice();
+        if (kind === 'unpaid' && __softGmMoneyCollectCache.unpaid) return __softGmMoneyCollectCache.unpaid.slice();
+      } else if (__softGmMoneyCollectCache.fp !== fp || __softGmMoneyCollectCache.year !== year) {
+        __softGmMoneyCollectCache = { fp: fp, year: year, paid: null, unpaid: null };
+      }
+    } catch (eCache) {}
     var people = [];
     var seenP = {};
     try {
@@ -89813,6 +89880,13 @@ ownersDetailHtml(row) +
         }
       });
     });
+    try {
+      var fp2 = softGmMoneyCollectFp(year);
+      __softGmMoneyCollectCache.fp = fp2;
+      __softGmMoneyCollectCache.year = year;
+      if (kind === 'paid') __softGmMoneyCollectCache.paid = out.slice();
+      else if (kind === 'unpaid') __softGmMoneyCollectCache.unpaid = out.slice();
+    } catch (eStore) {}
     return out;
   }
   function gmMoneyNormalizeUnpaid(r) {
@@ -89969,11 +90043,13 @@ ownersDetailHtml(row) +
     });
   }
 
-  function renderGmMoney() {
+  function renderGmMoney(opts) {
+    /* soft-gmoney-tab-cache-20260924 — opts.tabOnly: toggle panels + render active tab only when cache miss; never rebuild all three on every click */
+    opts = opts || {};
     var root = document.getElementById('view-gmoney');
     if (!root) return;
     var ui = gmMoneyUi();
-    softGmMoneyPopulateFilters(ui);
+    if (!opts.tabOnly) softGmMoneyPopulateFilters(ui);
     var sideEl = document.getElementById('gmoney-side');
     var personEl = document.getElementById('gmoney-person');
     var asofEl = document.getElementById('gmoney-asof');
@@ -89987,7 +90063,7 @@ ownersDetailHtml(row) +
     }
     var win = paycheckWindowFor(ui.asof);
     var winEl = document.getElementById('gmoney-window');
-    if (winEl) {
+    if (winEl && !opts.tabOnly) {
       winEl.innerHTML = '<strong>Paycheck window:</strong> ' + fmtMdY(win.start) + ' → ' + fmtMdY(win.end) +
         ' <span style="opacity:.85">(as-of ' + escHtml(ui.asof) + ' · 16th of prior → 15th)</span>' +
         ' · <strong>Year:</strong> ' + escHtml(ui.year || String(softGmMoneyDefaultAsof()).slice(0, 4)) + ' (YTD / this-year filter)' +
@@ -90003,9 +90079,41 @@ ownersDetailHtml(row) +
       panel.classList.toggle('active', on);
       panel.hidden = !on;
     });
-    try { renderGmMoneyUnpaid(ui, win); } catch (eUnpaid) { try { console.warn('renderGmMoneyUnpaid', eUnpaid); } catch (e0) {} }
-    try { renderGmMoneyPaycheck(ui, win); } catch (ePay) { try { console.warn('renderGmMoneyPaycheck', ePay); } catch (e1) {} }
-    try { renderGmMoneyYtd(ui, win); } catch (eYtd) { try { console.warn('renderGmMoneyYtd', eYtd); } catch (e2) {} }
+    var viewFp = '';
+    try { viewFp = softGmMoneyViewFp(ui, win); } catch (eFp) { viewFp = ''; }
+    if (opts.tabOnly && __softGmMoneyPanelCache.fp === viewFp && __softGmMoneyPanelCache[ui.tab]) {
+      return; /* panel HTML already built for this filter fingerprint */
+    }
+    if (!opts.tabOnly) {
+      __softGmMoneyPanelCache = { fp: viewFp, unpaid: false, paycheck: false, ytd: false };
+    } else if (__softGmMoneyPanelCache.fp !== viewFp) {
+      __softGmMoneyPanelCache = { fp: viewFp, unpaid: false, paycheck: false, ytd: false };
+    }
+    function paintTab(t) {
+      if (t === 'unpaid') renderGmMoneyUnpaid(ui, win);
+      else if (t === 'paycheck') renderGmMoneyPaycheck(ui, win);
+      else if (t === 'ytd') renderGmMoneyYtd(ui, win);
+      __softGmMoneyPanelCache[t] = true;
+      __softGmMoneyPanelCache.fp = viewFp;
+    }
+    try {
+      paintTab(ui.tab || 'unpaid');
+    } catch (eActive) {
+      try { console.warn('renderGmMoney active tab', ui.tab, eActive); } catch (e0) {}
+    }
+    /* Full open (not tab-only): optionally warm the other panels in idle time so first switch is instant */
+    if (!opts.tabOnly) {
+      var others = ['unpaid', 'paycheck', 'ytd'].filter(function (t) { return t !== (ui.tab || 'unpaid'); });
+      var warm = function () {
+        others.forEach(function (t) {
+          try { if (!__softGmMoneyPanelCache[t]) paintTab(t); } catch (eW) {}
+        });
+      };
+      try {
+        if (typeof requestIdleCallback === 'function') requestIdleCallback(warm, { timeout: 800 });
+        else setTimeout(warm, 0);
+      } catch (eIdle) { try { setTimeout(warm, 0); } catch (e2) {} }
+    }
   }
 
   function gmMoneyMarkPaidStubs() {
@@ -90046,10 +90154,11 @@ ownersDetailHtml(row) +
   }
 
   function renderGmMoneyPaycheck(ui, win) {
-    /* soft-gmoney-paycheck-ytd-tabs-20260924 + soft-gm-total-label-tier-pay-20260924 */
-    var rows = gmMoneyCollectProdLines('paid').map(gmMoneyNormalizePaid).concat(
+    /* soft-gmoney-paycheck-ytd-tabs-20260924 + soft-gm-total-label-tier-pay-20260924 + soft-gmoney-tab-cache-20260924 */
+    var paidAll = gmMoneyCollectProdLines('paid').map(gmMoneyNormalizePaid).concat(
       gmMoneyMarkPaidStubs().map(gmMoneyNormalizePaid)
-    ).filter(function (r) {
+    );
+    var rows = paidAll.filter(function (r) {
       if (!gmMoneyFilterPersonLine(r, ui)) return false;
       return dateInInclusive(r.paidDate, win.start, win.end);
     });
@@ -90069,9 +90178,7 @@ ownersDetailHtml(row) +
       /* soft-gmoney-paycheck-ytd-tabs-20260924 — win.end is a Date; never .slice it (was TypeError aborting paycheck+YTD). Use endIso / asof string. */
       var yearSrc = (win && win.endIso) ? String(win.endIso) : String(ui.asof || softGmMoneyDefaultAsof() || '');
       var year = yearSrc.slice(0, 4) || String(ui.year || softGmMoneyDefaultAsof().slice(0, 4));
-      var yearRows = gmMoneyCollectProdLines('paid').map(gmMoneyNormalizePaid).concat(
-        gmMoneyMarkPaidStubs().map(gmMoneyNormalizePaid)
-      ).filter(function (r) {
+      var yearRows = paidAll.filter(function (r) {
         if (!gmMoneyPersonMatch(r.person, person)) return false;
         if (!gmMoneySideMatch(r.side, ui.side)) return false;
         return gmMoneyLineYear(r) === year;
@@ -90170,6 +90277,7 @@ ownersDetailHtml(row) +
       if (personEl) ui.person = personEl.value;
       if (asofEl) ui.asof = asofEl.value;
       if (yearEl) ui.year = yearEl.value;
+      try { softGmMoneyInvalidateCollectCache(); } catch (eInv) {}
       saveState();
       renderGmMoney();
     }
@@ -90178,11 +90286,15 @@ ownersDetailHtml(row) +
     if (asofEl) asofEl.addEventListener('change', syncFromDom);
     if (yearEl) yearEl.addEventListener('change', syncFromDom);
     if (tabs) tabs.addEventListener('click', function (e) {
+      /* soft-gmoney-tab-cache-20260924 — tab switch: no full saveState / no triple-panel recompute */
       var btn = e.target.closest('button[data-gmoney-tab]');
       if (!btn) return;
-      gmMoneyUi().tab = btn.getAttribute('data-gmoney-tab');
-      saveState();
-      renderGmMoney();
+      var ui = gmMoneyUi();
+      var next = btn.getAttribute('data-gmoney-tab');
+      if (ui.tab === next) return;
+      ui.tab = next;
+      try { softGmMoneyPersistTabOnly(); } catch (eTab) { try { saveState(); } catch (eS) {} }
+      renderGmMoney({ tabOnly: true });
     });
   })();
 
@@ -95002,13 +95114,15 @@ html[data-look="light"] [data-bd-agree-drop] .bd-agree-dropzone.is-dragover {
   margin-top: 6px;
 }
 
-  /* soft-bd-mkt-client-rollup-20260924 */
+  /* soft-bd-mkt-client-rollup-20260924 + soft-bd-mkt-rollup-restore-20260924 */
   tr.soft-rollup-parent td { font-weight: 600; background: rgba(56, 189, 248, 0.08); }
   tr.soft-rollup-child td { opacity: 0.92; background: rgba(15, 23, 42, 0.04); }
   button.soft-rollup-toggle { background: transparent; border: 0; color: inherit; cursor: pointer; font: inherit; font-weight: 700; padding: 0; text-align: left; }
   button.soft-rollup-toggle:hover { text-decoration: underline; }
   .soft-rollup-badge { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; background: rgba(56, 189, 248, 0.18); color: #0369a1; vertical-align: middle; }
   .soft-rollup-qb { font-size: 11px; color: #64748b; margin-left: 4px; }
+  html[data-look="dark"] tr.soft-rollup-parent td { background: rgba(56, 189, 248, 0.14); }
+  html[data-look="dark"] .soft-rollup-badge { background: rgba(56, 189, 248, 0.28); color: #7dd3fc; }
 
 
   /* soft-recurring-gm-month-override-20260924 */
