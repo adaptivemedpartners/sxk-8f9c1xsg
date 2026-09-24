@@ -2,7 +2,7 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
-/* soft-gm-money-live-20260924 — GM Money LIVE: Unpaid/This paycheck/YTD read Production rows + spine cash SoT (softGmIsUnpaidSoT / softGmIsPaidSoT) + Mark-paid stubs only; kill PDF mock seed default path + do-not-treat-as-live / mock-year chrome; year/as-of from live board years + latest 15th on/before today (paycheckWindowFor 16th→15th). GM board stays read-only for billing. Soft Soft Desktop only. Never Hub. Never Pages. */
+/* soft-gmoney-board-paid-pull-20260924 + soft-gmoney-gm-share-not-revenue-20260924 + soft-gm-money-live-20260924 — GM Money LIVE: Unpaid/This paycheck/YTD read Production rows + spine cash SoT (softGmIsUnpaidSoT / softGmIsPaidSoT) + Mark-paid stubs only; kill PDF mock seed default path + do-not-treat-as-live / mock-year chrome; year/as-of from live board years + latest 15th on/before today (paycheckWindowFor 16th→15th). GM board stays read-only for billing. Soft Soft Desktop only. Never Hub. Never Pages. */
 /* soft-gm-recur-request-opaque-20260923 — Recurring request modal solid white card; Glass Look var(--card) was translucent over GM bands. Soft Soft Desktop only. Never Hub/Pages. */
 
 /* soft-flow-port-syntax-20260922 — Soft Soft Desktop: extra } before spine act===delete-client aborted soft-flow-port-js parse (SyntaxError: missing ) after argument list); __softFlowGoToView never exported → Production + Accounting soft-flow-port height 0 / dead tabs+subpills. Soft Soft only. Desktop only. No Pages. */
@@ -84787,7 +84787,48 @@ ownersDetailHtml(row) +
   /* ===== GM summary cards (Next check / Paid YTD / Booked YTD) — Mike stamp 2026-09-09 ===== */
   var GM_BOARD_ASOF = '2026-09-09'; /* mock context / board year 2026 */
 
+  function softGmMoneySpinePaidIsoForQb(qb) {
+    /* soft-gmoney-board-paid-pull-20260924 — Carri QB spine / SPINE_INVOICES cash date when row.paidDate blank. */
+    qb = String(qb || '').trim();
+    if (!qb) return '';
+    try {
+      if (typeof CARRI_QB_SPINE !== 'undefined' && Array.isArray(CARRI_QB_SPINE)) {
+        var best = '';
+        for (var i = 0; i < CARRI_QB_SPINE.length; i++) {
+          var sp = CARRI_QB_SPINE[i];
+          if (!sp || String(sp.n) !== qb || !sp.p || !sp.d) continue;
+          var iso = String(sp.d).slice(0, 10);
+          if (!best || iso > best) best = iso;
+        }
+        if (best) return best;
+      }
+    } catch (eC) {}
+    try {
+      if (typeof SPINE_INVOICES !== 'undefined' && Array.isArray(SPINE_INVOICES)) {
+        for (var j = 0; j < SPINE_INVOICES.length; j++) {
+          var inv = SPINE_INVOICES[j];
+          if (!inv) continue;
+          var n = String(inv.qbNumber || '').trim();
+          if (n !== qb) continue;
+          if (String(inv.status || '') === 'Paid' && inv.paidDate) {
+            var pIso = (typeof softIsoDate === 'function') ? softIsoDate(inv.paidDate) : String(inv.paidDate).slice(0, 10);
+            if (pIso) return pIso;
+          }
+        }
+      }
+    } catch (eS) {}
+    return '';
+  }
   function gmRowPaidIso(row) {
+    /* soft-gmoney-board-paid-pull-20260924 — paidDate, else spine/Carri cash date when Paid SoT, else book date. Fixes Cullman 17104 Aug15 book vs Aug27 spine cash in paycheck window. */
+    var pd = String((row && row.paidDate) || '').slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}/.test(pd)) return pd;
+    try {
+      if (row && typeof softGmIsPaidSoT === 'function' && softGmIsPaidSoT(row)) {
+        var spineIso = softGmMoneySpinePaidIsoForQb(row.qbInvoice || row.qbNumber || '');
+        if (spineIso) return spineIso;
+      }
+    } catch (eSpinePd) {}
     return String((row && (row.paidDate || row.date)) || '').slice(0, 10);
   }
   function gmIsoInRange(iso, startIso, endIso) {
@@ -88505,49 +88546,160 @@ ownersDetailHtml(row) +
     var iso = softIsoDate(line.date || line.paidDate || line.shipDate || '');
     return iso ? iso.slice(0, 4) : '';
   }
+  function gmMoneyOwnerGmCredits(row, faceAmt) {
+    /* soft-gmoney-gm-share-not-revenue-20260924 — person GM $ = face × owner pct (Carri Monthly GM), not full accountingBilled revenue. House skipped. */
+    var credits = [];
+    var amt = Number(faceAmt) || 0;
+    if (!row || !amt) return credits;
+    try { if (typeof ensureOwners === 'function') ensureOwners(row); } catch (eEns) {}
+    var owners = row.owners || {};
+    function push(name, pct) {
+      if (name == null || name === '') return;
+      if (typeof name === 'object' && name) name = name.name;
+      name = String(name || '').trim();
+      if (!name || name === 'House' || /^AMP\s*House$/i.test(name)) return;
+      var p = Number(pct);
+      if (!isFinite(p) || p === 0) return;
+      var dollars = Math.round(amt * (p / 100) * 100) / 100;
+      if (!dollars) return;
+      credits.push({ person: name, pct: p, amount: dollars });
+    }
+    if (owners.mode === 'Whole') {
+      var prim = owners.primary;
+      if (typeof prim === 'object' && prim) push(prim.name, prim.pct != null ? prim.pct : 100);
+      else push(prim, 100);
+    } else if (owners.mode === 'Split') {
+      if (owners.a) push(owners.a.name, owners.a.pct);
+      if (owners.b) push(owners.b.name, owners.b.pct);
+      if (owners.bdA) push(owners.bdA.name, owners.bdA.pct);
+      if (owners.bdB) push(owners.bdB.name, owners.bdB.pct);
+      if (owners.recruiter) push(owners.recruiter.name || owners.recruiter, owners.recruiter.pct);
+    } else if (owners.mode === 'Repeat') {
+      if (owners.primary) push(owners.primary.name, owners.primary.pct);
+      if (owners.repeatRecipient) push(owners.repeatRecipient.name, owners.repeatRecipient.pct);
+    } else if (owners.mode === 'Marketing' || owners.mode === 'BD') {
+      (owners.reps || []).forEach(function (r) { if (r) push(r.name, r.pct); });
+    } else {
+      push(row.rep || 'Unassigned', 100);
+    }
+    if (!credits.length) push(row.rep || 'Unassigned', 100);
+    return credits;
+  }
+  function gmMoneyBoardKindToBookType(kind) {
+    var k = String(kind || '');
+    if (k === 'Placement') return 'Placement';
+    if (k === 'Marketing') return 'Marketing';
+    return 'Deal';
+  }
+  function gmMoneySideForBoardLine(row, bookType) {
+    /* soft-gmoney-board-paid-pull-20260924 — Marketing → recruiting (Carri STANDARD-RECR); Placement → recruiting;
+       Deal REPEAT / initiation / monthly retainer → bd (Carri STANDARD-BD) even when painted on Rec GM board. */
+    if (bookType === 'Marketing' || (row && row.bookType === 'Marketing')) return 'recruiting';
+    if (bookType === 'Placement' || (row && row.bookType === 'Placement')) return 'recruiting';
+    if (bookType === 'Deal' || (row && row.bookType === 'Deal')) {
+      var ck = String((row && row.carriKind) || '').toUpperCase();
+      var label = String((row && (row.gmLabel || row.client || '')) || '');
+      if (ck === 'REPEAT' || ck === 'NEW_SEARCH' || /INITIATION|MONTHLY|NEW SEARCH|RETAINER/i.test(label)) return 'bd';
+      if (row && row.side === 'bd') return 'bd';
+      if (row && row.side === 'recruiting') return 'recruiting';
+      return 'bd';
+    }
+    if (row && row.side === 'recruiting') return 'recruiting';
+    if (row && row.side === 'bd') return 'bd';
+    return 'bd';
+  }
+  function gmMoneyCollectBoardCreditLinesForPerson(person, year) {
+    var lines = [];
+    var seen = {};
+    function addAll(arr) {
+      (arr || []).forEach(function (l) {
+        if (!l) return;
+        var k = String(l.rowId || '') + '|' + String(l.kind || '') + '|' + String(l.amount) + '|' + String(l.paidIso || '') + '|' + String(person);
+        if (seen[k]) return;
+        seen[k] = true;
+        lines.push(l);
+      });
+    }
+    try { if (typeof collectRecGmCreditLines === 'function') addAll(collectRecGmCreditLines(person, year)); } catch (eR) {}
+    try { if (typeof collectBdGmCreditLines === 'function') addAll(collectBdGmCreditLines(person, year)); } catch (eB) {}
+    return lines;
+  }
   function gmMoneyCollectProdLines(kind) {
-    /* soft-gm-money-live-20260924 — Map live Production rows into GM money line shape via spine cash SoT. No invented fees. */
+    /* soft-gmoney-board-paid-pull-20260924 — GM Money paid/unpaid = same Rec/BD GM board credit lines, filtered to paid|unpaid (spine cash SoT). Not a divergent Production-only path. */
     var out = [];
-    (state.rows || []).forEach(function (row) {
-      if (!row || row.example) return;
-      var bt = inferGmMoneyBookType(row);
-      if (row.bookType === 'Placement') bt = 'Placement';
-      else if (row.bookType === 'Marketing') bt = 'Marketing';
-      else if (row.bookType === 'Deal') bt = 'Deal';
-      var amt = Number(row.accountingBilled != null ? row.accountingBilled : (row.fee != null ? row.fee : row.bookValueThisMonth)) || 0;
-      if (!amt) return;
-      var person = row.rep || (row.owners && row.owners.primary) || 'Unassigned';
-      if (typeof person === 'object' && person && person.name) person = person.name;
-      var side = row.side || (bt === 'Placement' ? 'recruiting' : (bt === 'Marketing' ? 'recruiting' : 'bd'));
-      if (row.bookType === 'Placement') side = 'recruiting';
-      if (row.bookType === 'Deal') side = row.side || 'bd';
-      var paidIso = softIsoDate(row.paidDate || (row.paid ? row.date : '') || '');
-      var dateIso = softIsoDate(row.date || paidIso || '');
-      var searchPo = (row.dealRef || row.searchRefs || row.searchPo || '').toString();
-      if (kind === 'unpaid') {
-        var unpaidOk = false;
-        try { unpaidOk = typeof softGmIsUnpaidSoT === 'function' ? softGmIsUnpaidSoT(row) : false; } catch (eU) { unpaidOk = false; }
-        if (!unpaidOk) {
-          if (typeof softGmIsPaidSoT === 'function' && softGmIsPaidSoT(row)) return;
-          if (row.status !== 'Invoiced') return;
+    var year = '2026';
+    try {
+      if (typeof gmMoneyUi === 'function') year = String(gmMoneyUi().year || softGmMoneyDefaultAsof().slice(0, 4));
+      else year = String(softGmMoneyDefaultAsof().slice(0, 4));
+    } catch (eY) {}
+    var people = [];
+    var seenP = {};
+    try {
+      (REC_PEOPLE || []).concat(BD_PEOPLE || []).forEach(function (p) {
+        if (p && !seenP[p]) { seenP[p] = true; people.push(p); }
+      });
+    } catch (eP) {
+      people = ['Mike', 'Stephanie', 'Hadley', 'Nate', 'Amy', 'Zach', 'Aaron', 'Brenton', 'Kelley', 'Randy'];
+    }
+    var rowById = {};
+    (state.rows || []).forEach(function (r) { if (r && r.id) rowById[r.id] = r; });
+    people.forEach(function (person) {
+      gmMoneyCollectBoardCreditLinesForPerson(person, year).forEach(function (bl) {
+        if (!bl) return;
+        var row = bl.rowId ? rowById[bl.rowId] : null;
+        var paid = !!bl.paid;
+        if (!paid && row && typeof softGmIsPaidSoT === 'function') {
+          try { paid = softGmIsPaidSoT(row); } catch (ePaid) {}
         }
-        out.push({
-          id: 'prod_u_' + row.id, person: person, side: side, bookType: bt,
-          client: row.client || '', inv: row.qbInvoice || row.inv || '—', searchPo: searchPo,
-          memo: (row.bookType || bt) + (row.physician ? (' — ' + row.physician) : (row.campaign ? (' — ' + row.campaign) : '')),
-          date: dateIso, open: amt, amount: amt, example: false, fromProduction: true, rowId: row.id
-        });
-      } else if (kind === 'paid') {
-        if (typeof softGmIsPaidSoT !== 'function' || !softGmIsPaidSoT(row)) return;
-        out.push({
-          id: 'prod_p_' + row.id, person: person, side: side, bookType: bt,
-          client: row.client || '', inv: row.qbInvoice || row.inv || '—', searchPo: searchPo,
-          memo: (row.bookType || bt) + (row.physician ? (' — ' + row.physician) : (row.campaign ? (' — ' + row.campaign) : '')),
-          date: dateIso, paidDate: paidIso || dateIso, shipDate: dateIso,
-          amount: amt, category: bt === 'Placement' ? 'SOFT - RECR' : (bt === 'Marketing' ? 'SOFT - MKT' : 'SOFT - BD'),
-          bucket: row.bookType || bt, example: false, fromProduction: true, rowId: row.id
-        });
-      }
+        var unpaid = false;
+        if (row && typeof softGmIsUnpaidSoT === 'function') {
+          try { unpaid = softGmIsUnpaidSoT(row); } catch (eUn) {}
+        }
+        if (!unpaid && !paid && row && row.status === 'Invoiced') unpaid = true;
+        if (kind === 'paid') { if (!paid) return; }
+        else if (kind === 'unpaid') { if (!unpaid) return; }
+        else return;
+        var amt = Number(bl.amount) || 0;
+        if (!(amt > 0)) return;
+        var bt = gmMoneyBoardKindToBookType(bl.kind);
+        if (row) {
+          if (row.bookType === 'Placement') bt = 'Placement';
+          else if (row.bookType === 'Marketing') bt = 'Marketing';
+          else if (row.bookType === 'Deal') bt = 'Deal';
+        }
+        var side = gmMoneySideForBoardLine(row, bt);
+        var paidIso = '';
+        if (bl.paidIso && String(bl.paidIso).length >= 10) paidIso = String(bl.paidIso).slice(0, 10);
+        if (!paidIso && row && typeof gmRowPaidIso === 'function') paidIso = gmRowPaidIso(row);
+        if (!paidIso && row) paidIso = softIsoDate(row.paidDate || row.date || '');
+        var dateIso = softIsoDate((row && row.date) || bl.month || paidIso || '');
+        var searchPo = bl.search || (row && (row.dealRef || row.searchRefs || row.searchPo)) || '';
+        var memo = (bl.kind || bt) + (bl.candidate ? (' — ' + bl.candidate) : (row && row.campaign ? (' — ' + row.campaign) : (row && row.gmLabel ? (' — ' + row.gmLabel) : '')));
+        var inv = (row && (row.qbInvoice || row.inv)) || '—';
+        var idBase = 'board_' + (kind === 'paid' ? 'p_' : 'u_') + String(bl.rowId || 'x') + '_' + String(person || '').replace(/\W+/g, '_');
+        if (kind === 'unpaid') {
+          out.push({
+            id: idBase,
+            person: person, side: side, bookType: bt,
+            client: bl.client || (row && row.client) || '',
+            inv: inv, searchPo: String(searchPo || ''),
+            memo: memo, date: dateIso, open: amt, amount: amt,
+            example: !!(row && row.example), fromProduction: true, fromBoard: true, rowId: bl.rowId || null
+          });
+        } else {
+          out.push({
+            id: idBase,
+            person: person, side: side, bookType: bt,
+            client: bl.client || (row && row.client) || '',
+            inv: inv, searchPo: String(searchPo || ''),
+            memo: memo, date: dateIso, paidDate: paidIso || dateIso, shipDate: dateIso,
+            amount: amt,
+            category: bt === 'Placement' ? 'SOFT - RECR' : (bt === 'Marketing' ? 'SOFT - MKT' : 'SOFT - BD'),
+            bucket: (row && row.bookType) || bt,
+            example: !!(row && row.example), fromProduction: true, fromBoard: true, rowId: bl.rowId || null
+          });
+        }
+      });
     });
     return out;
   }
@@ -88675,8 +88827,19 @@ ownersDetailHtml(row) +
     if (!dateInInclusive(paidIso, win.start, win.end)) return;
     var seed = gmMoneySeed();
     if (!Array.isArray(seed.paycheckLines)) seed.paycheckLines = [];
-    var side = row.bookType === 'Placement' ? 'recruiting' : (row.side === 'recruiting' ? 'recruiting' : 'bd');
+    var side = (row.bookType === 'Placement' || row.bookType === 'Marketing') ? 'recruiting' : (row.side === 'recruiting' ? 'recruiting' : 'bd'); /* soft-gmoney-board-paid-pull-20260924 */
     var person = row.rep || 'Unassigned';
+    var stubAmt = Math.abs(Number(amt) || 0);
+    try {
+      var faceStub = stubAmt;
+      try { if (typeof softProdRowAmt === 'function') faceStub = softProdRowAmt(row) || faceStub; } catch (eFs) {}
+      if (typeof gmMoneyOwnerGmCredits === 'function') {
+        var creds = gmMoneyOwnerGmCredits(row, faceStub);
+        var hit = null;
+        creds.forEach(function (c) { if (c && c.person === person) hit = c; });
+        if (hit) stubAmt = Math.abs(Number(hit.amount) || 0);
+      }
+    } catch (eStubGm) {}
     seed.paycheckLines.unshift({
       id: uid('gmp_live'),
       person: person,
@@ -88688,7 +88851,7 @@ ownersDetailHtml(row) +
       paidDate: paidIso,
       client: row.client || '',
       memo: (row.bookType || 'Line') + ' · paid in paycheck window (stub)',
-      amount: Math.abs(Number(amt) || 0),
+      amount: stubAmt,
       example: !!row.example,
       fromMarkPaid: true
     });
@@ -88741,11 +88904,7 @@ ownersDetailHtml(row) +
   function gmMoneyFilterPersonLine(r, ui) {
     if (!gmMoneySideMatch(r.side, ui.side)) return false;
     if (!ui.person || ui.person === 'all') return true;
-    if (r.fromProduction && r.rowId) {
-      var src = null;
-      try { src = (state.rows || []).find(function (x) { return x && x.id === r.rowId; }); } catch (e) {}
-      if (src) return gmMoneyRowTouchesPerson(src, ui.person);
-    }
+    /* soft-gmoney-board-paid-pull-20260924 — match credit person (board share), not co-owner row touch (stops Brenton/Randy shares leaking onto Stephanie). */
     return gmMoneyPersonMatch(r.person, ui.person);
   }
 
