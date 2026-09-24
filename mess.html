@@ -2,7 +2,7 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
-/* soft-gm-money-live-20260924 — GM Money LIVE: Unpaid/This paycheck/YTD read Production rows + spine cash SoT (softGmIsUnpaidSoT / softGmIsPaidSoT) + Mark-paid stubs only; kill PDF mock seed default path + do-not-treat-as-live / mock-year chrome; year/as-of from live board years + latest 15th on/before today (paycheckWindowFor 16th→15th). GM board stays read-only for billing. Soft Soft Desktop only. Never Hub. Never Pages. */
+/* soft-gmoney-gm-share-not-revenue-20260924 + soft-gm-money-live-20260924 — GM Money LIVE: Unpaid/This paycheck/YTD read Production rows + spine cash SoT (softGmIsUnpaidSoT / softGmIsPaidSoT) + Mark-paid stubs only; kill PDF mock seed default path + do-not-treat-as-live / mock-year chrome; year/as-of from live board years + latest 15th on/before today (paycheckWindowFor 16th→15th). GM board stays read-only for billing. Soft Soft Desktop only. Never Hub. Never Pages. */
 /* soft-gm-recur-request-opaque-20260923 — Recurring request modal solid white card; Glass Look var(--card) was translucent over GM bands. Soft Soft Desktop only. Never Hub/Pages. */
 
 /* soft-flow-port-syntax-20260922 — Soft Soft Desktop: extra } before spine act===delete-client aborted soft-flow-port-js parse (SyntaxError: missing ) after argument list); __softFlowGoToView never exported → Production + Accounting soft-flow-port height 0 / dead tabs+subpills. Soft Soft only. Desktop only. No Pages. */
@@ -88505,25 +88505,67 @@ ownersDetailHtml(row) +
     var iso = softIsoDate(line.date || line.paidDate || line.shipDate || '');
     return iso ? iso.slice(0, 4) : '';
   }
+  function gmMoneyOwnerGmCredits(row, faceAmt) {
+    /* soft-gmoney-gm-share-not-revenue-20260924 — person GM $ = face × owner pct (Carri Monthly GM), not full accountingBilled revenue. House skipped. */
+    var credits = [];
+    var amt = Number(faceAmt) || 0;
+    if (!row || !amt) return credits;
+    try { if (typeof ensureOwners === 'function') ensureOwners(row); } catch (eEns) {}
+    var owners = row.owners || {};
+    function push(name, pct) {
+      if (name == null || name === '') return;
+      if (typeof name === 'object' && name) name = name.name;
+      name = String(name || '').trim();
+      if (!name || name === 'House' || /^AMP\s*House$/i.test(name)) return;
+      var p = Number(pct);
+      if (!isFinite(p) || p === 0) return;
+      var dollars = Math.round(amt * (p / 100) * 100) / 100;
+      if (!dollars) return;
+      credits.push({ person: name, pct: p, amount: dollars });
+    }
+    if (owners.mode === 'Whole') {
+      var prim = owners.primary;
+      if (typeof prim === 'object' && prim) push(prim.name, prim.pct != null ? prim.pct : 100);
+      else push(prim, 100);
+    } else if (owners.mode === 'Split') {
+      if (owners.a) push(owners.a.name, owners.a.pct);
+      if (owners.b) push(owners.b.name, owners.b.pct);
+      if (owners.bdA) push(owners.bdA.name, owners.bdA.pct);
+      if (owners.bdB) push(owners.bdB.name, owners.bdB.pct);
+      if (owners.recruiter) push(owners.recruiter.name || owners.recruiter, owners.recruiter.pct);
+    } else if (owners.mode === 'Repeat') {
+      if (owners.primary) push(owners.primary.name, owners.primary.pct);
+      if (owners.repeatRecipient) push(owners.repeatRecipient.name, owners.repeatRecipient.pct);
+    } else if (owners.mode === 'Marketing' || owners.mode === 'BD') {
+      (owners.reps || []).forEach(function (r) { if (r) push(r.name, r.pct); });
+    } else {
+      push(row.rep || 'Unassigned', 100);
+    }
+    if (!credits.length) push(row.rep || 'Unassigned', 100);
+    return credits;
+  }
   function gmMoneyCollectProdLines(kind) {
-    /* soft-gm-money-live-20260924 — Map live Production rows into GM money line shape via spine cash SoT. No invented fees. */
+    /* soft-gm-money-live-20260924 + soft-gmoney-gm-share-not-revenue-20260924 — Production → GM money via spine cash SoT; amount = owner GM share, not revenue face. */
     var out = [];
     (state.rows || []).forEach(function (row) {
       if (!row || row.example) return;
+      if (row.softGmProdQbDuplicateHidden) return;
       var bt = inferGmMoneyBookType(row);
       if (row.bookType === 'Placement') bt = 'Placement';
       else if (row.bookType === 'Marketing') bt = 'Marketing';
       else if (row.bookType === 'Deal') bt = 'Deal';
-      var amt = Number(row.accountingBilled != null ? row.accountingBilled : (row.fee != null ? row.fee : row.bookValueThisMonth)) || 0;
-      if (!amt) return;
-      var person = row.rep || (row.owners && row.owners.primary) || 'Unassigned';
-      if (typeof person === 'object' && person && person.name) person = person.name;
+      var face = 0;
+      try { if (typeof softProdRowAmt === 'function') face = softProdRowAmt(row) || 0; } catch (eFace) { face = 0; }
+      if (!face) face = Number(row.accountingBilled != null ? row.accountingBilled : (row.fee != null ? row.fee : row.bookValueThisMonth)) || 0;
+      if (!face) return;
       var side = row.side || (bt === 'Placement' ? 'recruiting' : (bt === 'Marketing' ? 'recruiting' : 'bd'));
       if (row.bookType === 'Placement') side = 'recruiting';
       if (row.bookType === 'Deal') side = row.side || 'bd';
       var paidIso = softIsoDate(row.paidDate || (row.paid ? row.date : '') || '');
       var dateIso = softIsoDate(row.date || paidIso || '');
       var searchPo = (row.dealRef || row.searchRefs || row.searchPo || '').toString();
+      var memo = (row.bookType || bt) + (row.physician ? (' — ' + row.physician) : (row.campaign ? (' — ' + row.campaign) : ''));
+      var credits = gmMoneyOwnerGmCredits(row, face);
       if (kind === 'unpaid') {
         var unpaidOk = false;
         try { unpaidOk = typeof softGmIsUnpaidSoT === 'function' ? softGmIsUnpaidSoT(row) : false; } catch (eU) { unpaidOk = false; }
@@ -88531,21 +88573,27 @@ ownersDetailHtml(row) +
           if (typeof softGmIsPaidSoT === 'function' && softGmIsPaidSoT(row)) return;
           if (row.status !== 'Invoiced') return;
         }
-        out.push({
-          id: 'prod_u_' + row.id, person: person, side: side, bookType: bt,
-          client: row.client || '', inv: row.qbInvoice || row.inv || '—', searchPo: searchPo,
-          memo: (row.bookType || bt) + (row.physician ? (' — ' + row.physician) : (row.campaign ? (' — ' + row.campaign) : '')),
-          date: dateIso, open: amt, amount: amt, example: false, fromProduction: true, rowId: row.id
+        credits.forEach(function (c) {
+          out.push({
+            id: 'prod_u_' + row.id + '_' + String(c.person || '').replace(/\W+/g, '_'),
+            person: c.person, side: side, bookType: bt,
+            client: row.client || '', inv: row.qbInvoice || row.inv || '—', searchPo: searchPo,
+            memo: memo, date: dateIso, open: c.amount, amount: c.amount,
+            example: false, fromProduction: true, rowId: row.id, gmSharePct: c.pct, revenueFace: face
+          });
         });
       } else if (kind === 'paid') {
         if (typeof softGmIsPaidSoT !== 'function' || !softGmIsPaidSoT(row)) return;
-        out.push({
-          id: 'prod_p_' + row.id, person: person, side: side, bookType: bt,
-          client: row.client || '', inv: row.qbInvoice || row.inv || '—', searchPo: searchPo,
-          memo: (row.bookType || bt) + (row.physician ? (' — ' + row.physician) : (row.campaign ? (' — ' + row.campaign) : '')),
-          date: dateIso, paidDate: paidIso || dateIso, shipDate: dateIso,
-          amount: amt, category: bt === 'Placement' ? 'SOFT - RECR' : (bt === 'Marketing' ? 'SOFT - MKT' : 'SOFT - BD'),
-          bucket: row.bookType || bt, example: false, fromProduction: true, rowId: row.id
+        credits.forEach(function (c) {
+          out.push({
+            id: 'prod_p_' + row.id + '_' + String(c.person || '').replace(/\W+/g, '_'),
+            person: c.person, side: side, bookType: bt,
+            client: row.client || '', inv: row.qbInvoice || row.inv || '—', searchPo: searchPo,
+            memo: memo, date: dateIso, paidDate: paidIso || dateIso, shipDate: dateIso,
+            amount: c.amount, category: bt === 'Placement' ? 'SOFT - RECR' : (bt === 'Marketing' ? 'SOFT - MKT' : 'SOFT - BD'),
+            bucket: row.bookType || bt, example: false, fromProduction: true, rowId: row.id,
+            gmSharePct: c.pct, revenueFace: face
+          });
         });
       }
     });
@@ -88677,6 +88725,17 @@ ownersDetailHtml(row) +
     if (!Array.isArray(seed.paycheckLines)) seed.paycheckLines = [];
     var side = row.bookType === 'Placement' ? 'recruiting' : (row.side === 'recruiting' ? 'recruiting' : 'bd');
     var person = row.rep || 'Unassigned';
+    var stubAmt = Math.abs(Number(amt) || 0);
+    try {
+      var faceStub = stubAmt;
+      try { if (typeof softProdRowAmt === 'function') faceStub = softProdRowAmt(row) || faceStub; } catch (eFs) {}
+      if (typeof gmMoneyOwnerGmCredits === 'function') {
+        var creds = gmMoneyOwnerGmCredits(row, faceStub);
+        var hit = null;
+        creds.forEach(function (c) { if (c && c.person === person) hit = c; });
+        if (hit) stubAmt = Math.abs(Number(hit.amount) || 0);
+      }
+    } catch (eStubGm) {}
     seed.paycheckLines.unshift({
       id: uid('gmp_live'),
       person: person,
@@ -88688,7 +88747,7 @@ ownersDetailHtml(row) +
       paidDate: paidIso,
       client: row.client || '',
       memo: (row.bookType || 'Line') + ' · paid in paycheck window (stub)',
-      amount: Math.abs(Number(amt) || 0),
+      amount: stubAmt,
       example: !!row.example,
       fromMarkPaid: true
     });
