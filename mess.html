@@ -2,6 +2,7 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-mohi-exec-recur-gm-paint-20260924 — Excel Marketing/Deal month-instance faces (Nk/N, pre-sold installments) stay off Production list but MUST paint Rec/BD GM so Exec gmOverride flows to board (MoHi Sep/Oct Amy). Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gmoverride-gm-money-flowthrough-20260924 — GM board + GM Money credit collectors read softProdEffectiveGmOwners (gmOverride || detached frozen || template || row.owners). MoHi Aug Amy 50% not template 40%. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-exec-deal-details-all-pills-20260924 — Exec Production: Deal/Placement/Marketing details button on EVERY section row (bd-booked, bd-recurring, mkt, mkt-recurring, placements, placements-recurring); reuse openDealDetail/openPlacementDetail/openMarketingDetail; Modify GM unchanged. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-recurring-gm-month-override-20260924 — Recurring month instances: per-month gmOverride for GM share/owners on Exec Production; template locked; Clear override restores inheritance; Break link is explicit. MoHi Jul vs Aug validation. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -66433,6 +66434,17 @@ function ensureCarriGmSeed(s) {
     if (prodRow.softCarriCashFlipForcePaint === 'soft-carri-cashflip-20260924' && (prodRow.paid === true || prodRow.gmCashState === 'paid' || String(prodRow.status || '') === 'Paid')) {
       return true;
     }
+    /* soft-mohi-exec-recur-gm-paint-20260924 — Excel Marketing/Deal month instances (MoHi Nk/N / pre-sold installments)
+       are hidden from Production list but remain Production SoT for Rec/BD GM. Without this gate, Exec gmOverride
+       on Sep/Oct MoHi never reached the board (Carri seed or blank painted instead). Keep Bibb/exec-only + Carri backfill off. */
+    if (prodRow.excelSeed && (prodRow.bookType === 'Marketing' || prodRow.bookType === 'Deal') &&
+        !prodRow.softBibb91ExecRecurring && !prodRow.softExecRecurringSeat &&
+        !(typeof softIsCarriBackfillOffProductionBoard === 'function' && softIsCarriBackfillOffProductionBoard(prodRow))) {
+      var _off = !!(prodRow.excludeFromProductionBoard || prodRow.isRecurringLine ||
+        (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(prodRow)) ||
+        (typeof softRecurringIsMonthInstance === 'function' && softRecurringIsMonthInstance(prodRow)));
+      if (_off) return true;
+    }
     if (prodRow.excludeFromProductionBoard) return false;
     if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(prodRow)) return false;
     if (typeof softGmIsProdFeedRow === 'function' && softGmIsProdFeedRow(prodRow)) return true;
@@ -83605,12 +83617,16 @@ aForm.addEventListener('submit', function (e) {
     var amt = mdCurrentGmAmt(row);
     var isMkt = row.bookType === 'Marketing';
     /* soft-recurring-gm-month-override-20260924 — edit form shows effective (override|template) owners */
+    /* soft-mohi-exec-recur-gm-paint-20260924 — always clone effective owners onto _effRow (ref!== was flaky when override===owners) */
     var _effRow = row;
     try {
       if (typeof softRecurringEffectiveOwners === 'function') {
         var _effOw = softRecurringEffectiveOwners(row, state);
-        if (_effOw && _effOw !== row.owners) {
-          _effRow = Object.assign({}, row, { owners: _effOw, gmLabel: (typeof softRecurringEffectiveGmLabel === 'function' ? softRecurringEffectiveGmLabel(row, state) : row.gmLabel) });
+        if (_effOw) {
+          var _effLab = (typeof softRecurringEffectiveGmLabel === 'function' ? softRecurringEffectiveGmLabel(row, state) : row.gmLabel);
+          var _owClone = null;
+          try { _owClone = JSON.parse(JSON.stringify(_effOw)); } catch (eCl) { _owClone = _effOw; }
+          _effRow = Object.assign({}, row, { owners: _owClone, gmLabel: _effLab });
         }
       }
     } catch (eEffPref) {}
