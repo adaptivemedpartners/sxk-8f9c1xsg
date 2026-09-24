@@ -2,6 +2,7 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-paid-action-date-picker-20260924 — Invoice spine Mark paid: confirm modal with <input type="date"> default America/Chicago today, editable; stores user ISO as row.paidDate + spineOverrides.paidDate (not click timestamp). GM Money gmRowPaidIso prefers paidDate. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-mohi-exec-recur-gm-paint-20260924 — Excel Marketing/Deal month-instance faces (Nk/N, pre-sold installments) stay off Production list but MUST paint Rec/BD GM so Exec gmOverride flows to board (MoHi Sep/Oct Amy). Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gmoverride-gm-money-flowthrough-20260924 — GM board + GM Money credit collectors read softProdEffectiveGmOwners (gmOverride || detached frozen || template || row.owners). MoHi Aug Amy 50% not template 40%. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-exec-deal-details-all-pills-20260924 — Exec Production: Deal/Placement/Marketing details button on EVERY section row (bd-booked, bd-recurring, mkt, mkt-recurring, placements, placements-recurring); reuse openDealDetail/openPlacementDetail/openMarketingDetail; Modify GM unchanged. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -9160,6 +9161,17 @@ html[data-look="light"] body::before { opacity: 0.14; }
 .deal-detail-backdrop.show { display: flex !important; }
 .deal-detail-backdrop[hidden] { display: none !important; }
 .deal-detail-modal.modify-deal-wide { width: min(720px, 100%); } /* soft-md-gm-house-layout-card-20260921 */
+
+  /* soft-paid-action-date-picker-20260924 */
+  .soft-paid-date-backdrop {
+    position: fixed; inset: 0; z-index: 10050;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(8, 12, 20, 0.55); padding: 16px;
+  }
+  .soft-paid-date-backdrop[hidden] { display: none !important; }
+  .soft-paid-date-modal { width: min(420px, 100%); max-width: 100%; }
+  .soft-paid-date-modal .dd-kv { display: grid; grid-template-columns: 6.5rem 1fr; gap: 8px 10px; align-items: center; }
+
 .deal-detail-modal {
   background: var(--card, #fff); border-radius: 14px; box-shadow: 0 20px 50px rgba(15,23,42,.25);
   width: min(440px, 100%); max-height: 90vh; overflow: auto;
@@ -51688,6 +51700,24 @@ function mktSendAmplified(searchKey) {
     </div>
   </div>
 
+
+<!-- soft-paid-action-date-picker-20260924 — Mark paid confirm: editable paid date (default today) -->
+<div class="soft-paid-date-backdrop" id="soft-paid-date-backdrop" role="dialog" aria-modal="true" aria-labelledby="soft-paid-date-title" hidden>
+  <div class="soft-paid-date-modal deal-detail-modal">
+    <h3 id="soft-paid-date-title">Confirm paid date</h3>
+    <p class="dd-sub">Enter the date payment was <strong>received</strong> (not when you click). Defaults to today · editable. This date windows GM board / GM Money.</p>
+    <div class="dd-kv" style="margin-bottom:10px">
+      <span class="dd-k">Invoice</span><span class="dd-v" id="soft-paid-date-inv-lab">—</span>
+      <span class="dd-k">Paid date</span><span class="dd-v"><input type="date" id="soft-paid-date-input" style="padding:6px 8px;border:1px solid var(--border,#2a3648);border-radius:8px;font:inherit;background:var(--panel,#0f172a);color:var(--text,#eef3f8)" /></span>
+    </div>
+    <p class="dd-sub" style="margin-top:0">Spell <strong>Carri</strong> · Soft Soft cash SoT · Invoice spine only.</p>
+    <div class="dd-actions">
+      <button type="button" class="mini-btn" id="soft-paid-date-cancel">Cancel</button>
+      <button type="button" class="mini-btn teal" id="soft-paid-date-confirm">Confirm Paid</button>
+    </div>
+  </div>
+</div>
+
 <!-- soft-writeoff-request-20260920 — Deal write-off request (Production-board-native) -->
 <div class="wo-req-backdrop" id="wo-req-backdrop" role="dialog" aria-modal="true" aria-labelledby="wo-req-title" hidden>
   <div class="wo-req-modal">
@@ -62515,6 +62545,13 @@ function ensureCarriGmSeed(s) {
         var beforePaid = null;
         try { beforePaid = softFanLogRowSnap(r); } catch (eBp) {}
         softApplyCashSoTToRow(r, cash, src);
+        /* soft-paid-action-date-picker-20260924 — stamp user-chosen paidDate onto linked rows (never click timestamp) */
+        if (cash === 'paid' && opts && opts.paidDate) {
+          var _pdLink = String(opts.paidDate).slice(0, 10);
+          if (/^\d{4}-\d{2}-\d{2}$/.test(_pdLink)) r.paidDate = _pdLink;
+        } else if (cash !== 'paid' && opts && opts.clearPaidDate) {
+          r.paidDate = '';
+        }
         /* soft-invoice-qb-roundtrip-20260920 — write known spine QB # onto linked Production row */
         if (qbFace && /^\d+$/.test(qbFace)) {
           var existing = String(r.qbInvoice || r.qbNumber || '').trim();
@@ -80702,7 +80739,7 @@ aForm.addEventListener('submit', function (e) {
         '<span>Invoice amount</span><span>' + money2(inv.amount) + '</span>' +
         '<span>Date</span><span>' + escHtml(inv.date) + '</span>' +
         '<span>Status</span><span>' + spineStatusChip(inv.status) + (inv.paidDate ? ' · paid ' + escHtml(inv.paidDate) : '') + '</span>' +
-        '<span>Paid date</span><span><input type="date" id="spine-paid-date" value="' + escHtml(inv.paidDate || '') + '" style="padding:4px 6px;border:1px solid var(--border);border-radius:8px;font:inherit" /></span>' +
+        '<span>Paid date</span><span><input type="date" id="spine-paid-date" value="' + escHtml(inv.paidDate || (typeof softTodayIsoLocal === 'function' ? softTodayIsoLocal() : '') || '') + '" style="padding:4px 6px;border:1px solid var(--border);border-radius:8px;font:inherit" title="Payment received date · defaults to today · editable before Mark paid" /></span>' +
         '<span>Amount paid</span><span><input type="number" id="spine-amount-paid" step="0.01" value="' + escHtml(inv.amountPaid != null ? inv.amountPaid : '') + '" style="width:8rem;padding:4px 6px;border:1px solid var(--border);border-radius:8px;font:inherit" /> <span style="font-size:11.5px;color:var(--muted)">partials OK · GM follows cash</span></span>' +
         '<span>Open balance</span><span><strong id="spine-open-balance-ro">' + money2(inv.openBalance) + '</strong> <span style="font-size:11.5px;color:var(--muted)">invoice − amount paid</span></span>' +
         '<span>Void</span><span><label style="font-size:12.5px;font-weight:550"><input type="checkbox" id="spine-voided"' + (inv.voided ? ' checked' : '') + '> Rare · not a fourth status</label></span>' +
@@ -81047,7 +81084,90 @@ aForm.addEventListener('submit', function (e) {
     return { qbVal: qbVal, paidDate: paidDate, amountPaid: amountPaid, openBalance: openBalance, voided: voided, amount: amount };
   }
 
-  function spineMarkPaid(invId) {
+
+  /* soft-paid-action-date-picker-20260924 — confirm modal for Mark paid */
+  var _softPaidDatePendingInvId = null;
+  function softPaidDateTodayIso() {
+    try {
+      if (typeof softTodayIsoLocal === 'function') return softTodayIsoLocal();
+    } catch (e0) {}
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function softPaidDateCloseModal() {
+    var bd = document.getElementById('soft-paid-date-backdrop');
+    if (bd) bd.hidden = true;
+    _softPaidDatePendingInvId = null;
+  }
+  function softPaidDateOpenConfirm(invId) {
+    ensureSpineState();
+    var inv = getSpineInvoice(invId);
+    if (!inv) { toast('Invoice not found'); return; }
+    if (inv.voided) { toast('Voided invoice — clear Void before Mark paid'); return; }
+    if (inv.status === 'Paid' && Number(inv.openBalance || 0) <= 0.009) {
+      toast('Already Paid'); paintSpineGmBuckets(inv); return;
+    }
+    _softPaidDatePendingInvId = invId;
+    var cash = spineReadCashFields(inv);
+    var def = '';
+    if (cash.paidDate && /^\d{4}-\d{2}-\d{2}$/.test(String(cash.paidDate).slice(0, 10))) def = String(cash.paidDate).slice(0, 10);
+    else if (inv.paidDate && /^\d{4}-\d{2}-\d{2}$/.test(String(inv.paidDate).slice(0, 10))) def = String(inv.paidDate).slice(0, 10);
+    else def = softPaidDateTodayIso();
+    var lab = document.getElementById('soft-paid-date-inv-lab');
+    if (lab) {
+      lab.textContent = (inv.qbNumber || inv.sampleId || inv.id || '—') + ' · ' + (inv.client || '') +
+        (inv.amount != null ? (' · ' + (typeof money2 === 'function' ? money2(inv.amount) : inv.amount)) : '');
+    }
+    var inp = document.getElementById('soft-paid-date-input');
+    if (inp) inp.value = def;
+    var bd = document.getElementById('soft-paid-date-backdrop');
+    if (bd) bd.hidden = false;
+    try { if (inp) { inp.focus(); inp.select && inp.select(); } } catch (eF) {}
+  }
+  function softPaidDateConfirm() {
+    var invId = _softPaidDatePendingInvId;
+    var inp = document.getElementById('soft-paid-date-input');
+    var iso = inp ? String(inp.value || '').trim() : '';
+    if (!invId) { softPaidDateCloseModal(); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+      toast('Pick a valid paid date (YYYY-MM-DD)');
+      try { if (inp) inp.focus(); } catch (e1) {}
+      return;
+    }
+    softPaidDateCloseModal();
+    try {
+      var el = document.getElementById('spine-paid-date');
+      if (el) el.value = iso;
+    } catch (e2) {}
+    spineMarkPaid(invId, iso);
+  }
+  (function softPaidDateWireOnce() {
+    if (window._softPaidDateWired) return;
+    window._softPaidDateWired = true;
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (!t) return;
+      if (t.id === 'soft-paid-date-cancel' || (t.closest && t.closest('#soft-paid-date-cancel'))) {
+        softPaidDateCloseModal();
+        return;
+      }
+      if (t.id === 'soft-paid-date-confirm' || (t.closest && t.closest('#soft-paid-date-confirm'))) {
+        softPaidDateConfirm();
+        return;
+      }
+      var bd = document.getElementById('soft-paid-date-backdrop');
+      if (bd && !bd.hidden && t === bd) softPaidDateCloseModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        var bd = document.getElementById('soft-paid-date-backdrop');
+        if (bd && !bd.hidden) softPaidDateCloseModal();
+      }
+    });
+  })();
+
+  function spineMarkPaid(invId, paidDateOverride) {
+    /* soft-paid-action-date-picker-20260924 — paidDateOverride = user-chosen ISO from confirm modal (preferred) */
     ensureSpineState();
     var inv = getSpineInvoice(invId);
     if (!inv) { toast('Invoice not found'); return; }
@@ -81062,11 +81182,21 @@ aForm.addEventListener('submit', function (e) {
       qbVal = inv.sampleId || inv.id; // QB autofill from sampleId when present
       toast('<strong>QB # entered</strong><br>Autofilled QB # <strong>' + escHtml(qbVal) + '</strong> · no live QB.');
     }
-    var paidDate = cash.paidDate;
-    if (!paidDate) {
+    var paidDate = '';
+    if (paidDateOverride && /^\d{4}-\d{2}-\d{2}$/.test(String(paidDateOverride).slice(0, 10))) {
+      paidDate = String(paidDateOverride).slice(0, 10);
+    } else if (cash.paidDate && /^\d{4}-\d{2}-\d{2}$/.test(String(cash.paidDate).slice(0, 10))) {
+      paidDate = String(cash.paidDate).slice(0, 10);
+    } else if (typeof softTodayIsoLocal === 'function') {
+      paidDate = softTodayIsoLocal();
+    } else {
       var today = new Date();
       paidDate = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
     }
+    try {
+      var _pdElSync = document.getElementById('spine-paid-date');
+      if (_pdElSync) _pdElSync.value = paidDate;
+    } catch (ePdSync) {}
     var amountPaid = cash.amountPaid;
     if (amountPaid <= 0) amountPaid = cash.amount; /* Mark paid with blank amount = full */
     var openBalance = Math.max(0, Math.round((cash.amount - amountPaid) * 100) / 100);
@@ -81087,7 +81217,7 @@ aForm.addEventListener('submit', function (e) {
     /* soft-spine-sot-wire-20260915f — ONE path: spine override is SoT; stamp ALL linked rows (GM + Production) from it */
     var cashKey = status === 'Paid' ? 'paid' : (status === 'Invoiced' ? 'unpaid' : 'booked');
     var qbKey = qbVal || inv.qbNumber || inv.id;
-    var qbFaceOpt = { qbFace: (/^\d+$/.test(String(qbVal || '').trim()) ? String(qbVal).trim() : '') };
+    var qbFaceOpt = { qbFace: (/^\d+$/.test(String(qbVal || '').trim()) ? String(qbVal).trim() : ''), paidDate: (status === 'Paid' ? paidDate : '') };
     var linked = softApplySpinePaidToLinkedRows(state, qbKey, cashKey, qbFaceOpt);
     if (inv.id && String(inv.id) !== String(qbKey)) {
       linked += softApplySpinePaidToLinkedRows(state, inv.id, cashKey, qbFaceOpt);
@@ -81100,9 +81230,12 @@ aForm.addEventListener('submit', function (e) {
         row.carriQbMatch = { num: qbFaceOpt.qbFace, how: 'spine-mark-paid', source: CHIP };
       }
     }
+    if (row && status === 'Paid') {
+      row.paidDate = paidDate; /* soft-paid-action-date-picker-20260924 — set BEFORE markPaid; never clobber with click Date */
+    }
     if (row && status === 'Paid' && !row.paid) {
       /* fan-out / commission stubs once for bridge row */
-      markPaid(row);
+      markPaid(row, paidDate);
     } else if (status === 'Paid') {
       paintSpineGmBuckets(inv);
       toast('<strong>Spine Paid</strong><br>Cash status → GM + Production (' + linked + ' linked rows) · stub only — no live QB.');
@@ -81243,7 +81376,8 @@ aForm.addEventListener('submit', function (e) {
       } else if (act === 'save-qb' && invId) {
         spineSaveQb(invId);
       } else if (act === 'mark-paid' && invId) {
-        spineMarkPaid(invId);
+        /* soft-paid-action-date-picker-20260924 — confirm editable paid date before stamp */
+        softPaidDateOpenConfirm(invId);
       } else if (act === 'delete-inv' && invId) {
         /* soft-spine-invoice-delete-20260922 — Section B row Delete + detail Delete */
         var invDel = getSpineInvoice(invId);
@@ -82640,17 +82774,26 @@ aForm.addEventListener('submit', function (e) {
     });
     return total;
   }
-  function markPaid(row) {
+  function markPaid(row, paidDateOpt) {
+    /* soft-paid-action-date-picker-20260924 — paidDateOpt = user-chosen ISO; never overwrite with click timestamp afterward */
     if (row.paid) { toast('Already Paid'); return; }
     ensureOwners(row);
     if (isBookedStatus(row.status)) doFanOut(row, false);
     var beforeAll = bdGmPersonTotal('all');
     row.status = 'Paid';
     row.paid = true;
-    if (!row.paidDate) {
+    var _pdIso = '';
+    if (paidDateOpt && /^\d{4}-\d{2}-\d{2}$/.test(String(paidDateOpt).slice(0, 10))) {
+      _pdIso = String(paidDateOpt).slice(0, 10);
+    } else if (row.paidDate && /^\d{4}-\d{2}-\d{2}$/.test(String(row.paidDate).slice(0, 10))) {
+      _pdIso = String(row.paidDate).slice(0, 10);
+    } else if (typeof softTodayIsoLocal === 'function') {
+      _pdIso = softTodayIsoLocal();
+    } else {
       var _pd = new Date();
-      row.paidDate = _pd.getFullYear() + '-' + String(_pd.getMonth() + 1).padStart(2, '0') + '-' + String(_pd.getDate()).padStart(2, '0');
+      _pdIso = _pd.getFullYear() + '-' + String(_pd.getMonth() + 1).padStart(2, '0') + '-' + String(_pd.getDate()).padStart(2, '0');
     }
+    row.paidDate = _pdIso;
     var amt = Number(row.accountingBilled != null ? row.accountingBilled : (row.fee || 0)) || 0;
     var lines = splitCommissionLines(row, amt);
     lines.forEach(function (l) { state.commissionLines.unshift(l); });
@@ -85653,6 +85796,7 @@ ownersDetailHtml(row) +
   }
   function gmRowPaidIso(row) {
     /* soft-gmoney-board-paid-pull-20260924 — paidDate, else spine/Carri cash date when Paid SoT, else book date. Fixes Cullman 17104 Aug15 book vs Aug27 spine cash in paycheck window. */
+    /* soft-paid-action-date-picker-20260924 — user-entered paidDate from Mark paid confirm is first preference (not click timestamp). */
     var pd = String((row && row.paidDate) || '').slice(0, 10);
     if (/^\d{4}-\d{2}-\d{2}/.test(pd)) return pd;
     try {
