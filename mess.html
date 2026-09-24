@@ -2,6 +2,7 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-rollup-gmoney-only-20260924 — Same-client same-type BD+Marketing rollup (client||type, no month) ONLY on GM Money (Unpaid / This paycheck / YTD). Production board reverted to individual deal rows (no collapsing). Prior soft-bd-mkt-rollup-nomonth-20260924 / soft-bd-mkt-rollup-restore-20260924 / soft-bd-mkt-client-rollup-20260924 kept as history. Does NOT break soft-gmoney-tab-cache-20260924 or soft-gm-total-label-tier-pay-20260924. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gmoney-tab-cache-20260924 — GM Money tab switch perf: cache gmMoneyCollectProdLines by year+paidDate fingerprint; render only active tab on tab click; skip full saveState on tab-only; reuse paid collect inside paycheck Est. pay. Prior soft-gmoney-paycheck-ytd-tabs-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-bd-mkt-rollup-nomonth-20260924 — Production BD+Marketing display rollup: drop month from group key; same normalized client + same deal type collapse across months into one expandable parent (children keep month/date/amounts). Prior soft-bd-mkt-rollup-restore-20260924 / soft-bd-mkt-client-rollup-20260924 kept. Does NOT touch soft-gmoney-tab-cache-20260924. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-bd-mkt-rollup-restore-20260924 — Re-affirm Production BD+Marketing client/type display rollup (Cullman Platinum etc.): group key includes month; ensure Soft Soft renderProduction rollup path; prior soft-bd-mkt-client-rollup-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -66388,7 +66389,7 @@ function ensureCarriGmSeed(s) {
     /* soft-bd-mkt-client-rollup-20260924 — persist expand map only; display rollup is render-time. */
     if (!state) return state;
     if (!state.softBdMktRollupExpanded || typeof state.softBdMktRollupExpanded !== 'object') state.softBdMktRollupExpanded = {};
-    state.softBdMktClientRollupStamp = 'soft-bd-mkt-rollup-nomonth-20260924';
+    state.softBdMktClientRollupStamp = 'soft-rollup-gmoney-only-20260924';
     return state;
   }
 
@@ -83042,11 +83043,11 @@ aForm.addEventListener('submit', function (e) {
   function softBdMktEnsureRollupState(s) {
     if (!s) return s;
     if (!s.softBdMktRollupExpanded || typeof s.softBdMktRollupExpanded !== 'object') s.softBdMktRollupExpanded = {};
-    s.softBdMktClientRollupStamp = 'soft-bd-mkt-rollup-nomonth-20260924';
+    s.softBdMktClientRollupStamp = 'soft-rollup-gmoney-only-20260924';
     return s;
   }
   function softBdMktGroupVisibleRows(list) {
-    /* soft-bd-mkt-rollup-nomonth-20260924 — client||type key (NO month): same-client same-type collapse across months; children keep month/date/amounts */
+    /* soft-rollup-gmoney-only-20260924 — client||type key (NO month); used by GM Money BD+Marketing rollup only (Production no longer collapses) */
     var groups = [];
     var map = {};
     (list || []).forEach(function (row) {
@@ -83067,6 +83068,7 @@ aForm.addEventListener('submit', function (e) {
   try { window.__softBdMktDealTypeKey = softBdMktDealTypeKey; } catch (eR2) {}
   try { window.__softBdMktRollupRestore20260924 = 'soft-bd-mkt-rollup-restore-20260924'; } catch (eR3) {}
   try { window.__softBdMktRollupNomonth20260924 = 'soft-bd-mkt-rollup-nomonth-20260924'; } catch (eR3b) {}
+  try { window.__softRollupGmoneyOnly20260924 = 'soft-rollup-gmoney-only-20260924'; } catch (eR3c) {}
   try { window.__softGmMoneyTabCache20260924 = 'soft-gmoney-tab-cache-20260924'; } catch (eR4) {}
 
 
@@ -83081,7 +83083,14 @@ aForm.addEventListener('submit', function (e) {
     softBdMktEnsureRollupState(state);
     state.softBdMktRollupExpanded[rk] = !state.softBdMktRollupExpanded[rk];
     try { saveState(); } catch (eR) {}
+    /* soft-rollup-gmoney-only-20260924 — rollup UI lives on GM Money; Production no longer rolls up. Re-paint Production (noop collapse) + GM Money panels. */
     try { renderProduction(); } catch (eR2) {}
+    try {
+      if (typeof __softGmMoneyPanelCache !== 'undefined') {
+        __softGmMoneyPanelCache = { fp: '', unpaid: false, paycheck: false, ytd: false };
+      }
+    } catch (eR3) {}
+    try { if (typeof renderGmMoney === 'function') renderGmMoney(); } catch (eR4) {}
   }, true);
 
 
@@ -83121,7 +83130,7 @@ aForm.addEventListener('submit', function (e) {
   }, true);
 
   function renderProduction() {
-    /* soft-bd-mkt-rollup-nomonth-20260924 + soft-bd-mkt-client-rollup-20260924 — BD + Marketing: collapse ≥2 same-client same-type lines into summed parent (key=client||type, no month); expand for month/amount detail. Placement unchanged. */
+    /* soft-rollup-gmoney-only-20260924 — Production board: individual deal rows only (NO BD/Marketing rollup). Rollup lives on GM Money report. Placement unchanged. */
     softBdMktEnsureRollupState(state);
     var filter = document.getElementById('prod-month').value;
     var bdBody = document.querySelector('#tbl-bd tbody');
@@ -83335,20 +83344,12 @@ aForm.addEventListener('submit', function (e) {
     /* Placements — no rollup */
     plList.forEach(appendPlacementRow);
 
-    /* Marketing rollup */
-    softBdMktGroupVisibleRows(mktList).forEach(function (g) {
-      if (g.rows.length >= 2) appendMarketingRollup(g);
-      else appendMarketingRow(g.rows[0]);
-    });
-    /* BD rollup */
-    softBdMktGroupVisibleRows(bdList).forEach(function (g) {
-      if (g.rows.length >= 2) appendBdRollup(g);
-      else appendBdRow(g.rows[0]);
-    });
+    /* soft-rollup-gmoney-only-20260924 — Marketing + BD: one row per deal (no client||type collapse on Production) */
+    mktList.forEach(function (r) { appendMarketingRow(r); });
+    bdList.forEach(function (r) { appendBdRow(r); });
 
-    state.softBdMktClientRollupLast = { stamp: 'soft-bd-mkt-rollup-nomonth-20260924', filter: filter, shown: shown, rollup: rollupMeta, at: '2026-09-24' };
-    var rollNote = rollupMeta.groups ? (' · rollup ' + rollupMeta.linesIn + '→' + rollupMeta.linesOut + ' (' + rollupMeta.groups + ' groups)') : '';
-    document.getElementById('prod-stat').textContent = shown + ' rows' + (filter !== 'all' ? ' · ' + filter : '') + rollNote;
+    state.softBdMktClientRollupLast = { stamp: 'soft-rollup-gmoney-only-20260924', filter: filter, shown: shown, rollup: { groups: 0, linesIn: 0, linesOut: 0, scope: 'gmoney-only' }, at: '2026-09-24' };
+    document.getElementById('prod-stat').textContent = shown + ' rows' + (filter !== 'all' ? ' · ' + filter : '');
     if (!bdBody.children.length) bdBody.innerHTML = '<tr><td colspan="13" class="empty">No BD Deal rows for this filter</td></tr>';
     if (!mktBody.children.length) mktBody.innerHTML = '<tr><td colspan="9" class="empty">No Marketing rows for this filter</td></tr>';
     if (!plBody.children.length) plBody.innerHTML = '<tr><td colspan="10" class="empty">No placement rows for this filter</td></tr>';
@@ -89864,6 +89865,18 @@ ownersDetailHtml(row) +
         var memo = (bl.kind || bt) + (bl.candidate ? (' — ' + bl.candidate) : (row && row.campaign ? (' — ' + row.campaign) : (row && row.gmLabel ? (' — ' + row.gmLabel) : '')));
         var inv = (row && (row.qbInvoice || row.inv)) || '—';
         var idBase = 'board_' + (kind === 'paid' ? 'p_' : 'u_') + String(bl.rowId || 'x') + '_' + String(person || '').replace(/\W+/g, '_');
+        /* soft-rollup-gmoney-only-20260924 — carry month + deal-type for GM Money BD/Mkt rollup only */
+        var typeKey = 'other';
+        try {
+          if (row && typeof softBdMktDealTypeKey === 'function') typeKey = softBdMktDealTypeKey(row);
+          else if (bt === 'Marketing') typeKey = 'mkt-package';
+          else if (bt === 'Placement') typeKey = 'placement';
+          else typeKey = 'bd-deal';
+        } catch (eTk) { typeKey = bt === 'Marketing' ? 'mkt-package' : (bt === 'Placement' ? 'placement' : 'bd-deal'); }
+        var monthKey = '';
+        try {
+          monthKey = String((row && row.month) || bl.month || dateIso || paidIso || '').slice(0, 7);
+        } catch (eMk) { monthKey = String(dateIso || '').slice(0, 7); }
         if (kind === 'unpaid') {
           out.push({
             id: idBase,
@@ -89871,6 +89884,7 @@ ownersDetailHtml(row) +
             client: bl.client || (row && row.client) || '',
             inv: inv, searchPo: String(searchPo || ''),
             memo: memo, date: dateIso, open: amt, amount: amt,
+            month: monthKey, typeKey: typeKey,
             example: !!(row && row.example), fromProduction: true, fromBoard: true, rowId: bl.rowId || null
           });
         } else {
@@ -89881,6 +89895,7 @@ ownersDetailHtml(row) +
             inv: inv, searchPo: String(searchPo || ''),
             memo: memo, date: dateIso, paidDate: paidIso || dateIso, shipDate: dateIso,
             amount: amt,
+            month: monthKey, typeKey: typeKey,
             category: bt === 'Placement' ? 'SOFT - RECR' : (bt === 'Marketing' ? 'SOFT - MKT' : 'SOFT - BD'),
             bucket: (row && row.bookType) || bt,
             example: !!(row && row.example), fromProduction: true, fromBoard: true, rowId: bl.rowId || null
@@ -89903,6 +89918,8 @@ ownersDetailHtml(row) +
       client: r.client || '', inv: r.inv || '—', searchPo: r.searchPo || '',
       memo: r.memo || '', date: softIsoDate(r.date || ''),
       open: Number(r.open) || 0, amount: Number(r.open) || 0,
+      month: String(r.month || softIsoDate(r.date || '') || '').slice(0, 7),
+      typeKey: r.typeKey || '',
       example: !!r.example, fromProduction: !!r.fromProduction, rowId: r.rowId || null
     };
   }
@@ -89913,6 +89930,8 @@ ownersDetailHtml(row) +
       memo: r.memo || r.bucket || '', date: softIsoDate(r.shipDate || r.date || r.paidDate || ''),
       paidDate: softIsoDate(r.paidDate || ''), shipDate: softIsoDate(r.shipDate || ''),
       amount: Number(r.amount) || 0, category: r.category || '', bucket: r.bucket || '',
+      month: String(r.month || softIsoDate(r.shipDate || r.date || r.paidDate || '') || '').slice(0, 7),
+      typeKey: r.typeKey || '',
       example: !!r.example, fromProduction: !!r.fromProduction, fromMarkPaid: !!r.fromMarkPaid, rowId: r.rowId || null
     };
   }
@@ -89941,13 +89960,110 @@ ownersDetailHtml(row) +
     return { groups: groups, order: order };
   }
   function renderGmMoneyGroupedHtml(lines, opts) {
+    /* soft-rollup-gmoney-only-20260924 — BD deals + Marketing: same-client same-type (client||type, no month) expandable rollup inside client cards. Placement stays flat. Totals unchanged (leaf amounts). */
     opts = opts || {};
     var amountKey = opts.amountKey || 'amount';
     var mode = opts.mode || 'paid'; /* unpaid | paid */
     if (!lines.length) {
       return '<div class="gmoney-type-empty">' + escHtml(opts.empty || 'No lines for this filter') + '</div>';
     }
+    softBdMktEnsureRollupState(state);
     var packed = groupGmMoneyLines(lines, amountKey);
+    function lineAmt(r) {
+      return Number(r[amountKey] != null ? r[amountKey] : r.amount) || 0;
+    }
+    function lineTypeKey(r, bookType) {
+      if (r && r.typeKey) return r.typeKey;
+      if (bookType === 'Marketing') return 'mkt-package';
+      if (bookType === 'Placement') return 'placement';
+      return 'bd-deal';
+    }
+    function lineMonth(r) {
+      var m = String((r && r.month) || '').slice(0, 7);
+      if (m && m.length >= 7) return m;
+      var iso = softIsoDate((r && (r.date || r.shipDate || r.paidDate)) || '');
+      return iso ? iso.slice(0, 7) : '';
+    }
+    function renderFlatLineRow(r, mode, asof, childOpts) {
+      childOpts = childOpts || {};
+      var sideLabel = r.side === 'bd' ? 'BD' : (r.side === 'recruiting' ? 'Recruiting' : (r.side || '—'));
+      var cls = (r.example ? 'example' : '') + (childOpts.child ? ' soft-rollup-child' : '');
+      var attrs = '';
+      if (childOpts.child) {
+        attrs += ' data-rollup-parent="' + escHtml(childOpts.parentKey) + '"';
+        if (!childOpts.expanded) attrs += ' style="display:none"';
+      }
+      var memoCell = escHtml(r.memo || '—');
+      var mo = childOpts.child ? lineMonth(r) : '';
+      if (childOpts.child && mo) memoCell = escHtml('↳ ' + mo + (r.memo ? (' · ' + r.memo) : ''));
+      if (mode === 'unpaid') {
+        return '<tr class="' + cls + '"' + attrs + '>' +
+          '<td>' + escHtml(shortDate(r.date)) + '</td>' +
+          '<td>' + memoCell + '</td>' +
+          '<td>' + escHtml(r.inv || '—') + '</td>' +
+          '<td>' + escHtml(sideLabel) + '</td>' +
+          '<td>' + escHtml(agingDays(r.date, asof)) + '</td>' +
+          '<td class="num">' + money(r.open != null ? r.open : r.amount) + '</td></tr>';
+      }
+      return '<tr class="' + cls + '"' + attrs + '>' +
+        '<td>' + escHtml(shortDate(r.date || r.shipDate)) + '</td>' +
+        '<td>' + memoCell + '</td>' +
+        '<td>' + escHtml(r.inv && r.inv !== '—' ? r.inv : (r.bucket || '—')) + '</td>' +
+        '<td>' + escHtml(sideLabel) + '</td>' +
+        '<td>' + escHtml(shortDate(r.paidDate)) + '</td>' +
+        '<td class="num">' + money(r.amount) + '</td></tr>';
+    }
+    function renderBdMktLinesHtml(cardLines, bookType, mode, asof, clientName) {
+      /* Group by typeKey within this client card; ≥2 → parent + expandable children */
+      var map = {};
+      var order = [];
+      (cardLines || []).forEach(function (r) {
+        var tk = lineTypeKey(r, bookType);
+        if (!map[tk]) { map[tk] = []; order.push(tk); }
+        map[tk].push(r);
+      });
+      var html = '';
+      order.forEach(function (tk) {
+        var grp = map[tk];
+        if (!grp || !grp.length) return;
+        if (grp.length < 2) {
+          html += renderFlatLineRow(grp[0], mode, asof, null);
+          return;
+        }
+        var ck = (typeof softBdMktNormClientKey === 'function') ? softBdMktNormClientKey(clientName) : String(clientName || '').toLowerCase();
+        var gkey = 'gm|' + String(bookType || '') + '|' + ck + '||' + tk;
+        var expanded = !!(state.softBdMktRollupExpanded && state.softBdMktRollupExpanded[gkey]);
+        var sum = 0;
+        var dates = [];
+        grp.forEach(function (r) {
+          sum += lineAmt(r);
+          var d = r.date || r.shipDate || r.paidDate || '';
+          if (d) dates.push(d);
+        });
+        dates.sort();
+        var caret = expanded ? '▼' : '▶';
+        var typeLab = (typeof softBdMktDealTypeLabel === 'function') ? softBdMktDealTypeLabel(tk) : tk;
+        var dateLab = shortDate(dates[0] || '');
+        if (dates.length > 1) dateLab += '…';
+        if (mode === 'unpaid') {
+          html += '<tr class="soft-rollup-parent" data-rollup-key="' + escHtml(gkey) + '">' +
+            '<td>' + escHtml(dateLab) + '</td>' +
+            '<td><button type="button" class="soft-rollup-toggle" data-act="rollup-toggle" data-rollup-key="' + escHtml(gkey) + '" title="Expand / collapse detail">' + caret + ' ' + escHtml(typeLab) + '</button> <span class="soft-rollup-badge">' + grp.length + ' lines</span></td>' +
+            '<td>—</td><td>—</td><td><span class="soft-rollup-badge">rolled up</span></td>' +
+            '<td class="num">' + money(sum) + '</td></tr>';
+        } else {
+          html += '<tr class="soft-rollup-parent" data-rollup-key="' + escHtml(gkey) + '">' +
+            '<td>' + escHtml(dateLab) + '</td>' +
+            '<td><button type="button" class="soft-rollup-toggle" data-act="rollup-toggle" data-rollup-key="' + escHtml(gkey) + '" title="Expand / collapse detail">' + caret + ' ' + escHtml(typeLab) + '</button> <span class="soft-rollup-badge">' + grp.length + ' lines</span></td>' +
+            '<td>—</td><td>—</td><td><span class="soft-rollup-badge">rolled up</span></td>' +
+            '<td class="num">' + money(sum) + '</td></tr>';
+        }
+        grp.forEach(function (r) {
+          html += renderFlatLineRow(r, mode, asof, { child: true, parentKey: gkey, expanded: expanded });
+        });
+      });
+      return html;
+    }
     var html = '';
     var grand = 0;
     GMONEY_TYPE_ORDER.forEach(function (type) {
@@ -89970,26 +90086,14 @@ ownersDetailHtml(row) +
           cardsHtml += '<th>Date</th><th>Memo</th><th>Inv # / bucket</th><th>Side</th><th>Paid</th><th class="num">$</th>';
         }
         cardsHtml += '</tr></thead><tbody>';
-        card.lines.forEach(function (r) {
-          var sideLabel = r.side === 'bd' ? 'BD' : (r.side === 'recruiting' ? 'Recruiting' : (r.side || '—'));
-          if (mode === 'unpaid') {
-            cardsHtml += '<tr class="' + (r.example ? 'example' : '') + '">' +
-              '<td>' + escHtml(shortDate(r.date)) + '</td>' +
-              '<td>' + escHtml(r.memo || '—') + '</td>' +
-              '<td>' + escHtml(r.inv || '—') + '</td>' +
-              '<td>' + escHtml(sideLabel) + '</td>' +
-              '<td>' + escHtml(agingDays(r.date, opts.asof)) + '</td>' +
-              '<td class="num">' + money(r.open != null ? r.open : r.amount) + '</td></tr>';
-          } else {
-            cardsHtml += '<tr class="' + (r.example ? 'example' : '') + '">' +
-              '<td>' + escHtml(shortDate(r.date || r.shipDate)) + '</td>' +
-              '<td>' + escHtml(r.memo || '—') + '</td>' +
-              '<td>' + escHtml(r.inv && r.inv !== '—' ? r.inv : (r.bucket || '—')) + '</td>' +
-              '<td>' + escHtml(sideLabel) + '</td>' +
-              '<td>' + escHtml(shortDate(r.paidDate)) + '</td>' +
-              '<td class="num">' + money(r.amount) + '</td></tr>';
-          }
-        });
+        if (type.key === 'Placement') {
+          card.lines.forEach(function (r) {
+            cardsHtml += renderFlatLineRow(r, mode, opts.asof, null);
+          });
+        } else {
+          /* Marketing + BD deals: same-client same-type rollup */
+          cardsHtml += renderBdMktLinesHtml(card.lines, type.key, mode, opts.asof, card.client);
+        }
         cardsHtml += '</tbody></table>';
         cardsHtml += '<div class="gmoney-client-total"><span>Client total</span><span>' + money(card.total) + '</span></div>';
         cardsHtml += '</div>';
