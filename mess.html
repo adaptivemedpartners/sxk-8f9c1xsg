@@ -2,6 +2,7 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-gm-total-label-tier-pay-20260924 — GM Money: label Paycheck total→GM total; Soft Soft pay = SOFT_COMP_GM_SPLITS.paidOfCollectedTiers bucket walk (payment can split across two rates); person→tier Hadley/Amy/Nate=recruitingSpecialist 10/14/18/22/26 · Stephanie=senior 12/16/20/24/28 · Mike=principal 14/18/22/26/30 (NOT Hub GM_ACTUAL_TIERS). Est. pay on This-paycheck + YTD when person filtered. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-paid-action-date-picker-20260924 — Invoice spine Mark paid: confirm modal with <input type="date"> default America/Chicago today, editable; stores user ISO as row.paidDate + spineOverrides.paidDate (not click timestamp). GM Money gmRowPaidIso prefers paidDate. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-mohi-exec-recur-gm-paint-20260924 — Excel Marketing/Deal month-instance faces (Nk/N, pre-sold installments) stay off Production list but MUST paint Rec/BD GM so Exec gmOverride flows to board (MoHi Sep/Oct Amy). Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gmoverride-gm-money-flowthrough-20260924 — GM board + GM Money credit collectors read softProdEffectiveGmOwners (gmOverride || detached frozen || template || row.owners). MoHi Aug Amy 50% not template 40%. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -60606,6 +60607,106 @@ wireMode('bm_gm_mode', null, 'bm-split', function (mode) {
 
   try { window.__softCompGmSplits = SOFT_COMP_GM_SPLITS; } catch (eComp) {}
 
+  /* soft-gm-total-label-tier-pay-20260924 — Soft Soft GM→pay from Basecamp SOFT_COMP (not Hub GM_ACTUAL_TIERS) */
+  var SOFT_GM_PAY_PERSON_TIER = {
+    Hadley: 'recruitingSpecialist',
+    Amy: 'recruitingSpecialist',
+    Nate: 'recruitingSpecialist',
+    Stephanie: 'seniorRecruitingSpecialistManager',
+    Mike: 'principalManagingDirector'
+  };
+  var SOFT_GM_PAY_BUCKETS = [
+    { bucket: 'L1', start: 0, end: 100000 },
+    { bucket: 'L2', start: 100000, end: 175000 },
+    { bucket: 'L3', start: 175000, end: 250000 },
+    { bucket: 'L4', start: 250000, end: 300000 },
+    { bucket: 'L5', start: 300000, end: Infinity }
+  ];
+  function softGmPayPctsForPerson(person) {
+    var key = SOFT_GM_PAY_PERSON_TIER[String(person || '')];
+    if (!key) return null;
+    var S = (typeof SOFT_COMP_GM_SPLITS !== 'undefined' && SOFT_COMP_GM_SPLITS) || (window.__softCompGmSplits || {});
+    var rec = ((S.paidOfCollectedTiers || {}).recruiting) || {};
+    var pcts = rec[key];
+    return (pcts && pcts.length) ? pcts : null;
+  }
+  function softGmPayTierListForPerson(person) {
+    var pcts = softGmPayPctsForPerson(person);
+    if (!pcts) return null;
+    return [
+      { name: 'L1 $0–$100k', start: 0, end: 100000, pct: pcts[0] },
+      { name: 'L2 $100k–$175k', start: 100000, end: 175000, pct: pcts[1] },
+      { name: 'L3 $175k–$250k', start: 175000, end: 250000, pct: pcts[2] },
+      { name: 'L4 $250k–$300k', start: 250000, end: 300000, pct: pcts[3] },
+      { name: 'L5 $300k+', start: 300000, end: 1000000, pct: pcts[4] }
+    ];
+  }
+  /**
+   * softGmPayFromCollected(person, priorYtdCollectedGm, paymentGmAmount, year)
+   * Walk payment across ascending GM buckets; a single payment may split across two rates.
+   * Rates: SOFT_COMP_GM_SPLITS.paidOfCollectedTiers.recruiting (Basecamp xlsx).
+   */
+  function softGmPayFromCollected(person, priorYtdCollectedGm, paymentGmAmount, year) {
+    var pcts = softGmPayPctsForPerson(person);
+    var remaining = Number(paymentGmAmount) || 0;
+    var cursor = Number(priorYtdCollectedGm) || 0;
+    var pay = 0;
+    var slices = [];
+    if (!pcts || !(remaining > 0)) return { pay: 0, slices: slices, pcts: pcts || null };
+    var guard = 0;
+    while (remaining > 1e-9 && guard++ < 12) {
+      var bi = -1, b = null, i;
+      for (i = 0; i < SOFT_GM_PAY_BUCKETS.length; i++) {
+        b = SOFT_GM_PAY_BUCKETS[i];
+        if (cursor >= b.start && (b.end === Infinity || cursor < b.end)) { bi = i; break; }
+      }
+      if (bi < 0) { bi = SOFT_GM_PAY_BUCKETS.length - 1; b = SOFT_GM_PAY_BUCKETS[bi]; }
+      else b = SOFT_GM_PAY_BUCKETS[bi];
+      var room = (b.end === Infinity || !isFinite(b.end)) ? Infinity : Math.max(0, b.end - cursor);
+      if (!(room > 0) && bi >= SOFT_GM_PAY_BUCKETS.length - 1) {
+        room = Infinity;
+      }
+      if (!(room > 0)) { cursor = b.end; continue; }
+      var slice = Math.min(remaining, room);
+      var pct = Number(pcts[bi]) || 0;
+      var slicePay = slice * pct;
+      pay += slicePay;
+      slices.push({ bucket: b.bucket, gm: slice, pct: pct, pay: slicePay });
+      cursor += slice;
+      remaining -= slice;
+    }
+    return { pay: pay, slices: slices, pcts: pcts };
+  }
+  /** Annotate paid lines in paidDate asc (then id) with bucket Est. pay; recruiting-side only. */
+  function softGmPayAnnotateLines(person, lines) {
+    var pcts = softGmPayPctsForPerson(person);
+    if (!pcts) return { annotated: [], ytdCollected: 0, payTotal: 0, eligible: false };
+    var sorted = (lines || []).filter(function (r) {
+      return r && (r.side === 'recruiting' || r.side === 'rec');
+    }).slice().sort(function (a, b) {
+      var da = String(a.paidDate || a.date || '');
+      var db = String(b.paidDate || b.date || '');
+      if (da !== db) return da < db ? -1 : 1;
+      var ia = String(a.id || '');
+      var ib = String(b.id || '');
+      if (ia === ib) return 0;
+      return ia < ib ? -1 : 1;
+    });
+    var ytd = 0;
+    var payTotal = 0;
+    var annotated = sorted.map(function (r) {
+      var amt = Number(r.amount) || 0;
+      var prior = ytd;
+      var res = softGmPayFromCollected(person, prior, amt);
+      ytd += amt;
+      payTotal += res.pay;
+      return { row: r, pay: res.pay, slices: res.slices, priorYtd: prior };
+    });
+    return { annotated: annotated, ytdCollected: ytd, payTotal: payTotal, eligible: true };
+  }
+  try { window.softGmPayFromCollected = softGmPayFromCollected; } catch (ePayExp) {}
+
+
   var BD_PEOPLE = ['Zach','Aaron','Brenton','Kelley','Randy'];
   var REC_PEOPLE = ['Mike','Stephanie','Hadley','Nate','Amy'];
   var flashRowId = null;
@@ -86456,7 +86557,7 @@ ownersDetailHtml(row) +
   /* ===== Mess Tiers (Hub GM_ACTUAL_TIERS · Stephanie · 2026 $ bands) ===== */
   var GM_FLOW_TIERS = {
     Mike: { "2026": [
-      { name: "Tier 1", start: 0, end: 100000, pct: 0.18 },
+      { name: "Tier 1", start: 0, end: 100000, pct: 0.14 },
       { name: "Tier 2", start: 100000, end: 175000, pct: 0.18 },
       { name: "Tier 3", start: 175000, end: 250000, pct: 0.22 },
       { name: "Tier 4", start: 250000, end: 300000, pct: 0.26 },
@@ -86473,22 +86574,22 @@ ownersDetailHtml(row) +
       { name: "Tier 1", start: 0, end: 100000, pct: 0.10 },
       { name: "Tier 2", start: 100000, end: 175000, pct: 0.14 },
       { name: "Tier 3", start: 175000, end: 250000, pct: 0.18 },
-      { name: "Tier 4", start: 250000, end: 300000, pct: 0.20 },
-      { name: "Tier 5", start: 300000, end: 1000000, pct: 0.22 }
+      { name: "Tier 4", start: 250000, end: 300000, pct: 0.22 },
+      { name: "Tier 5", start: 300000, end: 1000000, pct: 0.26 }
     ]},
     Amy: { "2026": [
       { name: "Tier 1", start: 0, end: 100000, pct: 0.10 },
       { name: "Tier 2", start: 100000, end: 175000, pct: 0.14 },
       { name: "Tier 3", start: 175000, end: 250000, pct: 0.18 },
-      { name: "Tier 4", start: 250000, end: 300000, pct: 0.20 },
-      { name: "Tier 5", start: 300000, end: 1000000, pct: 0.22 }
+      { name: "Tier 4", start: 250000, end: 300000, pct: 0.22 },
+      { name: "Tier 5", start: 300000, end: 1000000, pct: 0.26 }
     ]},
     Nate: { "2026": [
       { name: "Tier 1", start: 0, end: 100000, pct: 0.10 },
       { name: "Tier 2", start: 100000, end: 175000, pct: 0.14 },
       { name: "Tier 3", start: 175000, end: 250000, pct: 0.18 },
-      { name: "Tier 4", start: 250000, end: 300000, pct: 0.20 },
-      { name: "Tier 5", start: 300000, end: 1000000, pct: 0.22 }
+      { name: "Tier 4", start: 250000, end: 300000, pct: 0.22 },
+      { name: "Tier 5", start: 300000, end: 1000000, pct: 0.26 }
     ]}
   };
   /* Same $ bands as Rec (Stephanie · 2026). No Mike-locked BD tier table in Flow Mock/Hub — Stephanie percents. */
@@ -86499,7 +86600,17 @@ ownersDetailHtml(row) +
     if (side === "bd") {
       return { list: GM_FLOW_BD_TIERS_EXAMPLE, bandLabel: "Stephanie · 2026 $ bands (for BD)", pctSource: "Stephanie" };
     }
+    /* soft-gm-total-label-tier-pay-20260924 — Rec GM Mess Tiers: Basecamp SOFT_COMP rates (not Hub GM_ACTUAL / GM_FLOW Mike 18% L1) */
     var who = person && person !== "all" ? person : "Stephanie";
+    var softList = (typeof softGmPayTierListForPerson === 'function') ? softGmPayTierListForPerson(who) : null;
+    if (softList && softList.length) {
+      var tierKey = (SOFT_GM_PAY_PERSON_TIER && SOFT_GM_PAY_PERSON_TIER[who]) || 'recruiting';
+      return {
+        list: softList,
+        bandLabel: who + " · " + year + " · Basecamp SOFT_COMP",
+        pctSource: tierKey
+      };
+    }
     var byYear = (GM_FLOW_TIERS[who] && GM_FLOW_TIERS[who][year]) || (GM_FLOW_TIERS.Stephanie && GM_FLOW_TIERS.Stephanie[year]) || [];
     var bandLabel = (person && person !== "all" ? person : "Stephanie") + " · " + year;
     return { list: byYear, bandLabel: bandLabel, pctSource: who };
@@ -86684,7 +86795,7 @@ ownersDetailHtml(row) +
       "</tr></thead><tbody>" + (body || '<tr><td colspan="5">No tiers</td></tr>') + "</tbody></table></div>" +
       '<p class="gm-tiers-hint">Toggle Booked / Unpaid / Paid to preview commission. <strong>Paid</strong> is official tier fill (' + money(paidGM) +
         ') — prior-year unpaid carry-in stays out until Mark paid this year · Booked ' + money(totalGM) +
-        ' · Unpaid open ' + money(unpaidGM) + ' · Hub $ bands (Stephanie · 2026 family).</p>';
+        ' · Unpaid open ' + money(unpaidGM) + ' · Basecamp SOFT_COMP paid-of-collected (not Hub GM_ACTUAL_TIERS).</p>';
   }
 
 
@@ -89934,6 +90045,7 @@ ownersDetailHtml(row) +
   }
 
   function renderGmMoneyPaycheck(ui, win) {
+    /* soft-gm-total-label-tier-pay-20260924 */
     var rows = gmMoneyCollectProdLines('paid').map(gmMoneyNormalizePaid).concat(
       gmMoneyMarkPaidStubs().map(gmMoneyNormalizePaid)
     ).filter(function (r) {
@@ -89948,13 +90060,48 @@ ownersDetailHtml(row) +
     var total = rows.reduce(function (s, r) { return s + (Number(r.amount) || 0); }, 0);
     var bdTot = rows.filter(function (r) { return r.side === 'bd'; }).reduce(function (s, r) { return s + (Number(r.amount) || 0); }, 0);
     var recTot = rows.filter(function (r) { return r.side === 'recruiting'; }).reduce(function (s, r) { return s + (Number(r.amount) || 0); }, 0);
+    var person = ui.person || 'all';
+    var estPayHtml = '';
+    if (ui.side === 'bd') {
+      /* recruiting paid-of-collected tiers — skip Est. pay on BD-only filter */
+    } else if (person && person !== 'all' && softGmPayPctsForPerson(person)) {
+      var year = String((win && win.end || ui.asof || softGmMoneyDefaultAsof() || '').slice(0, 4) || ui.year || softGmMoneyDefaultAsof().slice(0, 4));
+      var yearRows = gmMoneyCollectProdLines('paid').map(gmMoneyNormalizePaid).concat(
+        gmMoneyMarkPaidStubs().map(gmMoneyNormalizePaid)
+      ).filter(function (r) {
+        if (!gmMoneyPersonMatch(r.person, person)) return false;
+        if (!gmMoneySideMatch(r.side, ui.side)) return false;
+        return gmMoneyLineYear(r) === year;
+      });
+      var seenY = {};
+      yearRows = yearRows.filter(function (r) {
+        var k = r.id || (r.client + '|' + r.paidDate + '|' + r.amount + '|' + r.memo);
+        if (seenY[k]) return false; seenY[k] = true; return true;
+      });
+      var ann = softGmPayAnnotateLines(person, yearRows);
+      var winIds = {};
+      rows.forEach(function (r) {
+        var k = r.id || (r.client + '|' + r.paidDate + '|' + r.amount + '|' + r.memo);
+        winIds[k] = true;
+      });
+      var estPay = 0;
+      ann.annotated.forEach(function (a) {
+        var r = a.row;
+        var k = r.id || (r.client + '|' + r.paidDate + '|' + r.amount + '|' + r.memo);
+        if (winIds[k] || dateInInclusive(r.paidDate, win.start, win.end)) estPay += a.pay;
+      });
+      estPayHtml = '<div class="gmoney-stat"><div class="k">Est. pay</div><div class="v">' + money(estPay) + '</div></div>';
+    } else if (person === 'all') {
+      estPayHtml = '<div class="gmoney-stat"><div class="k">Est. pay</div><div class="v" style="font-size:13px;font-weight:600">Per-person — pick a recruiter</div></div>';
+    }
     var stats = document.getElementById('gmoney-paycheck-stats');
     if (stats) {
       stats.innerHTML =
         '<div class="gmoney-stat"><div class="k">Lines in window</div><div class="v">' + rows.length + '</div></div>' +
         '<div class="gmoney-stat"><div class="k">BD paid</div><div class="v">' + money(bdTot) + '</div></div>' +
         '<div class="gmoney-stat"><div class="k">Recruiting paid</div><div class="v">' + money(recTot) + '</div></div>' +
-        '<div class="gmoney-stat"><div class="k">Paycheck total</div><div class="v">' + money(total) + '</div></div>';
+        '<div class="gmoney-stat"><div class="k">GM total</div><div class="v">' + money(total) + '</div></div>' +
+        estPayHtml;
     }
     var host = document.getElementById('gmoney-paycheck-groups');
     if (!host) return;
@@ -89965,6 +90112,7 @@ ownersDetailHtml(row) +
   }
 
   function renderGmMoneyYtd(ui, win) {
+    /* soft-gm-total-label-tier-pay-20260924 */
     var year = String(ui.year || softGmMoneyDefaultAsof().slice(0, 4));
     var rows = gmMoneyCollectProdLines('paid').map(gmMoneyNormalizePaid).concat(
       gmMoneyMarkPaidStubs().map(gmMoneyNormalizePaid)
@@ -89980,13 +90128,24 @@ ownersDetailHtml(row) +
     var total = rows.reduce(function (s, r) { return s + (Number(r.amount) || 0); }, 0);
     var periodRows = rows.filter(function (r) { return dateInInclusive(r.paidDate || r.date, win.start, win.end); });
     var periodTot = periodRows.reduce(function (s, r) { return s + (Number(r.amount) || 0); }, 0);
+    var person = ui.person || 'all';
+    var estPayHtml = '';
+    if (ui.side === 'bd') {
+      /* recruiting tiers — skip on BD-only */
+    } else if (person && person !== 'all' && softGmPayPctsForPerson(person)) {
+      var ann = softGmPayAnnotateLines(person, rows);
+      estPayHtml = '<div class="gmoney-stat"><div class="k">Est. pay YTD</div><div class="v">' + money(ann.payTotal) + '</div></div>';
+    } else if (person === 'all') {
+      estPayHtml = '<div class="gmoney-stat"><div class="k">Est. pay</div><div class="v" style="font-size:13px;font-weight:600">Per-person — pick a recruiter</div></div>';
+    }
     var stats = document.getElementById('gmoney-ytd-stats');
     if (stats) {
       stats.innerHTML =
         '<div class="gmoney-stat"><div class="k">Year</div><div class="v">' + escHtml(year) + '</div></div>' +
         '<div class="gmoney-stat"><div class="k">Period (paycheck window)</div><div class="v">' + money(periodTot) + '</div></div>' +
-        '<div class="gmoney-stat"><div class="k">YTD / this year</div><div class="v">' + money(total) + '</div></div>' +
-        '<div class="gmoney-stat"><div class="k">Lines</div><div class="v">' + rows.length + '</div></div>';
+        '<div class="gmoney-stat"><div class="k">YTD GM / this year</div><div class="v">' + money(total) + '</div></div>' +
+        '<div class="gmoney-stat"><div class="k">Lines</div><div class="v">' + rows.length + '</div></div>' +
+        estPayHtml;
     }
     var host = document.getElementById('gmoney-ytd-groups');
     if (!host) return;
