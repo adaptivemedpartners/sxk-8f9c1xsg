@@ -3,6 +3,7 @@
 <head>
 <script>
 /* soft-gmoney-tab-cache-20260924 — GM Money tab switch perf: cache gmMoneyCollectProdLines by year+paidDate fingerprint; render only active tab on tab click; skip full saveState on tab-only; reuse paid collect inside paycheck Est. pay. Prior soft-gmoney-paycheck-ytd-tabs-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
+/* soft-bd-mkt-rollup-nomonth-20260924 — Production BD+Marketing display rollup: drop month from group key; same normalized client + same deal type collapse across months into one expandable parent (children keep month/date/amounts). Prior soft-bd-mkt-rollup-restore-20260924 / soft-bd-mkt-client-rollup-20260924 kept. Does NOT touch soft-gmoney-tab-cache-20260924. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-bd-mkt-rollup-restore-20260924 — Re-affirm Production BD+Marketing client/type display rollup (Cullman Platinum etc.): group key includes month; ensure Soft Soft renderProduction rollup path; prior soft-bd-mkt-client-rollup-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gmoney-paycheck-ytd-tabs-20260924 — Fix This-paycheck + YTD tabs: renderGmMoneyPaycheck Est. pay used win.end (Date).slice → TypeError; aborted paycheck fill and skipped YTD. Use win.endIso; isolate unpaid/paycheck/ytd in try/catch. Prior soft-gm-total-label-tier-pay-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gm-total-label-tier-pay-20260924 — GM Money: label Paycheck total→GM total; Soft Soft pay = SOFT_COMP_GM_SPLITS.paidOfCollectedTiers bucket walk (payment can split across two rates); person→tier Hadley/Amy/Nate=recruitingSpecialist 10/14/18/22/26 · Stephanie=senior 12/16/20/24/28 · Mike=principal 14/18/22/26/30 (NOT Hub GM_ACTUAL_TIERS). Est. pay on This-paycheck + YTD when person filtered. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -66387,7 +66388,7 @@ function ensureCarriGmSeed(s) {
     /* soft-bd-mkt-client-rollup-20260924 — persist expand map only; display rollup is render-time. */
     if (!state) return state;
     if (!state.softBdMktRollupExpanded || typeof state.softBdMktRollupExpanded !== 'object') state.softBdMktRollupExpanded = {};
-    state.softBdMktClientRollupStamp = 'soft-bd-mkt-rollup-restore-20260924';
+    state.softBdMktClientRollupStamp = 'soft-bd-mkt-rollup-nomonth-20260924';
     return state;
   }
 
@@ -83041,11 +83042,11 @@ aForm.addEventListener('submit', function (e) {
   function softBdMktEnsureRollupState(s) {
     if (!s) return s;
     if (!s.softBdMktRollupExpanded || typeof s.softBdMktRollupExpanded !== 'object') s.softBdMktRollupExpanded = {};
-    s.softBdMktClientRollupStamp = 'soft-bd-mkt-rollup-restore-20260924';
+    s.softBdMktClientRollupStamp = 'soft-bd-mkt-rollup-nomonth-20260924';
     return s;
   }
   function softBdMktGroupVisibleRows(list) {
-    /* soft-bd-mkt-rollup-restore-20260924 — month-scoped key so same-client same-type collapse per month (Cullman-style); never flatten across months when filter=all */
+    /* soft-bd-mkt-rollup-nomonth-20260924 — client||type key (NO month): same-client same-type collapse across months; children keep month/date/amounts */
     var groups = [];
     var map = {};
     (list || []).forEach(function (row) {
@@ -83053,7 +83054,7 @@ aForm.addEventListener('submit', function (e) {
       var ck = softBdMktNormClientKey(row.client);
       var tk = softBdMktDealTypeKey(row);
       var mk = String(row.month || '').slice(0, 7);
-      var gkey = mk + '||' + ck + '||' + tk;
+      var gkey = ck + '||' + tk;
       if (!map[gkey]) {
         map[gkey] = { key: gkey, clientKey: ck, typeKey: tk, monthKey: mk, rows: [] };
         groups.push(map[gkey]);
@@ -83065,6 +83066,7 @@ aForm.addEventListener('submit', function (e) {
   try { window.__softBdMktNormClientKey = softBdMktNormClientKey; } catch (eR1) {}
   try { window.__softBdMktDealTypeKey = softBdMktDealTypeKey; } catch (eR2) {}
   try { window.__softBdMktRollupRestore20260924 = 'soft-bd-mkt-rollup-restore-20260924'; } catch (eR3) {}
+  try { window.__softBdMktRollupNomonth20260924 = 'soft-bd-mkt-rollup-nomonth-20260924'; } catch (eR3b) {}
   try { window.__softGmMoneyTabCache20260924 = 'soft-gmoney-tab-cache-20260924'; } catch (eR4) {}
 
 
@@ -83119,7 +83121,7 @@ aForm.addEventListener('submit', function (e) {
   }, true);
 
   function renderProduction() {
-    /* soft-bd-mkt-rollup-restore-20260924 + soft-bd-mkt-client-rollup-20260924 — BD + Marketing: collapse ≥2 same-client same-type lines into summed parent (month-scoped key); expand for detail. Placement unchanged. */
+    /* soft-bd-mkt-rollup-nomonth-20260924 + soft-bd-mkt-client-rollup-20260924 — BD + Marketing: collapse ≥2 same-client same-type lines into summed parent (key=client||type, no month); expand for month/amount detail. Placement unchanged. */
     softBdMktEnsureRollupState(state);
     var filter = document.getElementById('prod-month').value;
     var bdBody = document.querySelector('#tbl-bd tbody');
@@ -83204,7 +83206,10 @@ aForm.addEventListener('submit', function (e) {
       var mktAmt = row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth;
       var bdRep = row.marketer || primaryRepFromOwners(row.owners, row.rep) || '—';
       var campaignRecruiter = row.rep || '—';
-      var clientTxt = opts.child ? ('↳ ' + (row.client || '')) : (row.client || '');
+      var moChild = opts.child ? String(row.month || '').slice(0, 7) : '';
+      var clientTxt = opts.child
+        ? ('↳ ' + (row.client || '') + (moChild ? (' · ' + moChild) : ''))
+        : (row.client || '');
       trM.innerHTML =
         '<td>' + glowHtml(escHtml(shortDate(row.date)) + (row.example ? '' : '')) + '</td>' +
         '<td>' + whoGlow(campaignRecruiter) + '</td>' +
@@ -83231,7 +83236,10 @@ aForm.addEventListener('submit', function (e) {
         : '<button type="button" class="deal-ref-chip" data-act="detail" data-id="' + row.id + '" title="' + escHtml(chipTitle) + '">' +
             escHtml(refLabel) + '</button>';
       if (prodBdIsMonthly(row)) tr2.classList.add('prod-row-monthly');
-      var clientCell = (opts.child ? '↳ ' : '') + escHtml(row.client || '') + prodMonthlyBadgeHtml(row) +
+      var moChildBd = opts.child ? String(row.month || '').slice(0, 7) : '';
+      var clientCell = (opts.child ? '↳ ' : '') + escHtml(row.client || '') +
+        (moChildBd ? (' <span class="soft-rollup-qb">' + escHtml(moChildBd) + '</span>') : '') +
+        prodMonthlyBadgeHtml(row) +
         (opts.child && row.qbInvoice ? (' <span class="soft-rollup-qb">QB ' + escHtml(String(row.qbInvoice)) + '</span>') : '');
       tr2.innerHTML =
         '<td>' + glowHtml(escHtml(shortDate(row.date)) + (row.example ? '' : '')) + '</td>' +
@@ -83338,7 +83346,7 @@ aForm.addEventListener('submit', function (e) {
       else appendBdRow(g.rows[0]);
     });
 
-    state.softBdMktClientRollupLast = { stamp: 'soft-bd-mkt-rollup-restore-20260924', filter: filter, shown: shown, rollup: rollupMeta, at: '2026-09-24' };
+    state.softBdMktClientRollupLast = { stamp: 'soft-bd-mkt-rollup-nomonth-20260924', filter: filter, shown: shown, rollup: rollupMeta, at: '2026-09-24' };
     var rollNote = rollupMeta.groups ? (' · rollup ' + rollupMeta.linesIn + '→' + rollupMeta.linesOut + ' (' + rollupMeta.groups + ' groups)') : '';
     document.getElementById('prod-stat').textContent = shown + ' rows' + (filter !== 'all' ? ' · ' + filter : '') + rollNote;
     if (!bdBody.children.length) bdBody.innerHTML = '<tr><td colspan="13" class="empty">No BD Deal rows for this filter</td></tr>';
@@ -95114,7 +95122,7 @@ html[data-look="light"] [data-bd-agree-drop] .bd-agree-dropzone.is-dragover {
   margin-top: 6px;
 }
 
-  /* soft-bd-mkt-client-rollup-20260924 + soft-bd-mkt-rollup-restore-20260924 */
+  /* soft-bd-mkt-client-rollup-20260924 + soft-bd-mkt-rollup-restore-20260924 + soft-bd-mkt-rollup-nomonth-20260924 */
   tr.soft-rollup-parent td { font-weight: 600; background: rgba(56, 189, 248, 0.08); }
   tr.soft-rollup-child td { opacity: 0.92; background: rgba(15, 23, 42, 0.04); }
   button.soft-rollup-toggle { background: transparent; border: 0; color: inherit; cursor: pointer; font: inherit; font-weight: 700; padding: 0; text-align: left; }
