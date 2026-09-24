@@ -66797,6 +66797,7 @@ function softIsoDate(v) {
     tagMoHighlandsMonthlies(s);     tagSoftEcbSplitAndSecondBills(s);     tagSoftRecurringOffProductionBoard(s); /* soft-prod-recurring-off-board-20260920 */ /* soft-prod-ecb-secondbill-20260920 */
     ensureSoftCarriCashFlip20260924(s); /* soft-carri-cashflip-20260924 · after off-board tag */
     try { ensureSoftClientCaseNormalize20260924(s); } catch (eClientCaseNorm) {} /* soft-client-case-normalize-20260924 */
+    try { ensureSoftClientNamesClean20260924(s); } catch (eClientNamesClean) {} /* soft-client-names-clean-20260924 */
     ensureSoftBdMktClientRollup20260924(s); /* soft-bd-mkt-client-rollup-20260924 */
     ensureSoftRecurringGmMonthOverride20260924(s); /* soft-recurring-gm-month-override-20260924 */
     ensureSoftMidlandRavuriJanPlacement20260921(s); /* soft-midland-ravuri-jan-placement-20260921 */
@@ -66978,6 +66979,7 @@ function softIsoDate(v) {
     try { ensureSoftCarriPaidDateBackfill20260924(state); } catch (eCarriPdSave) {} /* soft-carri-paiddate-backfill-20260924 */
     try { ensureSoftCarriCashFlip20260924(state); } catch (eCarriCashFlipSave) {} /* soft-carri-cashflip-20260924 */
     try { ensureSoftClientCaseNormalize20260924(state); } catch (eClientCaseNormSave) {} /* soft-client-case-normalize-20260924 */
+    try { ensureSoftClientNamesClean20260924(state); } catch (eClientNamesCleanSave) {} /* soft-client-names-clean-20260924 */
     try { ensureSoftRecurringGmMonthOverride20260924(state); } catch (eRecGmOvSave) {} /* soft-recurring-gm-month-override-20260924 */
       var payload = JSON.stringify(state);
       localStorage.setItem(LS_KEY, payload);
@@ -80450,6 +80452,7 @@ aForm.addEventListener('submit', function (e) {
     ensureSoftCarriPaidDateBackfill20260924(state); /* soft-carri-paiddate-backfill-20260924 */
     ensureSoftCarriCashFlip20260924(state); /* soft-carri-cashflip-20260924 */
     try { ensureSoftClientCaseNormalize20260924(state); } catch (eClientCaseNormBoot) {} /* soft-client-case-normalize-20260924 */
+    try { ensureSoftClientNamesClean20260924(state); } catch (eClientNamesCleanBoot) {} /* soft-client-names-clean-20260924 */
     ensureSoftRecurringGmMonthOverride20260924(state); /* soft-recurring-gm-month-override-20260924 */
     ensureIhc16972MikeRandy5050(state); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
     ensureWinnMayOdPackageOnProduction20260921(state); /* soft-winn-may-od-package-on-prod-20260921 */
@@ -83134,6 +83137,250 @@ aForm.addEventListener('submit', function (e) {
     return state;
   }
 
+
+  function softClientIsAsdfJunkName(name) {
+    /* soft-client-names-clean-20260924 — test junk: asdfasdf / ASDFASDF / asdfasdf (ECB) */
+    var s = String(name || '').trim().replace(/\s+/g, ' ');
+    if (!s) return false;
+    return /^asdfasdf(\s*\(\s*ecb\s*\))?$/i.test(s);
+  }
+  function softClientNamesCleanPolishMap() {
+    /* Explicit readable masters ONLY — do NOT invent identities or merge orgs.
+       Kick-in / deal-code ALLCAPS house style (MULTI SEARCH…, PLACEMENT MULTI…,
+       WINN COMM PD####, NEW SEARCH MULTI…) left alone. LifeSpan brand stays LifeSpan
+       via case-normalize. */
+    return {
+      'whiteside county health dept': 'Whiteside County Health Dept'
+    };
+  }
+  function ensureSoftClientNamesClean20260924(state) {
+    /* soft-client-names-clean-20260924 — Soft Soft Desktop FoT.
+       1) Soft-delete / archive asdfasdf test junk into recoverable holding
+          (deletedRowIds + deletedClientIds + spine invoice tombstones; rows snapshotted).
+       2) Re-run whitespace trim/collapse on every client / clientName.
+       3) Apply small Title Case polish map for obvious facility ALLCAPS (not kick-ins).
+       Preserves casefold key, GM Money rollup, Production BD+Marketing client‖type rollup,
+       tab-cache, tier-pay. Never Hub. Spell Carri. */
+    if (!state || typeof state !== 'object') return state;
+    var STAMP = 'soft-client-names-clean-20260924';
+    var AT = '2026-09-24T13:05:00-05:00';
+    if (typeof softEnsureTombstoneMaps === 'function') softEnsureTombstoneMaps(state);
+    else {
+      if (!state.deletedRowIds || typeof state.deletedRowIds !== 'object') state.deletedRowIds = {};
+      if (!state.deletedInvoiceIds || typeof state.deletedInvoiceIds !== 'object') state.deletedInvoiceIds = {};
+      if (!state.deletedClientIds || typeof state.deletedClientIds !== 'object') state.deletedClientIds = {};
+    }
+
+    if (!state.softClientNamesCleanHolding || typeof state.softClientNamesCleanHolding !== 'object') {
+      state.softClientNamesCleanHolding = { stamp: STAMP, at: AT, why: 'test-junk-asdfasdf', rows: [], archive: [] };
+    }
+    var holding = state.softClientNamesCleanHolding;
+    if (!Array.isArray(holding.rows)) holding.rows = [];
+    if (!Array.isArray(holding.archive)) holding.archive = [];
+    var heldIds = {};
+    holding.rows.forEach(function (r) { if (r && r.id) heldIds[String(r.id)] = true; });
+    holding.archive.forEach(function (a) { if (a && a.id) heldIds[String(a.id)] = true; });
+
+    var archivedNow = [];
+    var junkClients = {};
+
+    function snapArchiveMeta(row) {
+      var inv = String((row && (row.qbInvoice || row.qbNumber || row.invoice)) || '').trim();
+      var amt = Number(row && (row.accountingBilled != null ? row.accountingBilled : (row.fee != null ? row.fee : row.bookValueThisMonth))) || 0;
+      return {
+        id: String((row && row.id) || ''),
+        client: String((row && row.client) || ''),
+        inv: inv,
+        amount: amt,
+        side: String((row && row.side) || ''),
+        bookType: String((row && row.bookType) || ''),
+        status: String((row && row.status) || ''),
+        lineKind: String((row && row.lineKind) || ''),
+        date: String((row && row.date) || ''),
+        month: String((row && row.month) || ''),
+        spineInvoiceId: String((row && row.spineInvoiceId) || ''),
+        recurringStreamId: String((row && row.recurringStreamId) || ''),
+        rep: String((row && (row.rep || (row.owners && row.owners.primary))) || '')
+      };
+    }
+
+    function tombstoneClientName(name) {
+      var raw = String(name || '').trim();
+      if (!raw) return;
+      junkClients[raw] = true;
+      var keys = [];
+      try {
+        if (typeof softCollectClientTombstoneKeys === 'function') keys = softCollectClientTombstoneKeys(raw) || [];
+      } catch (eK) { keys = []; }
+      if (!keys.length) {
+        keys = [raw, raw.toLowerCase(), softClientCasefoldKey ? softClientCasefoldKey(raw) : raw.toLowerCase()];
+        /* also ECB / case variants */
+        if (/^asdfasdf$/i.test(raw.replace(/\s*\(\s*ecb\s*\)$/i, '').trim())) {
+          keys.push('asdfasdf', 'ASDFASDF', 'asdfasdf (ECB)', 'ASDFASDF (ECB)', 'asdfasdf (ecb)');
+        }
+      }
+      keys.forEach(function (k) {
+        k = String(k || '').trim();
+        if (!k) return;
+        if (!state.deletedClientIds[k]) {
+          state.deletedClientIds[k] = { at: AT, why: STAMP, client: raw, note: 'test-junk archive — recoverable via softClientNamesCleanHolding' };
+        } else if (!state.deletedClientIds[k].why || String(state.deletedClientIds[k].why).indexOf(STAMP) < 0) {
+          /* keep prior why; annotate */
+          state.deletedClientIds[k].cleanStamp = STAMP;
+        }
+      });
+    }
+
+    function tombstoneSpineForRow(row) {
+      var ids = [];
+      var seen = Object.create(null);
+      function add(id) {
+        id = id == null ? '' : String(id);
+        if (!id || seen[id]) return;
+        seen[id] = true;
+        ids.push(id);
+      }
+      if (!row) return;
+      add(row.spineInvoiceId);
+      add(row.sampleId);
+      var rid = String(row.id || '');
+      if (rid) add('book_inv_' + rid.replace(/[^A-Za-z0-9_]/g, '_'));
+      var qb = String(row.qbInvoice || row.qbNumber || '').trim();
+      if (qb && /^\d+$/.test(qb)) {
+        add(qb);
+        add('carri_qb_' + qb);
+      }
+      ids.forEach(function (iid) {
+        if (!state.deletedInvoiceIds[iid]) {
+          state.deletedInvoiceIds[iid] = { at: AT, why: STAMP, note: 'asdfasdf test-junk archive' };
+        } else {
+          state.deletedInvoiceIds[iid].cleanStamp = STAMP;
+        }
+      });
+      try {
+        if (typeof SPINE_INVOICES !== 'undefined' && Array.isArray(SPINE_INVOICES)) {
+          for (var i = SPINE_INVOICES.length - 1; i >= 0; i--) {
+            var inv = SPINE_INVOICES[i];
+            if (!inv) continue;
+            var cid = String(inv.id || '');
+            var cqb = String(inv.qbNumber || '').trim();
+            var hit = !!seen[cid] || (qb && /^\d+$/.test(qb) && (cqb === qb || cid === ('carri_qb_' + qb)));
+            if (!hit && softClientIsAsdfJunkName(inv.client)) hit = true;
+            if (hit) SPINE_INVOICES.splice(i, 1);
+          }
+        }
+      } catch (eSp) {}
+    }
+
+    /* --- 1) Archive live asdfasdf junk rows --- */
+    if (Array.isArray(state.rows)) {
+      var keep = [];
+      state.rows.forEach(function (row) {
+        if (!row) return;
+        var client = String(row.client || row.clientName || '');
+        var isJunk = softClientIsAsdfJunkName(client);
+        if (!isJunk && row.payload && softClientIsAsdfJunkName(row.payload.client)) isJunk = true;
+        if (!isJunk) { keep.push(row); return; }
+        var id = String(row.id || '');
+        tombstoneClientName(client || 'asdfasdf');
+        if (row.payload && row.payload.client) tombstoneClientName(row.payload.client);
+        if (id) {
+          state.deletedRowIds[id] = { at: AT, why: STAMP, note: 'asdfasdf test-junk → softClientNamesCleanHolding' };
+        }
+        tombstoneSpineForRow(row);
+        if (id && !heldIds[id]) {
+          try {
+            holding.rows.push(JSON.parse(JSON.stringify(row)));
+          } catch (eClone) {
+            holding.rows.push(row);
+          }
+          var meta = snapArchiveMeta(row);
+          holding.archive.push(meta);
+          archivedNow.push(meta);
+          heldIds[id] = true;
+        }
+      });
+      state.rows = keep;
+    }
+
+    /* Always reinforce client tombstones for known junk spellings (even if no live rows) */
+    ['asdfasdf', 'ASDFASDF', 'asdfasdf (ECB)', 'ASDFASDF (ECB)', 'asdfasdf (ecb)'].forEach(tombstoneClientName);
+
+    /* --- 2+3) Whitespace + polish map walk --- */
+    var polish = softClientNamesCleanPolishMap();
+    var wsN = 0;
+    var polishN = 0;
+    var polishDetail = [];
+    function cleanStr(v) {
+      if (typeof v !== 'string') return v;
+      var orig = v;
+      var s = v.trim().replace(/\s+/g, ' ');
+      if (!s) return s;
+      if (softClientIsAsdfJunkName(s)) return s; /* junk names may linger in fanLog history; leave non-row strings */
+      var fold = (typeof softClientCasefoldKey === 'function') ? softClientCasefoldKey(s) : s.toLowerCase();
+      if (polish[fold] && polish[fold] !== s) {
+        polishDetail.push({ before: orig, after: polish[fold] });
+        polishN++;
+        return polish[fold];
+      }
+      if (s !== orig) wsN++;
+      return s;
+    }
+    function walk(o, depth) {
+      if (!o || depth > 12) return;
+      if (Array.isArray(o)) {
+        for (var i = 0; i < o.length; i++) walk(o[i], depth + 1);
+        return;
+      }
+      if (typeof o !== 'object') return;
+      Object.keys(o).forEach(function (k) {
+        var v = o[k];
+        if ((k === 'client' || k === 'clientName') && typeof v === 'string' && v) {
+          /* Do not rewrite fanLog historical snapshots' nested before/after? 
+             Walk covers all — fanLog client renames are display-only history.
+             For polish/whitespace on fanLog asdf junk: leave asdf strings as-is (softClientIsAsdfJunkName returns early without polish).
+             Whitespace on real clients in fanLog is OK. */
+          o[k] = cleanStr(v);
+        } else if (v && typeof v === 'object') {
+          walk(v, depth + 1);
+        }
+      });
+    }
+    walk(state, 0);
+
+    holding.stamp = STAMP;
+    holding.at = AT;
+    holding.lastRun = {
+      archivedNow: archivedNow.length,
+      archiveTotal: holding.archive.length,
+      whitespaceRewrites: wsN,
+      polishRewrites: polishN,
+      polishDetail: polishDetail.slice(0, 50)
+    };
+
+    state.softClientNamesCleanStamp = STAMP;
+    state.softClientNamesCleanLast = {
+      stamp: STAMP,
+      at: AT,
+      archivedNow: archivedNow,
+      archiveTotal: holding.archive.length,
+      whitespaceRewrites: wsN,
+      polishRewrites: polishN,
+      polishDetail: polishDetail.slice(0, 50),
+      junkClients: Object.keys(junkClients)
+    };
+    try {
+      if (state.softBdMktClientRollupStamp) state.softBdMktClientRollupStamp = STAMP;
+    } catch (eR) {}
+    try {
+      window.__softClientNamesClean20260924 = STAMP;
+      window.__softClientNamesCleanLast = state.softClientNamesCleanLast;
+      window.__softClientNamesCleanHolding = state.softClientNamesCleanHolding;
+    } catch (eW) {}
+    return state;
+  }
+  try { window.__softClientNamesClean20260924 = 'soft-client-names-clean-20260924'; } catch (eCleanStamp) {}
+
   /* soft-bd-mkt-client-rollup-20260924 — display-only client+type rollup for BD deals + Marketing tables */
   function softBdMktNormClientKey(client) {
     var s = String(client || '').toLowerCase();
@@ -83223,6 +83470,7 @@ aForm.addEventListener('submit', function (e) {
   try { window.__softRollupGmoneyOnly20260924 = 'soft-rollup-gmoney-only-20260924'; } catch (eR3c) {}
   try { window.__softClientCaseNormalize20260924 = 'soft-client-case-normalize-20260924'; } catch (eR3d) {}
   try { window.__softClientkeyCasefold20260924 = 'soft-clientkey-casefold-20260924'; } catch (eR3e) {}
+  try { window.__softClientNamesClean20260924 = 'soft-client-names-clean-20260924'; } catch (eR3f) {}
   try { window.__softGmMoneyTabCache20260924 = 'soft-gmoney-tab-cache-20260924'; } catch (eR4) {}
 
 
