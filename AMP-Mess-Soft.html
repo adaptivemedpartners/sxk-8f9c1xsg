@@ -2,6 +2,7 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-gmoney-paycheck-ytd-tabs-20260924 — Fix This-paycheck + YTD tabs: renderGmMoneyPaycheck Est. pay used win.end (Date).slice → TypeError; aborted paycheck fill and skipped YTD. Use win.endIso; isolate unpaid/paycheck/ytd in try/catch. Prior soft-gm-total-label-tier-pay-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gm-total-label-tier-pay-20260924 — GM Money: label Paycheck total→GM total; Soft Soft pay = SOFT_COMP_GM_SPLITS.paidOfCollectedTiers bucket walk (payment can split across two rates); person→tier Hadley/Amy/Nate=recruitingSpecialist 10/14/18/22/26 · Stephanie=senior 12/16/20/24/28 · Mike=principal 14/18/22/26/30 (NOT Hub GM_ACTUAL_TIERS). Est. pay on This-paycheck + YTD when person filtered. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-paid-action-date-picker-20260924 — Invoice spine Mark paid: confirm modal with <input type="date"> default America/Chicago today, editable; stores user ISO as row.paidDate + spineOverrides.paidDate (not click timestamp). GM Money gmRowPaidIso prefers paidDate. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-mohi-exec-recur-gm-paint-20260924 — Excel Marketing/Deal month-instance faces (Nk/N, pre-sold installments) stay off Production list but MUST paint Rec/BD GM so Exec gmOverride flows to board (MoHi Sep/Oct Amy). Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -90002,9 +90003,9 @@ ownersDetailHtml(row) +
       panel.classList.toggle('active', on);
       panel.hidden = !on;
     });
-    renderGmMoneyUnpaid(ui, win);
-    renderGmMoneyPaycheck(ui, win);
-    renderGmMoneyYtd(ui, win);
+    try { renderGmMoneyUnpaid(ui, win); } catch (eUnpaid) { try { console.warn('renderGmMoneyUnpaid', eUnpaid); } catch (e0) {} }
+    try { renderGmMoneyPaycheck(ui, win); } catch (ePay) { try { console.warn('renderGmMoneyPaycheck', ePay); } catch (e1) {} }
+    try { renderGmMoneyYtd(ui, win); } catch (eYtd) { try { console.warn('renderGmMoneyYtd', eYtd); } catch (e2) {} }
   }
 
   function gmMoneyMarkPaidStubs() {
@@ -90045,7 +90046,7 @@ ownersDetailHtml(row) +
   }
 
   function renderGmMoneyPaycheck(ui, win) {
-    /* soft-gm-total-label-tier-pay-20260924 */
+    /* soft-gmoney-paycheck-ytd-tabs-20260924 + soft-gm-total-label-tier-pay-20260924 */
     var rows = gmMoneyCollectProdLines('paid').map(gmMoneyNormalizePaid).concat(
       gmMoneyMarkPaidStubs().map(gmMoneyNormalizePaid)
     ).filter(function (r) {
@@ -90065,7 +90066,9 @@ ownersDetailHtml(row) +
     if (ui.side === 'bd') {
       /* recruiting paid-of-collected tiers — skip Est. pay on BD-only filter */
     } else if (person && person !== 'all' && softGmPayPctsForPerson(person)) {
-      var year = String((win && win.end || ui.asof || softGmMoneyDefaultAsof() || '').slice(0, 4) || ui.year || softGmMoneyDefaultAsof().slice(0, 4));
+      /* soft-gmoney-paycheck-ytd-tabs-20260924 — win.end is a Date; never .slice it (was TypeError aborting paycheck+YTD). Use endIso / asof string. */
+      var yearSrc = (win && win.endIso) ? String(win.endIso) : String(ui.asof || softGmMoneyDefaultAsof() || '');
+      var year = yearSrc.slice(0, 4) || String(ui.year || softGmMoneyDefaultAsof().slice(0, 4));
       var yearRows = gmMoneyCollectProdLines('paid').map(gmMoneyNormalizePaid).concat(
         gmMoneyMarkPaidStubs().map(gmMoneyNormalizePaid)
       ).filter(function (r) {
@@ -90112,7 +90115,7 @@ ownersDetailHtml(row) +
   }
 
   function renderGmMoneyYtd(ui, win) {
-    /* soft-gm-total-label-tier-pay-20260924 */
+    /* soft-gmoney-paycheck-ytd-tabs-20260924 + soft-gm-total-label-tier-pay-20260924 */
     var year = String(ui.year || softGmMoneyDefaultAsof().slice(0, 4));
     var rows = gmMoneyCollectProdLines('paid').map(gmMoneyNormalizePaid).concat(
       gmMoneyMarkPaidStubs().map(gmMoneyNormalizePaid)
