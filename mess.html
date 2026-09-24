@@ -2,6 +2,7 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-carri-paiddate-backfill-20260924 — Carri Monthly GM Payment Detail "date" (paid/in-house) → Soft row.paidDate for board-paid blank paidDate rows (facility+GM share+owner; prefer QB). ensureSoftCarriPaidDateBackfill20260924 on normalize/save/boot. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gmoney-board-paid-pull-20260924 + soft-gmoney-gm-share-not-revenue-20260924 + soft-gm-money-live-20260924 — GM Money LIVE: Unpaid/This paycheck/YTD read Production rows + spine cash SoT (softGmIsUnpaidSoT / softGmIsPaidSoT) + Mark-paid stubs only; kill PDF mock seed default path + do-not-treat-as-live / mock-year chrome; year/as-of from live board years + latest 15th on/before today (paycheckWindowFor 16th→15th). GM board stays read-only for billing. Soft Soft Desktop only. Never Hub. Never Pages. */
 /* soft-gm-recur-request-opaque-20260923 — Recurring request modal solid white card; Glass Look var(--card) was translucent over GM bands. Soft Soft Desktop only. Never Hub/Pages. */
 
@@ -65786,6 +65787,70 @@ function ensureCarriGmSeed(s) {
   try { window.__softApplyRepeatGm601030ToRow = softApplyRepeatGm601030ToRow; } catch (eRepGm3) {}
 
 
+  function ensureSoftCarriPaidDateBackfill20260924(state) {
+    /* soft-carri-paiddate-backfill-20260924 — Backfill Soft row.paidDate from Carri Monthly GM Payment Detail
+       "date" (paid/in-house) for board-paid rows with blank paidDate. Match facility + GM share + owner;
+       prefer QB. Cycle Aug 16–Sep 15 focus. Idempotent via softCarriPaidDateBackfillStamp.
+       Soft Soft Desktop FoT. Never Hub. Spell Carri. */
+    if (!state || !Array.isArray(state.rows)) return state;
+    var STAMP = 'soft-carri-paiddate-backfill-20260924';
+    var MAP = {
+      "carri_bd_aaron_r20_marketing_community_health_dental_stan_m08": "2026-08-31",
+      "carri_bd_brenton_r20_repeat_winn_comm_pd8448_m08": "2026-08-19",
+      "carri_bd_brenton_r21_marketing_winn_comm_standard_pd8448_m07": "2026-08-19",
+      "carri_bd_brenton_r22_repeat_cullman_initiation_mm8461_m08": "2026-09-02",
+      "carri_bd_brenton_r23_repeat_cullman_monthly_mm8461_m08": "2026-09-02",
+      "carri_bd_brenton_r25_repeat_cullman_initiation_fpob8462_m08": "2026-09-02",
+      "carri_bd_brenton_r26_repeat_cullman_monthly_fpob8462_m08": "2026-09-02",
+      "carri_bd_randy_r24_marketing_helen_newberry_joy_hosp_stan_m04": "2026-09-03",
+      "carri_gm_amy_r10_marketing_missouri_highlands_split_4_bil_m07": "2026-08-28",
+      "carri_gm_amy_r12_marketing_community_health_dental_standa_m08": "2026-08-31",
+      "carri_gm_amy_r8_placement_community_health_development_el_m07": "2026-08-31",
+      "carri_gm_amy_r9_marketing_missouri_highlands_split_4_bill_m07": "2026-08-28",
+      "carri_gm_mike_r9_marketing_helen_newberry_joy_hosp_standa_m04": "2026-09-03",
+      "carri_gm_nate_r16_marketing_winn_comm_standard_pd8448_m07": "2026-08-19",
+      "carri_gm_nate_r17_repeat_winn_comm_pd8448_m08": "2026-08-19",
+      "carri_gm_nate_r9_marketing_helen_newberry_joy_hosp_standa_m04": "2026-09-03",
+      "carri_gm_stephanie_r28_repeat_cullman_initiation_mm8461_m08": "2026-09-02",
+      "carri_gm_stephanie_r29_repeat_cullman_monthly_mm8461_m08": "2026-09-02",
+      "carri_gm_stephanie_r31_repeat_cullman_initiation_fpob8462_m08": "2026-09-02",
+      "carri_gm_stephanie_r32_repeat_cullman_monthly_fpob8462_m08": "2026-09-02",
+      "ex_spine_17078": "2026-08-31",
+      "xl_mkt_2026-04_36": "2026-09-03",
+      "xl_mkt_2026-07_33": "2026-08-28",
+      "xl_mkt_2026-07_34": "2026-08-28",
+      "xl_mkt_2026-07_35": "2026-08-19",
+      "xl_pl_2026-07_4": "2026-08-31"
+    };
+    var filled = 0, already = 0, skipped = 0;
+    state.rows.forEach(function (row) {
+      if (!row) return;
+      var id = String(row.id || '');
+      var want = MAP[id];
+      if (!want) return;
+      var cur = String(row.paidDate || '').trim();
+      if (row.softCarriPaidDateBackfillStamp === STAMP && cur.slice(0, 10) === want) { already++; return; }
+      var paidish = (row.paid === true || row.gmCashState === 'paid' || String(row.status || '').toLowerCase() === 'paid');
+      if (!paidish) { skipped++; return; }
+      if (cur && /^\d{4}-\d{2}-\d{2}/.test(cur)) {
+        if (cur.slice(0, 10) === want) {
+          row.softCarriPaidDateBackfillStamp = STAMP;
+          already++;
+        } else {
+          skipped++;
+        }
+        return;
+      }
+      row.paidDate = want;
+      row.softCarriPaidDateBackfillStamp = STAMP;
+      filled++;
+    });
+    state.softCarriPaidDateBackfill20260924 = { stamp: STAMP, filled: filled, already: already, skipped: skipped, mapSize: Object.keys(MAP).length, at: '2026-09-24' };
+    return state;
+  }
+  try { window.__softEnsureSoftCarriPaidDateBackfill20260924 = ensureSoftCarriPaidDateBackfill20260924; } catch (eCarriPdBf) {}
+
+
   function ensureSoftProdPaidFromSpineSoT(s) {
     if (!s || !Array.isArray(s.rows)) return s;
     var idx = softBuildSpineCashIndex(s);
@@ -66164,6 +66229,7 @@ function softIsoDate(v) {
     ensureMike2026FocusPaid(s); ensureCarriQbCleanupStamp20260921(s); /* soft-carri-qb-cleanup-stamp-20260921 */ ensureSoftCarriClearQbStamps20260921(s); /* soft-reverse-push-carri-sot-20260921 */ ensureSoftReversePushProdToSpine20260921(s); /* soft-reverse-push-carri-sot-20260921 */
     ensureSoftPre2026AgingPaid(s); /* soft-aging-exec-pre2026-ors8432-nate-20260920 */
     ensureSoftProdPaidFromSpineSoT(s);
+    ensureSoftCarriPaidDateBackfill20260924(s); /* soft-carri-paiddate-backfill-20260924 */
     dedupeBdRepeatClones(s);
     tagMoHighlandsMonthlies(s);     tagSoftEcbSplitAndSecondBills(s);     tagSoftRecurringOffProductionBoard(s); /* soft-prod-recurring-off-board-20260920 */ /* soft-prod-ecb-secondbill-20260920 */
     ensureSoftMidlandRavuriJanPlacement20260921(s); /* soft-midland-ravuri-jan-placement-20260921 */
@@ -66342,6 +66408,7 @@ function softIsoDate(v) {
     try { ensureSoftBibb17114BdBooked20260922(state); } catch (eBibb17114BdSave) {} /* soft-bibb-17114-bd-booked-20260922 */
     try { ensureSoftConcordCd8439SaveRefan20260922(state); } catch (eConcordCd8439Save) {} /* soft-concord-cd8439-persist-20260922 */
     try { ensureSoftBibb91RestoreExecRecurring20260922(state); } catch (eBibb91Save) {} /* soft-bibb-91-restore-exec-recurring-20260922 */
+    try { ensureSoftCarriPaidDateBackfill20260924(state); } catch (eCarriPdSave) {} /* soft-carri-paiddate-backfill-20260924 */
       var payload = JSON.stringify(state);
       localStorage.setItem(LS_KEY, payload);
       var check = localStorage.getItem(LS_KEY);
@@ -79810,6 +79877,7 @@ aForm.addEventListener('submit', function (e) {
     try { ensureSoftBookToSpineBookedFaces(state); } catch (eBookSpineBoot) {} /* soft-book-to-spine-booked-20260922 */
     ensureSoftPre2026AgingPaid(state);
     ensureSoftProdPaidFromSpineSoT(state);
+    ensureSoftCarriPaidDateBackfill20260924(state); /* soft-carri-paiddate-backfill-20260924 */
     ensureIhc16972MikeRandy5050(state); /* soft-ihc-16972-mike-randy-5050-20260920 — AFTER repeat GM */
     ensureWinnMayOdPackageOnProduction20260921(state); /* soft-winn-may-od-package-on-prod-20260921 */
     ensureCopperQueen17037RandyKelley5050(state); /* soft-copper-queen-17037-randy-kelley-5050-20260920 — AFTER repeat GM */
