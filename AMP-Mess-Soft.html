@@ -3,6 +3,7 @@
 <head>
 <script>
 /* soft-clientkey-casefold-20260924 — GM Money client-card grouping key case-insensitive (trim+collapse+lower); prevents Cullman REgional vs Regional split. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
+/* soft-mkt-group-restore-20260924 — Fix over-aggressive GM Money inv-dedupe after casefold: same QB inv (e.g. Cullman Platinum 17105) must NOT drop distinct packages (FPOB vs MFM). Dedupe only duplicate emissions of same production rowId+person. Keep Production + GM Money same-client same-type expandable rollup (children preserved). Preserves soft-client-names-clean / case-normalize / casefold / gmoney-tab-cache / tier-pay. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-client-case-normalize-20260924 — Normalize stored client/clientName spellings that differ only by capitalization/whitespace to one master (prefer proper Title Case over REgional-style glitches; else most common). ensureSoftClientCaseNormalize20260924 on normalize/save/boot. Runtime casefold key kept. Also restore Production BD+Marketing client||type rollup (regressed by soft-rollup-gmoney-only). GM Money inv-dedupe under same casefolded client. Preserves soft-gmoney-tab-cache + tier-pay. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-rollup-gmoney-only-20260924 — Same-client same-type BD+Marketing rollup (client||type, no month) ONLY on GM Money (Unpaid / This paycheck / YTD). Production board reverted to individual deal rows (no collapsing). Prior soft-bd-mkt-rollup-nomonth-20260924 / soft-bd-mkt-rollup-restore-20260924 / soft-bd-mkt-client-rollup-20260924 kept as history. Does NOT break soft-gmoney-tab-cache-20260924 or soft-gm-total-label-tier-pay-20260924. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-gmoney-tab-cache-20260924 — GM Money tab switch perf: cache gmMoneyCollectProdLines by year+paidDate fingerprint; render only active tab on tab click; skip full saveState on tab-only; reuse paid collect inside paycheck Est. pay. Prior soft-gmoney-paycheck-ytd-tabs-20260924 kept. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -66388,10 +66389,10 @@ function ensureCarriGmSeed(s) {
 
 
   function ensureSoftBdMktClientRollup20260924(state) {
-    /* soft-bd-mkt-client-rollup-20260924 — persist expand map only; display rollup is render-time. */
+    /* soft-mkt-group-restore-20260924 — persist expand map only; display rollup is render-time. */
     if (!state) return state;
     if (!state.softBdMktRollupExpanded || typeof state.softBdMktRollupExpanded !== 'object') state.softBdMktRollupExpanded = {};
-    state.softBdMktClientRollupStamp = 'soft-client-case-normalize-20260924';
+    state.softBdMktClientRollupStamp = 'soft-mkt-group-restore-20260924';
     return state;
   }
 
@@ -83370,7 +83371,12 @@ aForm.addEventListener('submit', function (e) {
       junkClients: Object.keys(junkClients)
     };
     try {
-      if (state.softBdMktClientRollupStamp) state.softBdMktClientRollupStamp = STAMP;
+      /* soft-mkt-group-restore-20260924 — do not clobber newer rollup stamp with names-clean stamp */
+      if (!state.softBdMktClientRollupStamp) state.softBdMktClientRollupStamp = STAMP;
+      else if (String(state.softBdMktClientRollupStamp).indexOf('soft-mkt-group-restore') < 0 &&
+               String(state.softBdMktClientRollupStamp).indexOf('soft-client-case-normalize') < 0) {
+        state.softBdMktClientRollupStamp = STAMP;
+      }
     } catch (eR) {}
     try {
       window.__softClientNamesClean20260924 = STAMP;
@@ -83442,11 +83448,11 @@ aForm.addEventListener('submit', function (e) {
   function softBdMktEnsureRollupState(s) {
     if (!s) return s;
     if (!s.softBdMktRollupExpanded || typeof s.softBdMktRollupExpanded !== 'object') s.softBdMktRollupExpanded = {};
-    s.softBdMktClientRollupStamp = 'soft-client-case-normalize-20260924';
+    s.softBdMktClientRollupStamp = 'soft-mkt-group-restore-20260924';
     return s;
   }
   function softBdMktGroupVisibleRows(list) {
-    /* soft-client-case-normalize-20260924 — client||type key (NO month); Production + GM Money BD+Marketing rollup; casefold via softBdMktNormClientKey */
+    /* soft-mkt-group-restore-20260924 — client||type key (NO month); Production + GM Money same-client same-type rollup; children = individual packages (never drop). Casefold via softBdMktNormClientKey (strips (Nk/N) so Mohi 14k+10k group like Amy). */
     var groups = [];
     var map = {};
     (list || []).forEach(function (row) {
@@ -83471,6 +83477,7 @@ aForm.addEventListener('submit', function (e) {
   try { window.__softClientCaseNormalize20260924 = 'soft-client-case-normalize-20260924'; } catch (eR3d) {}
   try { window.__softClientkeyCasefold20260924 = 'soft-clientkey-casefold-20260924'; } catch (eR3e) {}
   try { window.__softClientNamesClean20260924 = 'soft-client-names-clean-20260924'; } catch (eR3f) {}
+  try { window.__softMktGroupRestore20260924 = 'soft-mkt-group-restore-20260924'; } catch (eR3g) {}
   try { window.__softGmMoneyTabCache20260924 = 'soft-gmoney-tab-cache-20260924'; } catch (eR4) {}
 
 
@@ -83532,7 +83539,7 @@ aForm.addEventListener('submit', function (e) {
   }, true);
 
   function renderProduction() {
-    /* soft-client-case-normalize-20260924 — Production BD+Marketing client||type rollup restored; Placement unchanged. */
+    /* soft-mkt-group-restore-20260924 — Production BD+Marketing client||type rollup: same client + same type → one expandable parent; all child packages preserved (Cullman Platinum FPOB+MFM). Placement unchanged. */
     softBdMktEnsureRollupState(state);
     var filter = document.getElementById('prod-month').value;
     var bdBody = document.querySelector('#tbl-bd tbody');
@@ -83746,7 +83753,7 @@ aForm.addEventListener('submit', function (e) {
     /* Placements — no rollup */
     plList.forEach(appendPlacementRow);
 
-    /* soft-client-case-normalize-20260924 — restore Production BD+Marketing client||type rollup (regressed by soft-rollup-gmoney-only). Casefold via softBdMktNormClientKey / normalized client names. */
+    /* soft-mkt-group-restore-20260924 — Production BD+Marketing client||type rollup (keep); casefold via softBdMktNormClientKey / normalized client names. */
     softBdMktGroupVisibleRows(mktList).forEach(function (g) {
       if (g.rows.length >= 2) appendMarketingRollup(g);
       else appendMarketingRow(g.rows[0]);
@@ -83756,7 +83763,7 @@ aForm.addEventListener('submit', function (e) {
       else appendBdRow(g.rows[0]);
     });
 
-    state.softBdMktClientRollupLast = { stamp: 'soft-client-case-normalize-20260924', filter: filter, shown: shown, rollup: rollupMeta, scope: 'production+gmoney', at: '2026-09-24' };
+    state.softBdMktClientRollupLast = { stamp: 'soft-mkt-group-restore-20260924', filter: filter, shown: shown, rollup: rollupMeta, scope: 'production+gmoney', at: '2026-09-24' };
     var rollNote = rollupMeta.groups ? (' · rollup ' + rollupMeta.linesIn + '→' + rollupMeta.linesOut + ' (' + rollupMeta.groups + ' groups)') : '';
     document.getElementById('prod-stat').textContent = shown + ' rows' + (filter !== 'all' ? ' · ' + filter : '') + rollNote;
     if (!bdBody.children.length) bdBody.innerHTML = '<tr><td colspan="13" class="empty">No BD Deal rows for this filter</td></tr>';
@@ -90346,10 +90353,12 @@ ownersDetailHtml(row) +
   }
   function groupGmMoneyLines(lines, amountKey) {
     /* soft-clientkey-casefold-20260924 — group by casefolded client key; display master casing.
-       soft-client-case-normalize-20260924 — skip duplicate same-inv lines under same client (Cullman 17105 ×2). */
+       soft-mkt-group-restore-20260924 — DO NOT dedupe by inv alone: Cullman Platinum FPOB+MFM share QB 17105
+       (soft-gm-prod-qb-one-face) but are two real packages — both must survive as children under one client card.
+       Only skip duplicate emissions of the same production rowId + person (true collect double-paint). */
     var groups = { Placement: {}, Marketing: {}, Deal: {} };
     var order = { Placement: [], Marketing: [], Deal: [] };
-    var seenInv = {};
+    var seenRowPerson = {};
     lines.forEach(function (line) {
       var bt = line.bookType || inferGmMoneyBookType(line);
       if (!groups[bt]) bt = 'Deal';
@@ -90358,11 +90367,12 @@ ownersDetailHtml(row) +
         ? softClientCasefoldKey(clientRaw)
         : String(clientRaw || '').trim().replace(/\s+/g, ' ').toLowerCase();
       if (!clientKey) clientKey = '—';
-      var invKey = String(line.inv || '').trim();
-      if (invKey && invKey !== '—') {
-        var dupKey = bt + '|' + clientKey + '|' + invKey;
-        if (seenInv[dupKey]) return;
-        seenInv[dupKey] = true;
+      var rowId = String(line.rowId || line.id || '').trim();
+      var personKey = String(line.person || '').trim().toLowerCase();
+      if (rowId && rowId !== '—') {
+        var dupKey = bt + '|' + clientKey + '|' + rowId + '|' + personKey;
+        if (seenRowPerson[dupKey]) return;
+        seenRowPerson[dupKey] = true;
       }
       if (!groups[bt][clientKey]) {
         var display = clientRaw;
