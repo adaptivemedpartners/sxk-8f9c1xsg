@@ -89684,6 +89684,7 @@ ownersDetailHtml(row) +
   })();
 
   /* ========== Month invoice run report (Carri / David) — mock only ========== */
+  /* soft-bill-month-exact-20260924 — invoice-run membership = nextBill YYYY-MM exact match to selected bill month; was all Live streams */
   var REC_INVOICE_RUN_MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   var lastInvoiceRunReport = null;
   function billMonthLabel(ym) {
@@ -89723,6 +89724,8 @@ ownersDetailHtml(row) +
       var monthlyAmt = (!st.monthliesStopped && Number(st.monthly) > 0) ? Number(st.monthly) : 0;
       var inetAmt = (st.internetOn && Number(st.internetAmt) > 0) ? Number(st.internetAmt) : (st.internetOn ? Number(st.internetAmt || 0) : 0);
       if (!(monthlyAmt > 0 || st.internetOn)) return;
+      var nb = String(st.nextBill || '').slice(0, 7);
+      if (!billMonth || nb !== String(billMonth)) return;
       lines.push({
         client: st.client || '—',
         searchRefs: st.searchRefs || st.dealRef || '—',
