@@ -2,6 +2,8 @@
 <html lang="en" data-look="dark">
 <head>
 <script>
+/* soft-gmoverride-gm-money-flowthrough-20260924 — GM board + GM Money credit collectors read softProdEffectiveGmOwners (gmOverride || detached frozen || template || row.owners). MoHi Aug Amy 50% not template 40%. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
+/* soft-exec-deal-details-all-pills-20260924 — Exec Production: Deal/Placement/Marketing details button on EVERY section row (bd-booked, bd-recurring, mkt, mkt-recurring, placements, placements-recurring); reuse openDealDetail/openPlacementDetail/openMarketingDetail; Modify GM unchanged. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-recurring-gm-month-override-20260924 — Recurring month instances: per-month gmOverride for GM share/owners on Exec Production; template locked; Clear override restores inheritance; Break link is explicit. MoHi Jul vs Aug validation. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
 /* soft-bd-mkt-client-rollup-20260924 — Production BD deals + Marketing display rollup: same normalized client + same deal type (≥2 lines) collapse to one summed parent row; expand reveals child detail (QB/dates/amounts/owners). Does NOT delete SoT rows. Cullman Stephanie Platinum validation. Soft Soft Desktop FoT. Never Hub. */
 /* soft-carri-cashflip-20260924 — Flip Soft cash unpaid→Paid + paidDate from Carri Monthly GM Payment Detail for Carri-paid Soft-unpaid cycle rows (Hadley 16936 Dawn Stanley 2026-09-15; Amy MoHi QB 17073 2026-09-11). Also spineOverrides + CARRI_QB_SPINE p=1 so softResolveCashFromSpine sticks; unhide Amy MoHi CG m08 for GM paint ($1400+$1000). ensureSoftCarriCashFlip20260924. Soft Soft Desktop FoT. Never Hub. Spell Carri. */
@@ -66190,6 +66192,51 @@ function ensureCarriGmSeed(s) {
     return state;
   }
   try { window.__softRecurringEffectiveOwners = softRecurringEffectiveOwners; } catch (eEff) {}
+
+  function softProdEffectiveGmOwners(row, s) {
+    /* soft-gmoverride-gm-money-flowthrough-20260924 — single read path for GM board / GM Money / Rec+BD credits */
+    if (!row) return {};
+    if (typeof softRecurringEffectiveOwners === 'function') {
+      try { return softRecurringEffectiveOwners(row, s || state) || {}; } catch (eEff) {}
+    }
+    return row.owners || {};
+  }
+  function softProdEffectiveGmPct(row, person, s) {
+    /* soft-gmoverride-gm-money-flowthrough-20260924 — person pct from effective owners (0 if absent) */
+    if (!row || !person) return 0;
+    var owners = softProdEffectiveGmOwners(row, s);
+    var who = String(person);
+    if (owners.mode === 'Whole') {
+      var prim = owners.primary;
+      if (typeof prim === 'object' && prim) return String(prim.name || '') === who ? Number(prim.pct != null ? prim.pct : 100) || 0 : 0;
+      return String(prim || '') === who ? 100 : 0;
+    }
+    if (owners.mode === 'Split') {
+      var pct = 0;
+      [[owners.a], [owners.b], [owners.bdA], [owners.bdB], [owners.recruiter]].forEach(function (arr) {
+        var o = arr[0];
+        if (o && String(o.name || '') === who) pct += Number(o.pct) || 0;
+      });
+      return pct;
+    }
+    if (owners.mode === 'Repeat') {
+      var r = 0;
+      if (owners.primary && String(owners.primary.name || '') === who) r += Number(owners.primary.pct) || 0;
+      if (owners.repeatRecipient && String(owners.repeatRecipient.name || '') === who) r += Number(owners.repeatRecipient.pct) || 0;
+      return r;
+    }
+    if (owners.mode === 'Marketing' || owners.mode === 'BD') {
+      var m = 0;
+      (owners.reps || []).forEach(function (rep) {
+        if (rep && String(rep.name || '') === who) m += Number(rep.pct) || 0;
+      });
+      return m;
+    }
+    return String(row.rep || '') === who ? 100 : 0;
+  }
+  try { window.__softProdEffectiveGmOwners = softProdEffectiveGmOwners; } catch (eP1) {}
+  try { window.__softProdEffectiveGmPct = softProdEffectiveGmPct; } catch (eP2) {}
+
   try { window.__softEnsureSoftRecurringGmMonthOverride20260924 = ensureSoftRecurringGmMonthOverride20260924; } catch (eEnsR) {}
 
 
@@ -82559,7 +82606,7 @@ aForm.addEventListener('submit', function (e) {
       if (row.excludeFromBdGm) return; /* Internet never BD GM — Phase 1 */
       if (!row.paid) return;
       var amt = Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
-      var owners = row.owners;
+      var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : row.owners; /* soft-gmoverride-gm-money-flowthrough-20260924 */
       if (!owners) return;
       function hit(name, dollars) {
         if (!name) return;
@@ -82786,6 +82833,26 @@ aForm.addEventListener('submit', function (e) {
     if (!row) { toast('Row not found'); return; }
     try { if (typeof softRecurringEnsureTemplateLink === 'function') softRecurringEnsureTemplateLink(row, state); } catch (eL) {}
     try { openModifyBooked(row); } catch (eM) { toast('Modify failed'); }
+  }, true);
+
+  /* soft-exec-deal-details-all-pills-20260924 — Deal details on every Exec Production pill */
+  document.addEventListener('click', function (ev) {
+    var t = ev.target;
+    if (!t || !t.closest) return;
+    var btn = t.closest('[data-act="exec-prod-detail"]');
+    if (!btn) return;
+    ev.preventDefault();
+    var id = btn.getAttribute('data-id') || '';
+    if (!id || !state || !Array.isArray(state.rows)) return;
+    var row = null;
+    for (var i = 0; i < state.rows.length; i++) if (state.rows[i] && state.rows[i].id === id) { row = state.rows[i]; break; }
+    if (!row) { toast('Row not found'); return; }
+    var kind = btn.getAttribute('data-kind') || String(row.bookType || '').toLowerCase();
+    try {
+      if (kind === 'placement' || row.bookType === 'Placement') openPlacementDetail(row);
+      else if (kind === 'marketing' || row.bookType === 'Marketing') openMarketingDetail(row);
+      else openDealDetail(row);
+    } catch (eD) { toast('Deal details failed'); }
   }, true);
 
   function renderProduction() {
@@ -83166,7 +83233,7 @@ aForm.addEventListener('submit', function (e) {
 
 
   function ownersDetailHtml(row) {
-    var o = row.owners;
+    var o = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : row.owners; /* soft-gmoverride-gm-money-flowthrough-20260924 */
     if (!o) {
       return '<div class="dd-k">GM / split</div><div class="dd-v">' + escHtml(row.gmLabel || '—') +
         '<div style="font-size:11.5px;color:#64748b;margin-top:4px">Whole/Split detail lives here — not on the month glance board.</div></div>';
@@ -85391,7 +85458,7 @@ ownersDetailHtml(row) +
   }
   function bdGmPersonCreditOnRow(row, person, amt) {
     ensureOwners(row);
-    var owners = row.owners || {};
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     var full = Number(amt) || 0;
     if (person === 'all') {
       var sum = 0;
@@ -85434,7 +85501,7 @@ ownersDetailHtml(row) +
   }
   function bdGmRepeatCreditOnRow(row, person, amt) {
     ensureOwners(row);
-    var owners = row.owners || {};
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     var full = Number(amt) || 0;
     if (owners.mode === 'Repeat' && owners.repeatRecipient) {
       if (person === 'all') {
@@ -85456,7 +85523,7 @@ ownersDetailHtml(row) +
   }
   function bdGmPrimaryCreditOnRow(row, person, amt) {
     ensureOwners(row);
-    var owners = row.owners || {};
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     var full = Number(amt) || 0;
     if (owners.mode === 'Repeat') {
       if (!owners.primary) return 0;
@@ -85500,9 +85567,9 @@ ownersDetailHtml(row) +
       ensureOwners(row);
       var mi = monthIndex(row.month);
       var amt = bdGmRowAmt(row);
-      if (row.bookType === 'Marketing') applyOwnerCreditsKeyed(row.owners, mi, amt, buckets, 'marketing');
-      else if (row.isRecurringLine) applyOwnerCreditsKeyed(row.owners, mi, amt, buckets, 'recurring');
-      else applyOwnerCreditsKeyed(row.owners, mi, amt, buckets, 'newDeals');
+      if (row.bookType === 'Marketing') applyOwnerCreditsKeyed((typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : row.owners, mi, amt, buckets, 'marketing');
+      else if (row.isRecurringLine) applyOwnerCreditsKeyed((typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : row.owners, mi, amt, buckets, 'recurring');
+      else applyOwnerCreditsKeyed((typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : row.owners, mi, amt, buckets, 'newDeals');
     });
     var people = filter === 'all' ? BD_PEOPLE : [filter];
     var tbody = document.querySelector('#tbl-bdgm-classic tbody');
@@ -85724,7 +85791,7 @@ ownersDetailHtml(row) +
       if (row.carriGmSeed) return; /* Carri REPEAT/NEW SEARCH → Rolling named lines, not aggregated Repeat */
       if (!recGmIsBooked(row)) return;
       ensureOwners(row);
-      var owners = row.owners || {};
+      var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
       var base = row.bookType === 'Placement'
         ? (Number(row.fee) || 0)
         : (Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0);
@@ -85745,7 +85812,7 @@ ownersDetailHtml(row) +
       if (!recGmIncludeRow(row, y)) return;
       if (!recGmIsBooked(row)) return;
       ensureOwners(row);
-      var owners = row.owners || {};
+      var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
       var base = Number(row.accountingBilled != null ? row.accountingBilled : row.bookValueThisMonth) || 0;
       var targets = filter === 'all' ? REC_PEOPLE : [filter];
       targets.forEach(function (p) {
@@ -86923,7 +86990,7 @@ ownersDetailHtml(row) +
   function recGmPersonOwnsPlacement(row, person) {
     if (!row || row.bookType !== 'Placement') return false;
     ensureOwners(row);
-    var owners = row.owners;
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     if (person === 'all') return true;
     if (owners.mode === 'Whole') return owners.primary === person;
     if (owners.mode === 'Split') {
@@ -86936,7 +87003,7 @@ ownersDetailHtml(row) +
   function recGmPersonCreditOnRow(row, person, amt) {
     /* dollars credited to this recruiting person on the row */
     ensureOwners(row);
-    var owners = row.owners || {};
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     var full = Number(amt) || 0;
     if (person === 'all') return full;
     if (row.bookType === 'Placement') {
@@ -87088,7 +87155,7 @@ ownersDetailHtml(row) +
       if (row.carriGmSeed) return; /* Carri REPEAT → Rolling named lines */
       if (!recGmIsBooked(row)) return;
       ensureOwners(row);
-      var owners = row.owners || {};
+      var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
       var mi = monthIndex(row.month);
       if (mi < 0) return;
       var base = row.bookType === 'Placement'
@@ -87122,7 +87189,7 @@ ownersDetailHtml(row) +
       if (!recGmIncludeRow(row, year)) return;
       if (!recGmIsBooked(row)) return;
       ensureOwners(row);
-      var owners = row.owners || {};
+      var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
       var mi = monthIndex(row.month);
       if (mi < 0) return;
       var base = row.bookType === 'Placement'
@@ -87244,7 +87311,7 @@ ownersDetailHtml(row) +
   function rowOwnedByRecPerson(row, person) {
     if (!row || row.bookType !== 'Placement') return false;
     ensureOwners(row);
-    var owners = row.owners;
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     if (person === 'all') return true;
     if (owners.mode === 'Whole') return owners.primary === person;
     if (owners.mode === 'Split') {
@@ -87600,7 +87667,7 @@ ownersDetailHtml(row) +
     if (row.example || row.carriGmSeed || row.carriBdGmSeed) return 0;
     var amt = execArRowAmountAny(row);
     if (!(amt > 0)) return 0;
-    var owners = row.owners || {};
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     if (execArIsHouseName(row.rep) || execArIsHouseName(row.marketer) ||
         execArIsHouseName(execArWhoBooked(row)) ||
         (owners.mode === 'Whole' && execArIsHouseName(owners.primary))) {
@@ -88473,9 +88540,21 @@ ownersDetailHtml(row) +
       else if (row.gmOverride && row.gmOverride.owners) gmChip = ' <span class="soft-rec-gm-badge overridden" title="Month GM override vs template">GM override</span>';
       else if (row.recurringTemplateId) gmChip = ' <span class="soft-rec-gm-badge" title="Inherits template ' + escHtml(row.recurringTemplateId) + '">inherited</span>';
     }
+    /* soft-exec-deal-details-all-pills-20260924 — details on every exec pill; Modify GM stays recurring-only */
+    var detailBtn = '';
+    if (row && row.bookType === 'Deal') {
+      detailBtn = ' <button type="button" class="mini-btn" data-act="exec-prod-detail" data-kind="deal" data-id="' + escHtml(row.id || '') + '" title="Inspect deal details">Deal details</button>';
+    } else if (row && row.bookType === 'Placement') {
+      detailBtn = ' <button type="button" class="mini-btn" data-act="exec-prod-detail" data-kind="placement" data-id="' + escHtml(row.id || '') + '" title="Inspect placement details">Deal details</button>';
+    } else if (row && row.bookType === 'Marketing') {
+      detailBtn = ' <button type="button" class="mini-btn" data-act="exec-prod-detail" data-kind="marketing" data-id="' + escHtml(row.id || '') + '" title="Inspect marketing details">Deal details</button>';
+    } else if (row) {
+      detailBtn = ' <button type="button" class="mini-btn" data-act="exec-prod-detail" data-kind="deal" data-id="' + escHtml(row.id || '') + '" title="Inspect deal details">Deal details</button>';
+    }
     var modBtn = isRecSec
       ? (' <button type="button" class="mini-btn teal" data-act="exec-prod-modify" data-id="' + escHtml(row.id || '') + '" title="Edit this month GM share / owners">Modify GM</button>')
       : '';
+    var actBtns = detailBtn + modBtn;
     if (sec === 'placements' || sec === 'placements-recurring') {
       var splitLab = execProdSplitLabel(row);
       var splitHtml = splitLab
@@ -88484,7 +88563,7 @@ ownersDetailHtml(row) +
       var spec = escHtml(row.specialties || '—');
       return '<tr data-row-id="' + escHtml(row.id || '') + '"' + (splitLab ? ' class="exec-prod-split-row"' : '') + '><td>' + dt + '</td><td>' + who + '</td><td>' + client + splitHtml + gmChip +
         '</td><td>' + escHtml(row.physician || '—') + '</td><td>' + spec + '</td><td class="num">' + money(amt) +
-        '</td><td>' + qbHtml + '</td><td>' + stHtml + modBtn + '</td></tr>';
+        '</td><td>' + qbHtml + '</td><td>' + stHtml + actBtns + '</td></tr>';
     }
     if (sec === 'bd-booked' || sec === 'bd-recurring') {
       var kind = sec === 'bd-recurring'
@@ -88493,14 +88572,14 @@ ownersDetailHtml(row) +
       var specBd = escHtml(row.specialties || '—');
       return '<tr data-row-id="' + escHtml(row.id || '') + '"><td>' + dt + '</td><td>' + who + '</td><td>' + client + gmChip +
         '</td><td>' + kind + '</td><td>' + specBd + '</td><td class="num">' + money(amt) +
-        '</td><td>' + qbHtml + '</td><td>' + stHtml + modBtn + '</td></tr>';
+        '</td><td>' + qbHtml + '</td><td>' + stHtml + actBtns + '</td></tr>';
     }
     /* marketing */
     var camp = escHtml(row.campaign || '—');
     var rec = typeof execArWhoBooked === 'function' && row.rep ? escHtml(row.rep) : '—';
     return '<tr data-row-id="' + escHtml(row.id || '') + '"><td>' + dt + '</td><td>' + who + '</td><td>' + rec +
       '</td><td>' + client + gmChip + '</td><td>' + camp + '</td><td class="num">' + money(amt) +
-      '</td><td>' + qbHtml + '</td><td>' + stHtml + modBtn + '</td></tr>';
+      '</td><td>' + qbHtml + '</td><td>' + stHtml + actBtns + '</td></tr>';
   }
   function execProdSectionHtml(sec, year, monthKey) {
     var meta = execProdSecMeta(sec);
@@ -89313,7 +89392,7 @@ ownersDetailHtml(row) +
     if (!row || !amt) return credits;
     try { if (typeof ensureOwners === 'function') ensureOwners(row); } catch (eEns) {}
     /* soft-recurring-gm-month-override-20260924 — month instance uses gmOverride or template owners */
-    var owners = (typeof softRecurringEffectiveOwners === 'function') ? softRecurringEffectiveOwners(row, state) : (row.owners || {});
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row, state) : ((typeof softRecurringEffectiveOwners === 'function') ? softRecurringEffectiveOwners(row, state) : (row.owners || {})); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     function push(name, pct) {
       if (name == null || name === '') return;
       if (typeof name === 'object' && name) name = name.name;
@@ -91433,7 +91512,7 @@ ownersDetailHtml(row) +
   /** Attribute GM $ to named owners (House skipped). Reuses splitCommissionLines ownership shape. */
   function awardsCreditGm(row, poolSet, bucket) {
     var amt = awardsRowAmount(row);
-    var owners = row.owners || {};
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     function hit(name, dollars) {
       if (!name || name === 'House') return;
       if (poolSet && !poolSet[name]) return;
@@ -91458,7 +91537,7 @@ ownersDetailHtml(row) +
 
   /** Fractional placement credit by owner pct/100 (Whole = 1.0). */
   function awardsCreditPlacement(row, poolSet, bucket) {
-    var owners = row.owners || {};
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     function hit(name, frac) {
       if (!name || name === 'House') return;
       if (poolSet && !poolSet[name]) return;
@@ -91486,7 +91565,7 @@ ownersDetailHtml(row) +
     if (row.isRecurringLine || row.recurringMonthlySplit) return;
     if (typeof prodBdIsMonthly === 'function' && prodBdIsMonthly(row)) return;
     if (typeof softIsRecurringOffProductionBoard === 'function' && softIsRecurringOffProductionBoard(row)) return;
-    var owners = row.owners || {};
+    var owners = (typeof softProdEffectiveGmOwners === 'function') ? softProdEffectiveGmOwners(row) : (row.owners || {}); /* soft-gmoverride-gm-money-flowthrough-20260924 */
     function hit(name, frac) {
       if (!name || name === 'House') return;
       if (poolSet && !poolSet[name]) return;
